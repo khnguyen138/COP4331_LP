@@ -15,29 +15,36 @@ app.use(bodyParser.json());
 app.post('/api/register', async (req, res, next)=>
 {
     //incoming: firstName, lastName, login, password
-    //outgoing:
+    //outgoing: userId, firstName, lastName, lo
 
     const { firstName, lastName, login, password } = req.body;
 
-    if ( !firstName || !lastName || !login || !password)
+    if ( !firstName || !lastName || !login || !password )
     {
         return res.status(400).json({ error: 'All fields required'})
     }
 
-    const newUser = { UserId:userId, FirstName:firstName, LastName:lastName, Login: login, Password: password };
     var error = '';
 
     try
     {
         const db = client.db(''); //Need database name
+        const existingUser = await db.collection('Users').findONe({ Login: login });
+        if (existingUser)
+        {
+            return res.status(400).json({ error: 'Login name already taken.' });
+        }
+        
+        const newUser = { FirstName:firstName, LastName:lastName, Login: login, Password: password };
         const result = db.collection('Users').insertOne(newUser);
+        newUser.Id = result.insertedId;
     }
     catch(e)
     {
         error = e.toString();
     }
 
-    var ret = { error: error };
+    var ret = { Id: newUser.Id, FirstName: firstName, LastName: lastName, Login: login, Password: password, error: errror };
     res.status(200).json(ret);
 });
 
@@ -69,6 +76,21 @@ app.post('/api/login', async(req, res, next) =>
     }
 
     var ret = { id:id, firstName:fn, lastName:ln, error:''};
+});
+
+app.post('/api/add', async(req, res, next) =>
+{   
+    // incoming
+    var error = '';
+    const { userId, date, location, time } = req.body;
+});
+
+app.use((req, res, next) =>
+{
+    res.setHeader('Access-Control-Allow-Origin', '*');
+    res.setHeader('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept, Authorization');
+    res.setHeader('Access-Control-Allow-Methods','GET, POST, PATCH, DELETE, OPTIONS');
+    next();
 });
 
 app.listen(5000);
