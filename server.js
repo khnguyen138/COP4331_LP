@@ -1,14 +1,11 @@
 const MongoClient = require('mongodb').MongoClient;
-
-require('dotenv').config();
-const url = process.env.MONGODB_URL;
-
+const url = 'mongodb+srv://luciovillena7:COP4331@cluster0.xwbme.mongodb.net/COP4331Cards?retryWrites=true&w=majority&appName=Cluster0';
 const client = new MongoClient(url);
 client.connect;
 
 const express = require('express');
 const bodyParser = require('body-parser');
-const cors = requiere('cors');
+const cors = require('cors');
 
 const app = express();
 app.use(cors());
@@ -30,8 +27,8 @@ app.post('/api/register', async (req, res, next)=>
 
     try
     {
-        const db = client.db(''); //Need database name
-        const existingUser = await db.collection('Users').findONe({ Login: login });
+        const db = client.db('COP4331Cards'); //Need database name
+        const existingUser = await db.collection('Users').findOne({ Login: login });
         if (existingUser)
         {
             return res.status(400).json({ error: 'Login name already taken.' });
@@ -59,8 +56,8 @@ app.post('/api/login', async(req, res, next) =>
 
     const{ login, password } = req.body;
 
-    const db = client.db(''); //Need Database name
-    const results = await d.collection('Users').find({Login: login, Password: password}).toArray();
+    const db = client.db('COP4331Cards'); //Need Database name
+    const results = await db.collection('Users').find({Login: login, Password: password}).toArray();
 
     var id = -1;
     var fn = '';
