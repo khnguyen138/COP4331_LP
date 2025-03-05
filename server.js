@@ -1,7 +1,7 @@
 const MongoClient = require('mongodb').MongoClient;
 const url = 'mongodb+srv://luciovillena7:COP4331@cluster0.xwbme.mongodb.net/COP4331Cards?retryWrites=true&w=majority&appName=Cluster0';
 const client = new MongoClient(url);
-client.connect;
+client.connect();
 
 const express = require('express');
 const bodyParser = require('body-parser');
@@ -24,6 +24,8 @@ app.post('/api/register', async (req, res, next)=>
     }
 
     var error = '';
+    let newUser;
+    let userId;
 
     try
     {
@@ -33,17 +35,17 @@ app.post('/api/register', async (req, res, next)=>
         {
             return res.status(400).json({ error: 'Login name already taken.' });
         }
-        
-        const newUser = { FirstName:firstName, LastName:lastName, Login: login, Password: password };
+        const count = await db.collection('Users').countDocuments();
+        userId = count + 1;
+        newUser = { Login: login, Password: password, FirstName:firstName, LastName:lastName, UserId: userId };
         const result = db.collection('Users').insertOne(newUser);
-        newUser.Id = result.insertedId;
     }
     catch(e)
     {
         error = e.toString();
     }
 
-    var ret = { Id: newUser.Id, FirstName: firstName, LastName: lastName, Login: login, Password: password, error: errror };
+    var ret = { Login: login, Password: password, FirstName:firstName, LastName:lastName, UserId: userId, error: error };
     res.status(200).json(ret);
 });
 
@@ -71,10 +73,11 @@ app.post('/api/login', async(req, res, next) =>
     }
     else
     {
-        error = 'Invalid user name/password';''
+        error = 'Invalid user name/password';
     }
 
     var ret = { id:id, firstName:fn, lastName:ln, error:''};
+    res.status(200).json(ret);
 });
 
 app.post('/api/add', async(req, res, next) =>
