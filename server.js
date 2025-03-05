@@ -1,5 +1,6 @@
 const MongoClient = require('mongodb').MongoClient;
-const url = 'mongodb+srv://luciovillena7:COP4331@cluster0.xwbme.mongodb.net/COP4331Cards?retryWrites=true&w=majority&appName=Cluster0';
+require('dotenv').config();
+const url = process.env.MONGODB_URL;
 const client = new MongoClient(url);
 client.connect();
 
