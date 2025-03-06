@@ -104,7 +104,8 @@ app.post('/api/login', async(req, res, next) =>
 
 app.post('/api/add', async(req, res, next) =>
 {   
-    // incoming
+    // incoming:
+    // outgoing:
     var error = '';
     const { userId, date, location, time } = req.body;
 });
