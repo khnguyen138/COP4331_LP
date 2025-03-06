@@ -12,6 +12,28 @@ const app = express();
 app.use(cors());
 app.use(bodyParser.json());
 
+function hashStringToInt(str) {
+    let hash = 0;
+    for (let i = 0; i < str.length; i++) {
+      hash = (hash << 5) - hash + str.charCodeAt(i);
+      hash |= 0; // Convert to 32-bit integer
+    }
+    return Math.abs(hash); // Return positive integer
+};
+
+async function generateUserIdFromMongo(login, db) {
+    let userId = hashStringToInt(login);
+    
+    // Check if a user with this userId already exists.
+    let existing = await db.collection('Users').findOne({ UserId: userId });
+    // If a collision is found, increment until a unique userId is found.
+    while (existing) {
+      userId++;
+      existing = await db.collection('Users').findOne({ UserId: userId });
+    }
+    return userId;
+};
+
 app.post('/api/register', async (req, res, next)=>
 {
     //incoming: firstName, lastName, login, password
@@ -36,8 +58,7 @@ app.post('/api/register', async (req, res, next)=>
         {
             return res.status(400).json({ error: 'Login name already taken.' });
         }
-        const count = await db.collection('Users').countDocuments();
-        userId = count + 1;
+        userId = await generateUserIdFromMongo(login, db);
         newUser = { Login: login, Password: password, FirstName:firstName, LastName:lastName, UserId: userId };
         const result = db.collection('Users').insertOne(newUser);
     }
