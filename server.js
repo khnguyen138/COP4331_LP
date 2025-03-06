@@ -1,6 +1,6 @@
 const MongoClient = require('mongodb').MongoClient;
 require('dotenv').config();
-const url = process.env.MONGODB_URL;
+const url = process.env.MONGODB_URI;
 const client = new MongoClient(url);
 client.connect();
 
@@ -12,6 +12,7 @@ const app = express();
 app.use(cors());
 app.use(bodyParser.json());
 
+var api = require('./api.js')
 function hashStringToInt(str) {
     let hash = 0;
     for (let i = 0; i < str.length; i++) {
