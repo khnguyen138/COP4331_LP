@@ -30,9 +30,9 @@ exports.setApp = function ( app, client )
         //incoming: firstName, lastName, login, password
         //outgoing: userId, firstName, lastName, lo
     
-        const { firstName, lastName, login, password } = req.body;
+        const { firstName, lastName, email, login, password } = req.body;
     
-        if ( !firstName || !lastName || !login || !password )
+        if ( !firstName || !lastName || !email || !login || !password )
         {
             return res.status(400).json({ error: 'All fields required'})
         }
