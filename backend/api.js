@@ -120,13 +120,70 @@ exports.setApp = function ( app, client )
         res.status(200).json(ret);
     });
 
-    app.post('/api/delete', async ( req, res, next ) =>
-    {
+    app.post('/api/delete', async (req, res, next) => {
+        // incoming: userId, eventId
+        // outgoing: success/error message
 
+        const { userId, eventId } = req.body;
+
+        if (!userId || !eventId) 
+        {
+            return res.status(400).json({ error: 'User ID and Event ID are required' });
+        }
+
+        try 
+        {
+            const db = client.db('TravelGenie');
+
+            //This goes through the Events collection and deletes the event with the matching userId and eventId
+            const result = await db.collection('Events').deleteOne({ UserId: userId, _id: new require('mongodb').ObjectId(eventId) });
+
+            if (result.deletedCount === 0) 
+            {
+                return res.status(404).json({ error: 'Event not found or already deleted' });
+            }
+            
+            //If the event is successfully deleted, a message is sent back to the user
+            res.status(200).json({ message: 'Event successfully deleted' });
+        } 
+        catch (e) 
+        {
+            res.status(500).json({ error: e.toString() });
+        }
     });
 
-    app.post('/api/search', async (req, res, next ) =>
-    {
+    //This function is used to search for events in the Events collection
+    app.post('/api/search', async (req, res, next) => {
+        // incoming: userId, (optional) date, location, time
+        // outgoing: list of matching events or error message
 
+        const { userId, date, location, time } = req.body;
+
+        if (!userId) 
+        {
+            return res.status(400).json({ error: 'User ID is required' });
+        }
+
+        try 
+        {
+            const db = client.db('TravelGenie');
+            
+            //This query is used to search for events with the matching userId, date, location, and time (if provided)
+            let query = { UserId: userId };
+
+            if (date) query.Date = date;
+            if (location) query.Location = location;
+            if (time) query.Time = time;
+
+            //The results of the query are stored in the results variable
+            const results = await db.collection('Events').find(query).toArray();
+            
+            //The results are then sent back to the user
+            res.status(200).json({ events: results, error: '' });
+        } 
+        catch (e) 
+        {
+            res.status(500).json({ error: e.toString() });
+        }
     });
 }
