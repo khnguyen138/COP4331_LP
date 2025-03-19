@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 
 interface LoginProps {
-  onLoginSuccess: () => void;
+  onLoginSuccess: (username: string) => void;
 }
 
 const Login: React.FC<LoginProps> = ({ onLoginSuccess }) => {
@@ -25,8 +25,8 @@ const Login: React.FC<LoginProps> = ({ onLoginSuccess }) => {
       if (response.ok) {
         console.log("Login successful:", data);
         localStorage.setItem("user", JSON.stringify(data));
-        onLoginSuccess();
-        navigate("/dashboard");
+        onLoginSuccess(data.username);
+        navigate("/Dashboard"); // ✅ Ensure this is correct
       } else {
         setError(data.error);
         console.error("Error logging in:", data.error);
