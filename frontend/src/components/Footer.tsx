@@ -5,7 +5,7 @@ const Footer: React.FC = () => {
   return (
     <footer
       className="py-4"
-      style={{ backgroundColor: "#192A51", color: "white" }}
+      style={{ backgroundColor: "#000", color: "white" }}
     >
       <Container>
         <Row>

@@ -53,7 +53,7 @@ const NavigationBar = forwardRef<unknown, NavigationBarProps>(
         <Navbar
           expand="lg"
           className="navbar-dark w-100"
-          style={{ backgroundColor: "#192A51" }}
+          style={{ backgroundColor: "#000" }}
         >
           <Container>
             <Navbar.Brand href="#home">TravelGenie</Navbar.Brand>
