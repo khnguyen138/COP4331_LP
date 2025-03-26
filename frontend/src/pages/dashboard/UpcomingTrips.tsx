@@ -5,7 +5,7 @@ const trips = [
   {
     id: 1,
     destination: "Tokyo, Japan",
-    dateRange: "Oct 15 - Oct 25, 2023",
+    dateRange: "Oct 15 - Oct 25, 2025",
     image: "https://source.unsplash.com/400x250/?tokyo,japan",
     participants: 4,
     status: "Planning",
@@ -13,7 +13,7 @@ const trips = [
   {
     id: 2,
     destination: "Barcelona, Spain",
-    dateRange: "Dec 10 - Dec 18, 2023",
+    dateRange: "Dec 10 - Dec 18, 2025",
     image: "https://source.unsplash.com/400x250/?barcelona,spain",
     participants: 2,
     status: "Confirmed",
@@ -21,14 +21,18 @@ const trips = [
   {
     id: 3,
     destination: "Bali, Indonesia",
-    dateRange: "Jan 5 - Jan 15, 2024",
+    dateRange: "Jan 5 - Jan 15, 2026",
     image: "https://source.unsplash.com/400x250/?bali,indonesia",
     participants: 6,
     status: "Draft",
   },
 ];
 
-const UpcomingTrips: React.FC = () => {
+interface UpcomingTripsProps {
+  user: string;
+}
+
+const UpcomingTrips: React.FC<UpcomingTripsProps> = ({ user }) => {
   return (
     <Container className="py-5">
       <h2 className="mb-4 fw-bold">Your Upcoming Trips</h2>
