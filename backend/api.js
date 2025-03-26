@@ -1,6 +1,11 @@
 require("express");
 require("mongodb");
 
+const { GoogleGenerativeAI } = require("@google/generative-ai");
+require("dotenv").config();
+
+const genAI = new GoogleGenerativeAI(process.env.API_KEY);
+
 exports.setApp = function (app, client) {
   function hashStringToInt(str) {
     let hash = 0;
@@ -206,4 +211,29 @@ exports.setApp = function (app, client) {
       res.status(500).json({ error: e.toString() });
     }
   });
+
+
+  //ENDPOINT FOR GENERATING TRAVEL PLAN USING GEMINI
+  app.post("/api/generate-trip", async (req, res) => {
+    const { prompt } = req.body;
+
+    if (!prompt) {
+      return res.status(400).json({ error: "Prompt is required" });
+    }
+
+    try {
+      const model = genAI.getGenerativeModel({ model: "models/gemini-pro" });
+
+      const result = await model.generateMessage({
+        messages: [{ content: prompt }],
+      });
+
+      const response = result.candidates[0]?.content || "No response received.";
+      res.status(200).json({ suggestion: response });
+    } catch (error) {
+      res.status(500).json({ error: error.toString() });
+    }
+  });
+
+
 };
