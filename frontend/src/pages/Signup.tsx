@@ -7,11 +7,25 @@ const Signup: React.FC = () => {
   const [login, setLogin] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
+  const [success, setSuccess] = useState("");
 
   const handleSignup = async (e: React.FormEvent) => {
     e.preventDefault();
+    setError("");
+    setSuccess("");
+
+    // Validate password
+    const passwordRegex =
+      /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/;
+    if (!passwordRegex.test(password)) {
+      setError(
+        "Password must be at least 8 characters long, contain one uppercase letter, one lowercase letter, one number, and one special character."
+      );
+      return;
+    }
+
     try {
-      const response = await fetch("http://localhost:5000/api/register", {
+      const response = await fetch("http://localhost:5001/api/register", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -23,6 +37,7 @@ const Signup: React.FC = () => {
         setError(data.error);
         console.error("Error signing up:", data.error);
       } else {
+        setSuccess("Signup successful!");
         console.log("Signup successful:", data);
       }
     } catch (error) {
@@ -35,6 +50,7 @@ const Signup: React.FC = () => {
     <div className="container mt-3">
       <h2>Sign Up</h2>
       {error && <div className="alert alert-danger">{error}</div>}
+      {success && <div className="alert alert-success">{success}</div>}
       <form onSubmit={handleSignup}>
         <div className="mb-3">
           <label htmlFor="firstName" className="form-label">
