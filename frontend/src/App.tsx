@@ -15,8 +15,13 @@ import ResetPassword from "./pages/ResetPassword";
 import NavigationBar from "./components/navbar";
 import Footer from "./components/Footer";
 import LandingPage from "./pages/landing/LandingPage";
+import Q1 from "./pages/questionnaire/q1";
+import Q2 from "./pages/questionnaire/q2";
+import Q3 from "./pages/questionnaire/q3";
+import Q4 from "./pages/questionnaire/q4";
 import { ThemeProvider } from "./context/ThemeContext";
 import "bootstrap/dist/css/bootstrap.min.css";
+import './App.css';
 import "./styles/themes.css";
 
 // Create a new component for the main app content
@@ -67,6 +72,36 @@ const AppContent: React.FC = () => {
       )}
       <main className="flex-grow-1">
         <Routes>
+          {isLoggedIn ? (
+            <>
+              <Route
+                path="/dashboard"
+                element={<Dashboard user={user || "Guest"} />}
+              />
+              <Route path="/questionnaire/q1" element={<Q1 />} />
+              <Route path="/questionnaire/q2" element={<Q2 />} />
+              <Route path="/questionnaire/q3" element={<Q3 />} />
+              <Route path="/questionnaire/q4" element={<Q4 />} />
+              <Route path="*" element={<Dashboard user={user || "Guest"} />} />{" "}
+              {/* Redirect unknown routes */}
+            </>
+          ) : (
+            <>
+              <Route
+                path="/"
+                element={<LandingPage onLogin={() => handleLogin("Guest")} />}
+              />
+              <Route
+                path="/login"
+                element={<Login onLoginSuccess={handleLogin} />}
+              />
+              <Route path="/signup" element={<Signup />} />
+              <Route
+                path="*"
+                element={<LandingPage onLogin={() => handleLogin("Guest")} />}
+              />
+            </>
+          )}
           <Route
             path="/"
             element={<LandingPage onLogin={handleLandingLogin} />}

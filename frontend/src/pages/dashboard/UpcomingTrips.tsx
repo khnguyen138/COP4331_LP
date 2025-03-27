@@ -35,9 +35,8 @@ const trips: Trip[] = [
   {
     id: 1,
     destination: "Tokyo, Japan",
-    dateRange: "Oct 15 - Oct 25, 2023",
-    image:
-      "https://images.unsplash.com/photo-1503899036084-c55cdd92da26?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1974&q=80",
+    dateRange: "Oct 15 - Oct 25, 2025",
+    image: "https://source.unsplash.com/400x250/?tokyo,japan",
     participants: 4,
     status: "Planning",
     description:
@@ -47,9 +46,8 @@ const trips: Trip[] = [
   {
     id: 2,
     destination: "Barcelona, Spain",
-    dateRange: "Dec 10 - Dec 18, 2023",
-    image:
-      "https://images.unsplash.com/photo-1583422409516-2895a77efded?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=2070&q=80",
+    dateRange: "Dec 10 - Dec 18, 2025",
+    image: "https://source.unsplash.com/400x250/?barcelona,spain",
     participants: 2,
     status: "Confirmed",
     description:
@@ -59,9 +57,8 @@ const trips: Trip[] = [
   {
     id: 3,
     destination: "Bali, Indonesia",
-    dateRange: "Jan 5 - Jan 15, 2024",
-    image:
-      "https://images.unsplash.com/photo-1537996194471-e657df975ab4?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1938&q=80",
+    dateRange: "Jan 5 - Jan 15, 2026",
+    image: "https://source.unsplash.com/400x250/?bali,indonesia",
     participants: 6,
     status: "Draft",
     description:
@@ -70,16 +67,17 @@ const trips: Trip[] = [
   },
 ];
 
-const UpcomingTrips: React.FC = () => {
+interface UpcomingTripsProps {
+  user: string;
+}
+
+const UpcomingTrips: React.FC<UpcomingTripsProps> = ({ user }) => {
   const [searchQuery, setSearchQuery] = useState("");
-  const [statusFilter, setStatusFilter] = useState<string>("all");
+  const [statusFilter, setStatusFilter] = useState("all");
 
   const filteredTrips = trips.filter((trip) => {
-    const matchesSearch = trip.destination
-      .toLowerCase()
-      .includes(searchQuery.toLowerCase());
-    const matchesStatus =
-      statusFilter === "all" || trip.status.toLowerCase() === statusFilter;
+    const matchesSearch = trip.destination.toLowerCase().includes(searchQuery.toLowerCase());
+    const matchesStatus = statusFilter === "all" || trip.status.toLowerCase() === statusFilter;
     return matchesSearch && matchesStatus;
   });
 
