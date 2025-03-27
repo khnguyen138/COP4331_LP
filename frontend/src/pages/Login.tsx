@@ -22,13 +22,20 @@ const Login: React.FC<LoginProps> = ({ onLoginSuccess }) => {
         body: JSON.stringify({ login, password }),
       });
       const data = await response.json();
+
       if (response.ok) {
         console.log("Login successful:", data);
         localStorage.setItem("user", JSON.stringify(data));
         onLoginSuccess(data.username);
-        navigate("/Dashboard"); // ✅ Ensure this is correct
+        navigate("/Dashboard");
       } else {
-        setError(data.error);
+        if (data.needsVerification) {
+          setError(
+            "Please verify your email before logging in. Check your inbox for the verification link."
+          );
+        } else {
+          setError(data.error);
+        }
         console.error("Error logging in:", data.error);
       }
     } catch (error) {
@@ -67,6 +74,15 @@ const Login: React.FC<LoginProps> = ({ onLoginSuccess }) => {
             onChange={(e) => setPassword(e.target.value)}
             required
           />
+          <div className="text-end">
+            <button
+              type="button"
+              className="btn btn-link"
+              onClick={() => navigate("/forgot-password")}
+            >
+              Forgot Password?
+            </button>
+          </div>
         </div>
         <button type="submit" className="btn btn-primary">
           Login

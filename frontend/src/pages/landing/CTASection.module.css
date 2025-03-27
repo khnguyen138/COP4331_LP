@@ -1,0 +1,73 @@
+.ctaContainer {
+  /* Full-width container with vertical padding */
+  width: 100%;
+  padding: 4rem 1rem;
+  color: black;
+}
+
+.ctaContent {
+  /* Center content and limit width for readability */
+  max-width: 800px;
+  margin: 0 auto;
+  text-align: center;
+  padding: 2rem;
+}
+
+.heading {
+  /* Large, bold heading with proper spacing */
+  font-size: 2.5rem;
+  font-weight: 700;
+  margin-bottom: 1rem;
+  line-height: 1.2;
+}
+
+.subheading {
+  /* Readable paragraph text */
+  font-size: 1.25rem;
+  line-height: 1.6;
+  margin-bottom: 2rem;
+  opacity: 0.9;
+}
+
+.ctaButton {
+  /* Large, high-contrast button */
+  background-color: #fbbf24;
+  color: #1a1a1a;
+  font-size: 1.125rem;
+  font-weight: 600;
+  padding: 1rem 2rem;
+  border-radius: 0.5rem;
+  border: none;
+  cursor: pointer;
+  transition: transform 0.2s, background-color 0.2s;
+
+  /* Ensure button is large enough for touch targets */
+  min-height: 3.5rem;
+  min-width: 200px;
+}
+
+.ctaButton:hover {
+  background-color: #f59e0b;
+  transform: translateY(-2px);
+}
+
+.ctaButton:focus {
+  outline: 3px solid #fcd34d;
+  outline-offset: 2px;
+}
+
+/* Responsive adjustments */
+@media (max-width: 640px) {
+  .heading {
+    font-size: 2rem;
+  }
+
+  .subheading {
+    font-size: 1.125rem;
+  }
+
+  .ctaButton {
+    width: 100%;
+    max-width: 300px;
+  }
+}

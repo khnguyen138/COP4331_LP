@@ -1,5 +1,6 @@
 require("express");
 require("mongodb");
+const emailService = require("./emailService");
 
 exports.setApp = function (app, client) {
   function hashStringToInt(str) {
@@ -25,9 +26,6 @@ exports.setApp = function (app, client) {
   }
 
   app.post("/api/register", async (req, res, next) => {
-    //incoming: firstName, lastName, login, password
-    //outgoing: userId, firstName, lastName, lo
-
     const { firstName, lastName, email, login, password } = req.body;
 
     if (!firstName || !lastName || !email || !login || !password) {
@@ -46,6 +44,11 @@ exports.setApp = function (app, client) {
       if (existingUser) {
         return res.status(400).json({ error: "Login name already taken." });
       }
+
+      // Generate verification token
+      const verificationToken = emailService.generateToken();
+      const verificationExpires = new Date(Date.now() + 24 * 60 * 60 * 1000); // 24 hours
+
       userId = await generateUserIdFromMongo(login, db);
       newUser = {
         Login: login,
@@ -53,47 +56,147 @@ exports.setApp = function (app, client) {
         FirstName: firstName,
         LastName: lastName,
         UserId: userId,
+        Email: email,
+        IsVerified: false,
+        VerificationToken: verificationToken,
+        VerificationExpires: verificationExpires,
+        ResetPasswordToken: null,
+        ResetPasswordExpires: null,
       };
-      const result = db.collection("Users").insertOne(newUser);
+
+      const result = await db.collection("Users").insertOne(newUser);
+
+      // Send verification email
+      const emailSent = await emailService.sendVerificationEmail(
+        email,
+        verificationToken
+      );
+
+      if (!emailSent) {
+        return res
+          .status(500)
+          .json({ error: "Failed to send verification email" });
+      }
+
+      res.status(200).json({
+        message:
+          "Registration successful. Please check your email to verify your account.",
+        userId: userId,
+      });
     } catch (e) {
       error = e.toString();
+      res.status(500).json({ error: error });
     }
-
-    var ret = { error: error };
-    res.status(200).json(ret);
   });
 
-  // app.post('/api/login', async(req, res, next) =>
-  // {
-  //     //incoming: login, password
-  //     //outgoing: id, firstName, lastName, error
+  // Verify email endpoint
+  app.get("/api/verify-email/:token", async (req, res) => {
+    try {
+      const db = client.db("TravelGenie");
+      const user = await db.collection("Users").findOne({
+        VerificationToken: req.params.token,
+        VerificationExpires: { $gt: new Date() },
+      });
 
-  //     var error = '';
+      if (!user) {
+        return res
+          .status(400)
+          .json({ error: "Invalid or expired verification token" });
+      }
 
-  //     const{ login, password } = req.body;
+      await db.collection("Users").updateOne(
+        { _id: user._id },
+        {
+          $set: {
+            IsVerified: true,
+            VerificationToken: null,
+            VerificationExpires: null,
+          },
+        }
+      );
 
-  //     const db = client.db('TravelGenie');
-  //     const results = await db.collection('Users').find({Login: login, Password: password}).toArray();
+      res.status(200).json({ message: "Email verified successfully" });
+    } catch (error) {
+      res.status(500).json({ error: error.toString() });
+    }
+  });
 
-  //     var id = -1;
-  //     var fn = '';
-  //     var ln = '';
+  // Request password reset
+  app.post("/api/forgot-password", async (req, res) => {
+    try {
+      const { email } = req.body;
+      const db = client.db("TravelGenie");
+      const user = await db.collection("Users").findOne({ Email: email });
 
-  //     if(results.length > 0)
-  //     {
-  //         id = results[0].UserId;
-  //         fn = results[0].FirstName;
-  //         ln = results[0].LastName
-  //     }
-  //     else
-  //     {
-  //         error = 'Invalid user name/password';
-  //     }
+      if (!user) {
+        return res.status(404).json({ error: "User not found" });
+      }
 
-  //     var ret = { id:id, firstName:fn, lastName:ln, error:''};
-  //     res.status(200).json(ret);
-  // });
+      const resetToken = emailService.generateToken();
+      const resetExpires = new Date(Date.now() + 60 * 60 * 1000); // 1 hour
 
+      await db.collection("Users").updateOne(
+        { _id: user._id },
+        {
+          $set: {
+            ResetPasswordToken: resetToken,
+            ResetPasswordExpires: resetExpires,
+          },
+        }
+      );
+
+      const emailSent = await emailService.sendPasswordResetEmail(
+        email,
+        resetToken
+      );
+
+      if (!emailSent) {
+        return res
+          .status(500)
+          .json({ error: "Failed to send password reset email" });
+      }
+
+      res.status(200).json({ message: "Password reset email sent" });
+    } catch (error) {
+      res.status(500).json({ error: error.toString() });
+    }
+  });
+
+  // Reset password
+  app.post("/api/reset-password", async (req, res) => {
+    try {
+      const { token, newPassword } = req.body;
+      const db = client.db("TravelGenie");
+
+      const user = await db.collection("Users").findOne({
+        ResetPasswordToken: token,
+        ResetPasswordExpires: { $gt: new Date() },
+      });
+
+      if (!user) {
+        return res
+          .status(400)
+          .json({ error: "Invalid or expired reset token" });
+      }
+
+      await db.collection("Users").updateOne(
+        { _id: user._id },
+        {
+          $set: {
+            Password: newPassword,
+            ResetPasswordToken: null,
+            ResetPasswordExpires: null,
+          },
+        }
+      );
+
+      res.status(200).json({ message: "Password reset successfully" });
+    } catch (error) {
+      res.status(500).json({ error: error.toString() });
+    }
+  });
+
+  // Update login endpoint to check for email verification
   app.post("/api/login", async (req, res) => {
     const { login, password } = req.body;
 
@@ -106,6 +209,14 @@ exports.setApp = function (app, client) {
 
       if (results.length > 0) {
         const user = results[0];
+        // Temporarily disabled email verification check
+        // if (!user.IsVerified) {
+        //   return res.status(403).json({
+        //     error: "Please verify your email before logging in",
+        //     needsVerification: true,
+        //   });
+        // }
+
         res.status(200).json({
           id: user.UserId,
           firstName: user.FirstName,

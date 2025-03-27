@@ -1,29 +1,61 @@
-import React from "react";
-import UpcomingTrips from "./UpcomingTrips";
-import { Button } from "react-bootstrap";
+import React, { useState } from "react";
+import Sidebar from "../../components/Sidebar";
+import UpcomingTripsSection from "./sections/MyTrips/UpcomingTripsSection";
+import AIPlannerSection from "./sections/AIPlannerSection";
+import SavedTripsSection from "./sections/SavedTrips/SavedTrips";
+import DashboardHome from "./sections/DashboardHome/ExploreSection";
+import ExploreSection from "./sections/Explore/ExploreSection";
+import { useNavigate, useLocation } from "react-router-dom";
+import SavedTrips from "./sections/SavedTrips/SavedTrips";
 
 interface DashboardProps {
   user: string;
 }
 
 const Dashboard: React.FC<DashboardProps> = ({ user }) => {
+  const [isSidebarOpen, setIsSidebarOpen] = useState(true);
+  const navigate = useNavigate();
+  const location = useLocation();
+
+  const handleLogout = () => {
+    localStorage.removeItem("user");
+    navigate("/");
+  };
+
+  const renderContent = () => {
+    switch (location.pathname) {
+      case "/dashboard":
+        return <DashboardHome />;
+      case "/upcoming":
+        return <UpcomingTripsSection user={user} />;
+      case "/saved":
+        return <SavedTrips />;
+      case "/planner":
+        return <AIPlannerSection />;
+      case "/explore":
+        return <ExploreSection />;
+      default:
+        return <DashboardHome />;
+    }
+  };
+
   return (
-    <div className="pt-20 min-h-screen w-full bg-gradient-to-b from-gray-900 to-gray-800">
-      <div>
-        <div>
-          <h1 className="text-3xl font-bold mb-2">
-            Welcome back,{" "}
-            <span className="bg-gradient-to-r from-purple-400 to-blue-500 bg-clip-text text-transparent">
-              {user}
-            </span>
-          </h1>
-          <p className="text-gray-400">Ready to plan your next trip?</p>
-        </div>
-        <button className="mt-4 md:mt-0 flex items-center gap-2 bg-gradient-to-r from-purple-500 to-blue-500 text-white px-6 py-3 rounded-lg hover:opacity-90 transition-opacity shadow-lg">
-          Create New Trip
-        </button>
-      </div>
-      <UpcomingTrips user={user} />
+    <div className="d-flex" style={{ minHeight: "100vh" }}>
+      <Sidebar
+        isOpen={isSidebarOpen}
+        onToggle={() => setIsSidebarOpen(!isSidebarOpen)}
+        onLogout={handleLogout}
+      />
+
+      <main
+        className="flex-grow-1"
+        style={{
+          marginLeft: isSidebarOpen ? "250px" : "0",
+          transition: "margin-left 0.3s ease-in-out",
+        }}
+      >
+        {renderContent()}
+      </main>
     </div>
   );
 };

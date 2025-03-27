@@ -1,0 +1,111 @@
+:root[data-theme="light"] {
+  --bg-primary: #ffffff;
+  --bg-secondary: #f8f9fa;
+  --bg-tertiary: #e9ecef;
+  --text-primary: #212529;
+  --text-secondary: #6c757d;
+  --border-color: #dee2e6;
+  --card-bg: #ffffff;
+  --card-border: #dee2e6;
+  --hover-bg: #f8f9fa;
+  --shadow-color: rgba(0, 0, 0, 0.1);
+  --input-bg: #ffffff;
+  --input-border: #dee2e6;
+  --input-text: #212529;
+  --button-primary-bg: #0d6efd;
+  --button-primary-hover: #0b5ed7;
+  --button-secondary-bg: #6c757d;
+  --button-secondary-hover: #5c636a;
+}
+
+:root[data-theme="dark"] {
+  --bg-primary: #212529;
+  --bg-secondary: #343a40;
+  --bg-tertiary: #495057;
+  --text-primary: #f8f9fa;
+  --text-secondary: #adb5bd;
+  --border-color: #495057;
+  --card-bg: #343a40;
+  --card-border: #495057;
+  --hover-bg: #495057;
+  --shadow-color: rgba(0, 0, 0, 0.3);
+  --input-bg: #343a40;
+  --input-border: #495057;
+  --input-text: #f8f9fa;
+  --button-primary-bg: #0d6efd;
+  --button-primary-hover: #0b5ed7;
+  --button-secondary-bg: #6c757d;
+  --button-secondary-hover: #5c636a;
+}
+
+/* Global styles */
+body {
+  background-color: var(--bg-primary);
+  color: var(--text-primary);
+  transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+/* Card styles */
+.card {
+  background-color: var(--card-bg);
+  border-color: var(--card-border);
+  color: var(--text-primary);
+}
+
+.card-body {
+  background-color: var(--card-bg);
+}
+
+/* Input styles */
+.form-control {
+  background-color: var(--input-bg);
+  border-color: var(--input-border);
+  color: var(--input-text);
+}
+
+.form-control:focus {
+  background-color: var(--input-bg);
+  border-color: var(--button-primary-bg);
+  color: var(--input-text);
+}
+
+/* Button styles */
+.btn-primary {
+  background-color: var(--button-primary-bg);
+  border-color: var(--button-primary-bg);
+}
+
+.btn-primary:hover {
+  background-color: var(--button-primary-hover);
+  border-color: var(--button-primary-hover);
+}
+
+.btn-secondary {
+  background-color: var(--button-secondary-bg);
+  border-color: var(--button-secondary-bg);
+}
+
+.btn-secondary:hover {
+  background-color: var(--button-secondary-hover);
+  border-color: var(--button-secondary-hover);
+}
+
+/* Text colors */
+.text-muted {
+  color: var(--text-secondary) !important;
+}
+
+/* Border colors */
+.border {
+  border-color: var(--border-color) !important;
+}
+
+/* Shadow */
+.shadow-sm {
+  box-shadow: 0 0.125rem 0.25rem var(--shadow-color) !important;
+}
+
+/* Hover effects */
+.hover-bg:hover {
+  background-color: var(--hover-bg);
+}

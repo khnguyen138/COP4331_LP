@@ -4,19 +4,33 @@ import {
   Routes,
   Route,
   useNavigate,
+  useLocation,
 } from "react-router-dom";
 import Dashboard from "./pages/dashboard/Dashboard";
 import Login from "./pages/Login";
 import Signup from "./pages/Signup";
+import VerifyEmail from "./pages/VerifyEmail";
+import ForgotPassword from "./pages/ForgotPassword";
+import ResetPassword from "./pages/ResetPassword";
 import NavigationBar from "./components/navbar";
 import Footer from "./components/Footer";
 import LandingPage from "./pages/landing/LandingPage";
+import { ThemeProvider } from "./context/ThemeContext";
 import "bootstrap/dist/css/bootstrap.min.css";
+import "./styles/themes.css";
 
-const App: React.FC = () => {
+// Create a new component for the main app content
+const AppContent: React.FC = () => {
   const [isLoggedIn, setIsLoggedIn] = useState<boolean>(false);
   const [user, setUser] = useState<string | null>(null);
   const navigate = useNavigate();
+  const location = useLocation();
+  const isDashboard =
+    location.pathname.startsWith("/dashboard") ||
+    location.pathname === "/upcoming" ||
+    location.pathname === "/saved" ||
+    location.pathname === "/planner" ||
+    location.pathname === "/explore";
 
   useEffect(() => {
     const storedUser = localStorage.getItem("user");
@@ -31,60 +45,72 @@ const App: React.FC = () => {
     setUser(username);
     setIsLoggedIn(true);
     localStorage.setItem("user", JSON.stringify({ username }));
-    navigate("/dashboard"); // ✅ Redirect immediately
+    navigate("/dashboard");
   };
 
   const handleLogout = () => {
     setUser(null);
     setIsLoggedIn(false);
     localStorage.removeItem("user");
-    navigate("/"); // ✅ Go to Landing Page on logout
+    navigate("/");
+  };
+
+  // Wrapper function for LandingPage's onLogin prop
+  const handleLandingLogin = () => {
+    handleLogin("Guest");
   };
 
   return (
-    <>
-      <NavigationBar isLoggedIn={isLoggedIn} onLogout={handleLogout} />
+    <div className="d-flex flex-column min-vh-100">
+      {!isDashboard && (
+        <NavigationBar isLoggedIn={isLoggedIn} onLogout={handleLogout} />
+      )}
       <main className="flex-grow-1">
         <Routes>
-          {isLoggedIn ? (
-            <>
-              <Route
-                path="/dashboard"
-                element={<Dashboard user={user || "Guest"} />}
-              />
-              <Route path="*" element={<Dashboard user={user || "Guest"} />} />{" "}
-              {/* Redirect unknown routes */}
-            </>
-          ) : (
-            <>
-              <Route
-                path="/"
-                element={<LandingPage onLogin={() => handleLogin("Guest")} />}
-              />
-              <Route
-                path="/login"
-                element={<Login onLoginSuccess={handleLogin} />}
-              />
-              <Route path="/signup" element={<Signup />} />
-              <Route
-                path="*"
-                element={<LandingPage onLogin={() => handleLogin("Guest")} />}
-              />
-            </>
-          )}
+          <Route
+            path="/"
+            element={<LandingPage onLogin={handleLandingLogin} />}
+          />
+          <Route
+            path="/dashboard"
+            element={<Dashboard user={user || "Guest"} />}
+          />
+          <Route
+            path="/upcoming"
+            element={<Dashboard user={user || "Guest"} />}
+          />
+          <Route path="/saved" element={<Dashboard user={user || "Guest"} />} />
+          <Route
+            path="/planner"
+            element={<Dashboard user={user || "Guest"} />}
+          />
+          <Route
+            path="/explore"
+            element={<Dashboard user={user || "Guest"} />}
+          />
+          <Route
+            path="/login"
+            element={<Login onLoginSuccess={handleLogin} />}
+          />
+          <Route path="/signup" element={<Signup />} />
+          <Route path="/verify-email" element={<VerifyEmail />} />
+          <Route path="/forgot-password" element={<ForgotPassword />} />
+          <Route path="/reset-password" element={<ResetPassword />} />
         </Routes>
       </main>
-      <Footer />
-    </>
+      {!isDashboard && <Footer />}
+    </div>
   );
 };
 
-const AppWrapper: React.FC = () => {
+const App: React.FC = () => {
   return (
-    <Router>
-      <App />
-    </Router>
+    <ThemeProvider>
+      <Router>
+        <AppContent />
+      </Router>
+    </ThemeProvider>
   );
 };
 
-export default AppWrapper;
+export default App;

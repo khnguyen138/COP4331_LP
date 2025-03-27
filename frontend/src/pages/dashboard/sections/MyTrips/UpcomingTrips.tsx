@@ -8,15 +8,7 @@ import {
   Container,
   Form,
 } from "react-bootstrap";
-import {
-  Calendar,
-  MapPin,
-  Users,
-  Clock,
-  Search,
-  Filter,
-  Plus,
-} from "lucide-react";
+import { Calendar, MapPin, Users, Clock, Search, Filter } from "lucide-react";
 import { Link } from "react-router-dom";
 import "./UpcomingTrips.css";
 
@@ -101,17 +93,13 @@ const UpcomingTrips: React.FC = () => {
       {/* Header Section */}
       <div className="d-flex justify-content-between align-items-center mb-5">
         <div>
-          <h2 className="h1 fw-bold mb-2">My Upcoming Trips</h2>
+          <h2 className="h1 fw-bold mb-2">Your Upcoming Trips</h2>
           <p className="text-muted mb-0">
             Plan and manage your upcoming adventures
           </p>
         </div>
-        <Link
-          to="/planner"
-          className="btn btn-primary d-flex align-items-center gap-2"
-        >
-          <Plus size={18} />
-          <span>Plan New Trip</span>
+        <Link to="/explore" className="btn btn-outline-primary">
+          Explore More Destinations
         </Link>
       </div>
 
@@ -191,7 +179,7 @@ const UpcomingTrips: React.FC = () => {
 
                 <div className="mt-auto">
                   <Button variant="primary" className="w-100">
-                    View Details
+                    Continue Planning
                   </Button>
                 </div>
               </Card.Body>
@@ -212,8 +200,8 @@ const UpcomingTrips: React.FC = () => {
               ? "Try adjusting your search or filters"
               : "Start planning your next adventure"}
           </p>
-          <Link to="/planner" className="btn btn-primary">
-            Plan New Trip
+          <Link to="/dashboard/explore" className="btn btn-primary">
+            Explore Destinations
           </Link>
         </div>
       )}

@@ -19,6 +19,7 @@ const NavigationBar = forwardRef<unknown, NavigationBarProps>(
     const [showLogin, setShowLogin] = useState(false);
     const [showSignup, setShowSignup] = useState(false);
     const [user, setUser] = useState<any>(null);
+    const [isScrolled, setIsScrolled] = useState(false);
     const navigate = useNavigate();
 
     useEffect(() => {
@@ -26,6 +27,14 @@ const NavigationBar = forwardRef<unknown, NavigationBarProps>(
       if (storedUser) {
         setUser(JSON.parse(storedUser));
       }
+
+      const handleScroll = () => {
+        const scrollPosition = window.scrollY;
+        setIsScrolled(scrollPosition > 50);
+      };
+
+      window.addEventListener("scroll", handleScroll);
+      return () => window.removeEventListener("scroll", handleScroll);
     }, []);
 
     const handleCloseLogin = () => setShowLogin(false);
@@ -48,23 +57,39 @@ const NavigationBar = forwardRef<unknown, NavigationBarProps>(
       triggerSignupModal: handleShowSignup,
     }));
 
+    const scrollToSection = (sectionId: string) => {
+      const element = document.getElementById(sectionId);
+      if (element) {
+        element.scrollIntoView({ behavior: "smooth" });
+      }
+    };
     return (
       <>
         <Navbar
           expand="lg"
-          className="navbar-dark w-100"
-          style={{ backgroundColor: "#000" }}
+          className={`fixed-top w-100 transition-all duration-300 ${
+            isScrolled
+              ? "navbar-light bg-transparent text-dark"
+              : "navbar-dark bg-black bg-opacity-75 text-light"
+          }`}
         >
           <Container>
             <Navbar.Brand href="#home">TravelGenie</Navbar.Brand>
             <Navbar.Toggle aria-controls="basic-navbar-nav" />
             <Navbar.Collapse id="basic-navbar-nav">
               <Nav className="ms-auto">
-                <Nav.Link href="#home">Home</Nav.Link>
-                <Nav.Link href="#planning">Smart Planning</Nav.Link>
-                <Nav.Link href="#coordination">Group Coordination</Nav.Link>
-                <Nav.Link href="#maps">Maps</Nav.Link>
-                <Nav.Link href="#food">Food Discovery</Nav.Link>
+                <Nav.Link onClick={() => scrollToSection("hero")}>
+                  Home
+                </Nav.Link>
+                <Nav.Link onClick={() => scrollToSection("features")}>
+                  Features
+                </Nav.Link>
+                <Nav.Link onClick={() => scrollToSection("popular-trips")}>
+                  Popular Trips
+                </Nav.Link>
+                <Nav.Link onClick={() => scrollToSection("how-it-works")}>
+                  How It Works
+                </Nav.Link>
                 {isLoggedIn ? (
                   <>
                     <Nav.Link>Welcome, {user?.firstName || "User"}</Nav.Link>
