@@ -1,7 +1,11 @@
 const MongoClient = require("mongodb").MongoClient;
 require("dotenv").config();
+
 const url = process.env.MONGODB_URI;
-const client = new MongoClient(url);
+const mongoose = require("mongoose");
+mongoose.connect(url)
+  .then(()=> console.log("Mongo DB connected"))
+  .catch(err => console.log(err));
 client.connect();
 
 const express = require("express");
@@ -13,7 +17,7 @@ app.use(cors());
 app.use(bodyParser.json());
 
 var api = require("./api.js");
-api.setApp(app, client);
+api.setApp(app, mongoose);
 
 app.use((req, res, next) => {
   res.setHeader("Access-Control-Allow-Origin", "*");
