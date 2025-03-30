@@ -204,6 +204,14 @@ exports.setApp = function (app, client) {
   // Update login endpoint to check for email verification
   app.post("/api/login", async (req, res) => {
     const { login, password } = req.body;
+    
+    var error = '';
+
+    var id = -1;
+    var fn = '';
+    var ln = '';
+
+    var ret;
 
     try {
       const db = client.db("TravelGenie");
@@ -221,11 +229,23 @@ exports.setApp = function (app, client) {
         //     needsVerification: true,
         //   });
         // }
+        id: user.UserId;
+        fn: user.FirstName;
+        ln: user.LastName;
 
+        try 
+        {
+          const token = require("./createJWT.js");
+          ret = token.createToken( fn, ln, id );
+        }
+        catch (e)
+        {
+          ret = {error:e.message};
+        }
         res.status(200).json({
-          id: user.UserId,
-          firstName: user.FirstName,
-          lastName: user.LastName,
+          id: id,
+          firstName: fn,
+          lastName: ln,
           error: "",
         });
       } else {
@@ -240,6 +260,9 @@ exports.setApp = function (app, client) {
     // incoming: userId, date, location, time
     // outgoing:
     var error = "";
+    // var token = require('./createJWT.js');
+    // const { userId, date, location, time , jwtToken} = req.body;
+
     const { userId, date, location, time } = req.body;
     if (!date || !location || !time) {
       return res.status(400).json({ error: "All fields required" });
@@ -251,9 +274,33 @@ exports.setApp = function (app, client) {
       const db = client.db("TravelGenie");
       newEvent = { UserId: userId, Date: date, Location: location, Time: time };
       const result = db.collection("Events").insertOne(newEvent);
+      // adding jwtToken to api
+      /*
+      try {
+        if( token.isExpired(jwtToken))
+        {
+          var r = {error: 'The JWT is no longer valid', jwtToken: ''};;
+          res.status(200).json(r);
+          return;
+        }
+      }
+      catch (e)
+      {
+        console.log(e.message);
+      }
+      */
     } catch (e) {
       error = e.toString();
     }
+    /*var refreshedToken = null;
+    try
+    {
+      refreshedToken = token.refresh(jwtToken);
+    }
+    catch(e)
+    {
+      console.log(e.message);
+    }*/
     var ret = { error: error };
     res.status(200).json(ret);
   });
