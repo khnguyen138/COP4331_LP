@@ -53,3 +53,60 @@
 .full-height {
   min-height: 100vh;
 }
+
+.qWrapper {
+  display: flex;
+  justify-content: space-between;
+  height: 100vh;
+  overflow: hidden;  
+  padding: 2rem;
+  box-sizing: border-box;
+}
+.qContainer {
+  flex: 1;
+  max-width: 450px;
+  margin-right: 3rem;
+}
+
+.title {
+  font-size: 2rem;
+  margin-bottom: 3rem;
+}
+
+.date-container {
+  display: flex;
+  flex-direction: row;
+  gap: 1rem;              
+  align-items: flex-start;
+}
+
+.date-container .form-group {
+  flex: 1;
+}
+
+.notesBox {
+  height: 125px;
+}
+
+.previewContainer {
+  flex: 1;
+  background-color: #f5f6fa;
+  padding: 2rem;
+  border-radius: 10px;
+  text-align: center;
+  color: #333;
+  display: flex;
+  flex-direction: column;
+}
+
+.preview-placeholder {
+  margin-top: 2rem;
+  height: 600px;
+  border: 2px dashed #ccc;
+  border-radius: 10px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-size: 3rem;
+  color: #bbb;
+}

@@ -2,9 +2,14 @@ import React, { useState } from "react";
 import TripCard from "./TripCard";
 import NewTripModal from "./NewTripModal";
 import { PlusIcon } from "lucide-react";
+import { useNavigate } from "react-router-dom";
 
 const ExploreSection: React.FC = () => {
-  const [showNewTripModal, setShowNewTripModal] = useState(false);
+  const navigate = useNavigate();
+
+  const handleCreateNewTrip = () => {
+    navigate("/tripquestionnaire"); 
+  };
   const popularDestinations = [
     {
       id: 1,
@@ -100,7 +105,7 @@ const ExploreSection: React.FC = () => {
           <p className="text-muted mb-0">Ready to plan your next adventure?</p>
         </div>
         <button
-          onClick={() => setShowNewTripModal(true)}
+          onClick={handleCreateNewTrip}
           className="btn btn-primary d-flex align-items-center gap-2"
         >
           <PlusIcon size={18} />
@@ -133,11 +138,6 @@ const ExploreSection: React.FC = () => {
           ))}
         </div>
       </div>
-
-      {/* New Trip Modal */}
-      {showNewTripModal && (
-        <NewTripModal onClose={() => setShowNewTripModal(false)} />
-      )}
     </div>
   );
 };
