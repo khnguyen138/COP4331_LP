@@ -49,7 +49,7 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, onToggle, onLogout }) => {
 
       {/* Sidebar */}
       <div
-        className="bg-white border-end position-fixed top-0 h-100 shadow-sm d-flex flex-column"
+        className="position-fixed top-0 h-100 shadow-sm d-flex flex-column"
         style={{
           width: `${sidebarWidth}px`,
           zIndex: 1050,
@@ -57,6 +57,8 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, onToggle, onLogout }) => {
             ? "translateX(0)"
             : `translateX(-${sidebarWidth}px)`,
           transition: "transform 0.3s ease-in-out",
+          backgroundColor: theme === "dark" ? "#1e1e1e" : "#ffffff",
+          color: theme === "dark" ? "#ffffff" : "#000000",
         }}
       >
         {/* Sidebar Header */}
@@ -82,7 +84,7 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, onToggle, onLogout }) => {
               className={`nav-link ${
                 isActive(item.href)
                   ? "active fw-bold text-primary"
-                  : "text-dark"
+                  : theme === "dark" ? "text-white" : "text-dark"
               }`}
             >
               {item.name}
