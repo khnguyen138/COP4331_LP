@@ -380,18 +380,15 @@ exports.setApp = function (app, client) {
     }
 
     try {
-      const model = genAI.getGenerativeModel({ model: "models/gemini-pro" });
+      const model = genAI.getGenerativeModel({ model: "models/gemini-2.0-flash" });
 
-      const result = await model.generateMessage({
-        messages: [{ content: prompt }],
-      });
+      const result = await model.generateContent(prompt);
 
-      const response = result.candidates[0]?.content || "No response received.";
+      const response = await result.response.text(); 
       res.status(200).json({ suggestion: response });
     } catch (error) {
       res.status(500).json({ error: error.toString() });
     }
   });
-
 
 };

@@ -6,7 +6,6 @@ const mongoose = require("mongoose");
 mongoose.connect(url)
   .then(()=> console.log("Mongo DB connected"))
   .catch(err => console.log(err));
-client.connect();
 
 const express = require("express");
 const bodyParser = require("body-parser");
