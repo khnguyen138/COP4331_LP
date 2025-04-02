@@ -37,8 +37,8 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, onToggle, onLogout }) => {
         className="btn btn-outline-secondary position-fixed top-0 start-0 m-3"
         style={{
           zIndex: 1100,
-          borderRadius: "0.375rem",
-          padding: "0.5rem 0.75rem",
+          borderRadius: "0.25rem",
+          padding: "0.25rem 0.5rem",
           fontSize: "1.25rem",
         }}
         onClick={onToggle}
@@ -63,7 +63,15 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, onToggle, onLogout }) => {
       >
         {/* Sidebar Header */}
         <div className="d-flex align-items-center justify-content-between border-bottom p-3">
-          <h4 className="mb-0">Travel Genie</h4>
+        <h4
+          className="mb-0"
+          style={{
+            marginLeft: "3rem",  
+            marginTop: "0.5rem",
+          }}
+        >
+          Travel Genie
+        </h4>
           <button
             className="btn btn-link p-0"
             onClick={toggleTheme}
