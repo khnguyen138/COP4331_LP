@@ -87,17 +87,19 @@ const TripQuestionnaire: React.FC = () => {
       <div className="qContainer">
         <div className="full-height">
           <Container className="mt-5">
-            <h2 className="title">Plan Your Trip</h2>
-            {error && <Alert variant="danger">{error}</Alert>}
-            {success && <Alert variant="success">{success}</Alert>}
-            <Form onSubmit={handleSubmit}>
+            <div className="qHeader">
+              <h2 className="title">Plan Your Trip</h2>
               <div className="exit-button" onClick={handleExit}>
                 &times;
               </div>
+            </div>
+            {error && <Alert variant="danger">{error}</Alert>}
+            {success && <Alert variant="success">{success}</Alert>}
+            <Form onSubmit={handleSubmit}>
               {step === 1 && (
                 <>
                   <h4>Basics</h4>
-                  <Form.Group controlId="tripName">
+                  <Form.Group controlId="tripName" className="mb-3">
                     <Form.Label>Trip Name</Form.Label>
                     <Form.Control
                       type="text"
@@ -106,7 +108,8 @@ const TripQuestionnaire: React.FC = () => {
                       onChange={(e) => setTripName(e.target.value)}
                     />
                   </Form.Group>
-                  <Form.Group controlId="destination">
+
+                  <Form.Group controlId="destination" className="mb-3">
                     <Form.Label>Destination</Form.Label>
                     <Form.Control
                       type="text"
@@ -117,32 +120,26 @@ const TripQuestionnaire: React.FC = () => {
                   </Form.Group>
 
                   <div className="date-container mt-3">
-                    <Form.Group controlId="startDate" className="mr-2">
+                    <Form.Group controlId="startDate" className="form-group">
                       <Form.Label>Start Date</Form.Label>
                       <Form.Control
-                        type="text"
-                        placeholder="e.g., June 1, 2025"
+                        type="date"
                         value={startDate}
                         onChange={(e) => setStartDate(e.target.value)}
                       />
                     </Form.Group>
-                    <Form.Group controlId="endDate">
+                    <Form.Group controlId="endDate" className="form-group">
                       <Form.Label>End Date</Form.Label>
                       <Form.Control
-                        type="text"
-                        placeholder="e.g., June 14, 2025"
+                        type="date"
                         value={endDate}
                         onChange={(e) => setEndDate(e.target.value)}
                       />
                     </Form.Group>
-                  </div>
-                </>
-              )}
 
-              {step === 2 && (
-                <>
+                  </div>
                   <h4>Trip Details</h4>
-                  <Form.Group controlId="travelers">
+                  <Form.Group controlId="travelers" className="mb-3">
                     <Form.Label>Travelers</Form.Label>
                     <Form.Control
                       type="text"
@@ -151,7 +148,8 @@ const TripQuestionnaire: React.FC = () => {
                       onChange={(e) => setTravelers(e.target.value)}
                     />
                   </Form.Group>
-                  <Form.Group controlId="budget">
+
+                  <Form.Group controlId="budget" className="mb-3">
                     <Form.Label>Budget</Form.Label>
                     <Form.Control
                       type="text"
@@ -162,10 +160,10 @@ const TripQuestionnaire: React.FC = () => {
                   </Form.Group>
                 </>
               )}
-              {step === 3 && (
+              {step === 2 && (
                 <>
                   <h4>Trip Preferences</h4>
-                  <Form.Group controlId="tripType">
+                  <Form.Group controlId="tripType" className="mb-3">
                     <Form.Label>Trip Type</Form.Label>
                     <Form.Control
                       as="select"
@@ -179,7 +177,8 @@ const TripQuestionnaire: React.FC = () => {
                       <option value="luxury">Luxury</option>
                     </Form.Control>
                   </Form.Group>
-                  <Form.Group controlId="travelInterests" className="mt-3">
+
+                  <Form.Group controlId="travelInterests" className="mb-3">
                     <Form.Label>What are you interested in?</Form.Label>
                     <div className="travel-interests-container">
                       {interests.map((interest) => (
@@ -194,7 +193,8 @@ const TripQuestionnaire: React.FC = () => {
                       ))}
                     </div>
                   </Form.Group>
-                  <Form.Group controlId="specialNotes">
+
+                  <Form.Group controlId="specialNotes" className="mb-3">
                     <Form.Label>Special Notes</Form.Label>
                     <Form.Control
                       as="textarea"
@@ -213,7 +213,7 @@ const TripQuestionnaire: React.FC = () => {
                       Back
                     </Button>
                   )}
-                  {step < 3 ? (
+                  {step < 2 ? (
                     <Button variant="primary" onClick={handleNext}>
                       Next
                     </Button>

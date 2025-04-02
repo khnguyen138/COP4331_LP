@@ -68,16 +68,21 @@
   margin-right: 3rem;
 }
 
+.qContainer h4 {
+  margin-top: 1.5rem;
+  margin-bottom: 0.75rem;
+}
+
+
 .title {
   font-size: 2rem;
-  margin-bottom: 3rem;
+  margin-bottom: 1rem;
 }
 
 .date-container {
   display: flex;
-  flex-direction: row;
-  gap: 1rem;              
-  align-items: flex-start;
+  gap: 1rem;      
+        
 }
 
 .date-container .form-group {
@@ -109,4 +114,21 @@
   align-items: center;
   font-size: 3rem;
   color: #bbb;
+}
+
+.qHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 1rem;
+}
+
+.exit-button {
+  font-size: 1.5rem;
+  cursor: pointer;
+  color: #888;
+}
+
+.exit-button:hover {
+  color: red;
 }
