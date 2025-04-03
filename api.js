@@ -7,6 +7,7 @@ require("dotenv").config();
 
 const genAI = new GoogleGenerativeAI(process.env.API_KEY);
 
+const User = require("./models/user.js");
 exports.setApp = function (app, client) {
   function hashStringToInt(str) {
     let hash = 0;
@@ -218,8 +219,11 @@ exports.setApp = function (app, client) {
       const results = await db
         .collection("Users")
         .find({ Login: login, Password: password })
-        .toArray();
+        .toArray(); 
 
+      // Mongoose
+      /* const results = await User.find({Login: login, Password: password});*/
+      
       if (results.length > 0) {
         const user = results[0];
         // Temporarily disabled email verification check
@@ -242,6 +246,7 @@ exports.setApp = function (app, client) {
         {
           ret = {error:e.message};
         }
+
         res.status(200).json({
           id: id,
           firstName: fn,
@@ -307,7 +312,7 @@ exports.setApp = function (app, client) {
       const db = client.db("TravelGenie");
 
       //This goes through the Events collection and deletes the event with the matching userId and eventId
-      const result = await db.collection("Events").deleteOne({
+      const result = await db.collection("Trips").deleteOne({
         UserId: userId,
         _id: new require("mongodb").ObjectId(eventId),
       });
