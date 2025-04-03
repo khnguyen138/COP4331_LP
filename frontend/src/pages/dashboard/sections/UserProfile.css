@@ -1,0 +1,20 @@
+.profileContainer {
+    background-color: #f5f6fa;
+    padding: 0.5rem;
+    border-radius: 10px;
+    border: 1px #ccc;
+    height: 70vh;
+    overflow-y: auto;
+}
+
+[data-theme="dark"] input::placeholder,
+[data-theme="dark"] textarea::placeholder,
+[data-theme="dark"] select::placeholder {
+  color: #ccc; 
+  opacity: 1;
+}
+
+[data-theme="dark"] .profileContainer {
+  background-color: #191a20;
+  color: #ddd;
+}
