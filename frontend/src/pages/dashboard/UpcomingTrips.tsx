@@ -45,7 +45,7 @@ const trips: Trip[] = [
   },
   {
     id: 2,
-    destination: "Barcelona, Spain",
+    destination: "Barcelonea, Spain",
     dateRange: "Dec 10 - Dec 18, 2025",
     image: "https://source.unsplash.com/400x250/?barcelona,spain",
     participants: 2,
@@ -76,8 +76,11 @@ const UpcomingTrips: React.FC<UpcomingTripsProps> = ({ user }) => {
   const [statusFilter, setStatusFilter] = useState("all");
 
   const filteredTrips = trips.filter((trip) => {
-    const matchesSearch = trip.destination.toLowerCase().includes(searchQuery.toLowerCase());
-    const matchesStatus = statusFilter === "all" || trip.status.toLowerCase() === statusFilter;
+    const matchesSearch = trip.destination
+      .toLowerCase()
+      .includes(searchQuery.toLowerCase());
+    const matchesStatus =
+      statusFilter === "all" || trip.status.toLowerCase() === statusFilter;
     return matchesSearch && matchesStatus;
   });
 
@@ -105,7 +108,7 @@ const UpcomingTrips: React.FC<UpcomingTripsProps> = ({ user }) => {
           </p>
         </div>
         <Link
-          to="/planner"
+          to="/tripQuestionnaire"
           className="btn btn-primary d-flex align-items-center gap-2"
         >
           <Plus size={18} />
@@ -210,7 +213,7 @@ const UpcomingTrips: React.FC<UpcomingTripsProps> = ({ user }) => {
               ? "Try adjusting your search or filters"
               : "Start planning your next adventure"}
           </p>
-          <Link to="/planner" className="btn btn-primary">
+          <Link to="/tripQuestionnaire" className="btn btn-primary">
             Plan New Trip
           </Link>
         </div>

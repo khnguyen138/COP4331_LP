@@ -18,7 +18,7 @@ import LandingPage from "./pages/landing/LandingPage";
 import TripQuestionnaire from "./pages/tripQuestionnaire";
 import { ThemeProvider } from "./context/ThemeContext";
 import "bootstrap/dist/css/bootstrap.min.css";
-import './App.css';
+import "./App.css";
 import "./styles/themes.css";
 
 // Create a new component for the main app content
@@ -73,25 +73,45 @@ const AppContent: React.FC = () => {
         <Routes>
           {isLoggedIn ? (
             <>
-              <Route path="/dashboard" element={<Dashboard user={user || "Guest"} />} />
-              <Route path="/tripquestionnaire" element={<TripQuestionnaire />} />
-              <Route path="*" element={<Dashboard user={user || "Guest"} />} />{" "}
-              {/* Redirect unknown routes */}
+              <Route
+                path="/dashboard"
+                element={<Dashboard user={user || "Guest"} />}
+              />
+              <Route
+                path="/tripquestionnaire"
+                element={<TripQuestionnaire />}
+              />
+              <Route
+                path="/upcoming"
+                element={<Dashboard user={user || "Guest"} />}
+              />
+              <Route
+                path="/saved"
+                element={<Dashboard user={user || "Guest"} />}
+              />
+              <Route
+                path="/explore"
+                element={<Dashboard user={user || "Guest"} />}
+              />
+              <Route path="*" element={<Dashboard user={user || "Guest"} />} />
             </>
           ) : (
             <>
               <Route
                 path="/"
-                element={<LandingPage onLogin={() => handleLogin("Guest")} />}
+                element={<LandingPage onLogin={handleLandingLogin} />}
               />
               <Route
                 path="/login"
                 element={<Login onLoginSuccess={handleLogin} />}
               />
               <Route path="/signup" element={<Signup />} />
+              <Route path="/verify-email" element={<VerifyEmail />} />
+              <Route path="/forgot-password" element={<ForgotPassword />} />
+              <Route path="/reset-password" element={<ResetPassword />} />
               <Route
                 path="*"
-                element={<LandingPage onLogin={() => handleLogin("Guest")} />}
+                element={<LandingPage onLogin={handleLandingLogin} />}
               />
             </>
           )}
@@ -120,9 +140,9 @@ const AppContent: React.FC = () => {
             path="/login"
             element={<Login onLoginSuccess={handleLogin} />}
           />
-          <Route 
-            path="/profile" 
-            element={<Dashboard user={user || "Guest"} />} 
+          <Route
+            path="/profile"
+            element={<Dashboard user={user || "Guest"} />}
           />
           <Route path="/signup" element={<Signup />} />
           <Route path="/verify-email" element={<VerifyEmail />} />

@@ -200,8 +200,8 @@ const UpcomingTrips: React.FC = () => {
               ? "Try adjusting your search or filters"
               : "Start planning your next adventure"}
           </p>
-          <Link to="/dashboard/explore" className="btn btn-primary">
-            Explore Destinations
+          <Link to="/tripquestionnaire" className="btn btn-primary">
+            Plan New Trip
           </Link>
         </div>
       )}

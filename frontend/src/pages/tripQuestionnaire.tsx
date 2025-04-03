@@ -1,25 +1,68 @@
-import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { Form, Button, Container, Alert } from 'react-bootstrap';
-import ReactMarkdown from 'react-markdown';
+import React, { JSX, useState } from "react";
+import { useNavigate } from "react-router-dom";
+import {
+  Form,
+  Button,
+  Container,
+  Alert,
+  Badge,
+  Modal,
+  Card,
+  Row,
+  Col,
+} from "react-bootstrap";
+import "../styles/Itinerary.css";
 
-const TripQuestionnaire: React.FC = () => {
+interface TripQuestionnaireProps {
+  onComplete?: (data: any) => void;
+  isSidebar?: boolean;
+}
+
+interface Itinerary {
+  title: string;
+  destination: string;
+  duration: number;
+  groupSize: number;
+  description: string;
+  image: string;
+  price: number;
+  tags: string[];
+  dailyBreakdown: {
+    day: number;
+    activities: string[];
+  }[];
+}
+
+const TripQuestionnaire: React.FC<TripQuestionnaireProps> = ({
+  onComplete,
+  isSidebar = false,
+}): JSX.Element => {
   const [step, setStep] = useState(1);
-
-  const [destination, setDestination] = useState('');
-  const [budget, setBudget] = useState('');
-  const [tripType, setTripType] = useState('');
-  const [error, setError] = useState('');
-  const [startDate, setStartDate] = useState('');
-  const [travelers, setTravelers] = useState('');
-  const [tripName, setTripName] = useState('');
-  const [endDate, setEndDate] = useState('');
-  const [success, setSuccess] = useState('');
+  const [destination, setDestination] = useState("");
+  const [budget, setBudget] = useState("");
+  const [tripType, setTripType] = useState("");
+  const [error, setError] = useState("");
+  const [startDate, setStartDate] = useState("");
+  const [travelers, setTravelers] = useState("");
+  const [tripName, setTripName] = useState("");
+  const [endDate, setEndDate] = useState("");
+  const [success, setSuccess] = useState("");
   const [selectedInterests, setSelectedInterests] = useState<string[]>([]);
-  const [specialNotes, setSpecialNotes] = useState('');
+  const [specialNotes, setSpecialNotes] = useState("");
+  const [loading, setLoading] = useState(false);
+  const [itinerary, setItinerary] = useState<Itinerary | null>(null);
 
-  const [preview, setPreview] = useState('');
+  const [preview, setPreview] = useState("");
   const [generating, setGenerating] = useState(false);
+
+  const [editingItinerary, setEditingItinerary] = useState<Itinerary | null>(
+    null
+  );
+  const [showEditModal, setShowEditModal] = useState(false);
+  const [editField, setEditField] = useState<{
+    key: string;
+    value: any;
+  } | null>(null);
 
   const handleNext = () => {
     setStep((prevStep) => prevStep + 1);
@@ -31,83 +74,85 @@ const TripQuestionnaire: React.FC = () => {
     }
   };
 
-  /* const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-
-    setGenerating(true);
-    try {
-      const prompt = buildPrompt();
-      const itinerary = await generateItinerary(prompt);
-      setPreview(itinerary);
-    } catch (err) {
-      setPreview("Failed to generate itinerary.");
-    }
-    setGenerating(false);
-
-
-    /* if (!destination || !startDate || !endDate || !budget || !tripType) {
-      setError('Please fill out all fields.');
-      return;
-    }
-    setError(''); 
-    
-    try {
-      const travelDates = { startDate, endDate };
-      const response = await fetch('http://localhost:5000/api/questionnaire', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ destination, travelDates, budget, tripType }),
-      });
-      if (response.ok) {
-        setSuccess('Your trip preferences have been saved!');
-      } else {
-        const data = await response.json();
-        setError(data.error || 'An error occurred.');
-      }
-    } catch (err) {
-      setError('An error occurred during submission.');
-    } 
-  }; */
-
-  const handleGeneratePreview = async () => {
-    const prompt = buildPrompt();
-    setGenerating(true);
-  
-    try {
-      const response = await fetch("http://localhost:5000/api/gemini-preview", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ prompt }),
-      });
-  
-      const data = await response.json();
-      setPreview(data.itinerary || "No response received.");
-    } catch (err) {
-      setPreview("Failed to fetch itinerary.");
-    } finally {
-      setGenerating(false);
-    }
-  };
-  
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-  
-    if (!destination) {
-      setError('Please fill out all required fields.');
+    setLoading(true);
+    setError("");
+
+    if (!destination || !startDate || !endDate || !budget || !tripType) {
+      setError("Please fill out all required fields.");
+      setLoading(false);
       return;
     }
-  
-    await handleGeneratePreview();
+
+    try {
+      // Calculate duration in days
+      const start = new Date(startDate);
+      const end = new Date(endDate);
+      const duration = Math.ceil(
+        (end.getTime() - start.getTime()) / (1000 * 60 * 60 * 24)
+      );
+
+      const tripData = {
+        destination,
+        duration,
+        groupSize: parseInt(travelers),
+        preferences: `${tripType} trip with interests in ${selectedInterests.join(
+          ", "
+        )}. ${specialNotes}`,
+      };
+
+      console.log("Sending trip data:", tripData);
+
+      // Generate itinerary
+      const response = await fetch(
+        "http://localhost:5000/api/generate-itinerary",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            "Cache-Control": "no-cache",
+            Pragma: "no-cache",
+          },
+          body: JSON.stringify(tripData),
+        }
+      );
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(
+          data.details || data.error || "Failed to generate itinerary"
+        );
+      }
+
+      setItinerary(data);
+      setSuccess("Your itinerary has been generated!");
+
+      // Call onComplete callback if provided
+      if (onComplete) {
+        onComplete(data);
+      }
+    } catch (err: any) {
+      console.error("Error details:", err);
+      setError(
+        err.message || "Failed to generate itinerary. Please try again."
+      );
+    } finally {
+      setLoading(false);
+    }
   };
 
   const navigate = useNavigate();
 
   const handleExit = () => {
-    const confirmExit = window.confirm("Are you sure you want to exit? Your responses will not be saved.");
+    const confirmExit = window.confirm(
+      "Are you sure you want to exit? Your responses will not be saved."
+    );
     if (confirmExit) {
-      navigate('/dashboard');
+      navigate("/dashboard");
     }
-  }
+  };
 
   const interests = [
     "Cultural Sites",
@@ -122,30 +167,25 @@ const TripQuestionnaire: React.FC = () => {
 
   const handleCheckboxChange = (interest: string, isChecked: boolean) => {
     if (isChecked) {
-      setSelectedInterests(prev => [...prev, interest]);
+      setSelectedInterests((prev) => [...prev, interest]);
     } else {
-      setSelectedInterests(prev => prev.filter(i => i !== interest));
+      setSelectedInterests((prev) => prev.filter((i) => i !== interest));
     }
   };
 
-  const buildPrompt = () => {
-    return `Trip Name: ${tripName}, Destination: ${destination}, Duration: ${startDate} to ${endDate}, Budget: ${budget}, 
-    Trip Type: ${tripType}, Interests: ${selectedInterests.join(', ')}, Notes: ${specialNotes}. 
-    Please provide a personalized itinerary with activities and places to visit.`;
-  };
-  
-
   return (
-    <div className="qWrapper">
+    <div className={`qWrapper ${isSidebar ? "sidebar" : ""}`}>
       <div className="qContainer">
         <div className="full-height">
           <Container className="mt-5">
-            <div className="qHeader">
-              <h2 className="title">Plan Your Trip</h2>
-              <div className="exit-button" onClick={handleExit}>
-                &times;
+            {!isSidebar && (
+              <div className="qHeader">
+                <h2 className="title">Plan Your Trip</h2>
+                <div className="exit-button" onClick={handleExit}>
+                  &times;
+                </div>
               </div>
-            </div>
+            )}
             {error && <Alert variant="danger">{error}</Alert>}
             {success && <Alert variant="success">{success}</Alert>}
             <Form onSubmit={handleSubmit}>
@@ -169,6 +209,7 @@ const TripQuestionnaire: React.FC = () => {
                       placeholder="Where do you want to go?"
                       value={destination}
                       onChange={(e) => setDestination(e.target.value)}
+                      required
                     />
                   </Form.Group>
 
@@ -179,6 +220,7 @@ const TripQuestionnaire: React.FC = () => {
                         type="date"
                         value={startDate}
                         onChange={(e) => setStartDate(e.target.value)}
+                        required
                       />
                     </Form.Group>
                     <Form.Group controlId="endDate" className="form-group">
@@ -187,28 +229,30 @@ const TripQuestionnaire: React.FC = () => {
                         type="date"
                         value={endDate}
                         onChange={(e) => setEndDate(e.target.value)}
+                        required
                       />
                     </Form.Group>
-
                   </div>
                   <h4>Trip Details</h4>
                   <Form.Group controlId="travelers" className="mb-3">
                     <Form.Label>Travelers</Form.Label>
                     <Form.Control
-                      type="text"
+                      type="number"
                       placeholder="Enter the number of travelers"
                       value={travelers}
                       onChange={(e) => setTravelers(e.target.value)}
+                      required
                     />
                   </Form.Group>
 
                   <Form.Group controlId="budget" className="mb-3">
                     <Form.Label>Budget</Form.Label>
                     <Form.Control
-                      type="text"
+                      type="number"
                       placeholder="Enter your budget"
                       value={budget}
                       onChange={(e) => setBudget(e.target.value)}
+                      required
                     />
                   </Form.Group>
                 </>
@@ -222,6 +266,7 @@ const TripQuestionnaire: React.FC = () => {
                       as="select"
                       value={tripType}
                       onChange={(e) => setTripType(e.target.value)}
+                      required
                     >
                       <option value="">Select one</option>
                       <option value="adventure">Adventure</option>
@@ -241,7 +286,9 @@ const TripQuestionnaire: React.FC = () => {
                           label={interest}
                           value={interest}
                           checked={selectedInterests.includes(interest)}
-                          onChange={(e) => handleCheckboxChange(interest, e.target.checked)}
+                          onChange={(e) =>
+                            handleCheckboxChange(interest, e.target.checked)
+                          }
                         />
                       ))}
                     </div>
@@ -260,61 +307,264 @@ const TripQuestionnaire: React.FC = () => {
                   </Form.Group>
                 </>
               )}
-                <div className="mt-4">
-                  {step > 1 && (
-                    <Button variant="secondary" onClick={handleBack} className="mr-2">
-                      Back
-                    </Button>
-                  )}
-                  {step < 2 ? (
-                    <Button variant="primary" onClick={handleNext}>
-                      Next
-                    </Button>
-                  ) : (
-                    <Button variant="success" onClick={handleSubmit}>
-                      Submit
-                    </Button>
-                  )}
+              <div className="mt-4">
+                {step > 1 && (
+                  <Button
+                    variant="secondary"
+                    onClick={handleBack}
+                    className="mr-2"
+                  >
+                    Back
+                  </Button>
+                )}
+                {step < 2 ? (
+                  <Button variant="primary" onClick={handleNext}>
+                    Next
+                  </Button>
+                ) : (
+                  <Button variant="success" type="submit" disabled={loading}>
+                    {loading ? "Generating..." : "Generate Itinerary"}
+                  </Button>
+                )}
               </div>
             </Form>
           </Container>
         </div>
       </div>
-      <div className="previewContainer">
-        <h2>Your adventure awaits</h2>
-        <p>
-          Fill in your trip details and let our AI create a personalized itinerary for you.
-        </p>
-        <div className="preview-placeholder">
-            {generating ? (
-              <span>Generating itinerary...</span>
-            ) : (
-              <ReactMarkdown
-                children={preview || "✈️"}
-                components={{
-                  p: ({ children }) => (
-                    <p style={{ color: 'black', marginBottom: '1rem' }}>{children}</p>
-                  ),
-                  strong: ({ children }) => (
-                    <strong style={{ color: 'black' }}>{children}</strong>
-                  ),
-                  ul: ({ children }) => (
-                    <ul style={{ paddingLeft: '0', listStyleType: 'none', color: 'black' }}>
-                      {children}
-                    </ul>
-                  ),
-                  li: ({ children }) => (
-                    <li style={{ marginBottom: '0.5rem' }}>{children}</li>
-                  )
-                }}
-              />
-            )}
+      {!isSidebar && (
+        <div className="previewContainer">
+          {!itinerary ? (
+            <div className="empty-state">
+              <h2>Your adventure awaits</h2>
+              <p>
+                Fill in your trip details and let our AI create a personalized
+                itinerary for you.
+              </p>
+              <div className="preview-placeholder">
+                <span>✈️</span>
+              </div>
+            </div>
+          ) : (
+            <div className="itinerary-preview">
+              <div className="hero-section">
+                <div className="image-container">
+                  <img
+                    src={itinerary.image}
+                    alt={itinerary.title}
+                    className="hero-image"
+                  />
+                  <div className="image-overlay">
+                    <h1>{itinerary.title}</h1>
+                    <p className="destination">{itinerary.destination}</p>
+                  </div>
+                </div>
+                <div className="action-buttons">
+                  <Button
+                    variant="outline-primary"
+                    onClick={() => {
+                      setEditingItinerary({ ...itinerary });
+                      setShowEditModal(true);
+                    }}
+                  >
+                    Edit Itinerary
+                  </Button>
+                </div>
+              </div>
+
+              <div className="content-section">
+                <Row>
+                  <Col md={8}>
+                    <Card className="mb-4">
+                      <Card.Body>
+                        <h3>Overview</h3>
+                        <p className="description">{itinerary.description}</p>
+
+                        <div className="tags-container mb-3">
+                          {itinerary.tags.map((tag, index) => (
+                            <Badge
+                              key={index}
+                              bg="secondary"
+                              className="me-2 mb-2"
+                            >
+                              {tag}
+                            </Badge>
+                          ))}
+                        </div>
+                      </Card.Body>
+                    </Card>
+
+                    <Card className="mb-4">
+                      <Card.Body>
+                        <h3>Daily Breakdown</h3>
+                        {itinerary.dailyBreakdown.map((day, index) => (
+                          <div key={index} className="day-section mb-4">
+                            <h4>Day {day.day}</h4>
+                            <ul className="activities-list">
+                              {day.activities.map((activity, actIndex) => (
+                                <li key={actIndex} className="activity-item">
+                                  {activity}
+                                </li>
+                              ))}
+                            </ul>
+                          </div>
+                        ))}
+                      </Card.Body>
+                    </Card>
+                  </Col>
+
+                  <Col md={4}>
+                    <Card className="mb-4">
+                      <Card.Body>
+                        <h3>Trip Details</h3>
+                        <ul className="details-list">
+                          {Object.entries({
+                            destination: itinerary.destination,
+                            duration: `${itinerary.duration} days`,
+                            groupSize: `${itinerary.groupSize} people`,
+                            price: `$${itinerary.price}`,
+                          }).map(([key, value]) => (
+                            <li key={key} className="detail-item">
+                              <span className="detail-label">{key}</span>
+                              <span className="detail-value">{value}</span>
+                            </li>
+                          ))}
+                        </ul>
+                      </Card.Body>
+                    </Card>
+                  </Col>
+                </Row>
+              </div>
+            </div>
+          )}
         </div>
-      </div>
+      )}
+
+      {/* Edit Modal */}
+      <Modal
+        show={showEditModal}
+        onHide={() => setShowEditModal(false)}
+        size="lg"
+        className="edit-modal"
+      >
+        <Modal.Header closeButton>
+          <Modal.Title>Edit Itinerary</Modal.Title>
+        </Modal.Header>
+        <Modal.Body>
+          {editingItinerary && (
+            <Form>
+              <Row>
+                <Col md={6}>
+                  <Form.Group className="mb-3">
+                    <Form.Label>Title</Form.Label>
+                    <Form.Control
+                      type="text"
+                      value={editingItinerary.title}
+                      onChange={(e) =>
+                        setEditingItinerary({
+                          ...editingItinerary,
+                          title: e.target.value,
+                        })
+                      }
+                    />
+                  </Form.Group>
+                </Col>
+                <Col md={6}>
+                  <Form.Group className="mb-3">
+                    <Form.Label>Image URL</Form.Label>
+                    <Form.Control
+                      type="text"
+                      value={editingItinerary.image}
+                      onChange={(e) =>
+                        setEditingItinerary({
+                          ...editingItinerary,
+                          image: e.target.value,
+                        })
+                      }
+                    />
+                  </Form.Group>
+                </Col>
+              </Row>
+
+              <Form.Group className="mb-3">
+                <Form.Label>Description</Form.Label>
+                <Form.Control
+                  as="textarea"
+                  rows={3}
+                  value={editingItinerary.description}
+                  onChange={(e) =>
+                    setEditingItinerary({
+                      ...editingItinerary,
+                      description: e.target.value,
+                    })
+                  }
+                />
+              </Form.Group>
+
+              <Row>
+                <Col md={6}>
+                  <Form.Group className="mb-3">
+                    <Form.Label>Price</Form.Label>
+                    <Form.Control
+                      type="number"
+                      value={editingItinerary.price}
+                      onChange={(e) =>
+                        setEditingItinerary({
+                          ...editingItinerary,
+                          price: parseFloat(e.target.value),
+                        })
+                      }
+                    />
+                  </Form.Group>
+                </Col>
+              </Row>
+
+              <h5>Daily Activities</h5>
+              {editingItinerary.dailyBreakdown.map((day, dayIndex) => (
+                <Card key={dayIndex} className="mb-3">
+                  <Card.Body>
+                    <h6>Day {day.day}</h6>
+                    {day.activities.map((activity, actIndex) => (
+                      <Form.Group key={actIndex} className="mb-2">
+                        <Form.Control
+                          type="text"
+                          value={activity}
+                          onChange={(e) => {
+                            const newBreakdown = [
+                              ...editingItinerary.dailyBreakdown,
+                            ];
+                            newBreakdown[dayIndex].activities[actIndex] =
+                              e.target.value;
+                            setEditingItinerary({
+                              ...editingItinerary,
+                              dailyBreakdown: newBreakdown,
+                            });
+                          }}
+                        />
+                      </Form.Group>
+                    ))}
+                  </Card.Body>
+                </Card>
+              ))}
+            </Form>
+          )}
+        </Modal.Body>
+        <Modal.Footer>
+          <Button variant="secondary" onClick={() => setShowEditModal(false)}>
+            Cancel
+          </Button>
+          <Button
+            variant="primary"
+            onClick={() => {
+              setItinerary(editingItinerary);
+              setShowEditModal(false);
+            }}
+          >
+            Save Changes
+          </Button>
+        </Modal.Footer>
+      </Modal>
     </div>
   );
 };
 
 export default TripQuestionnaire;
-
-

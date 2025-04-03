@@ -1,8 +1,7 @@
 import React, { useState } from "react";
 import Sidebar from "../../components/Sidebar";
 import UpcomingTripsSection from "./sections/MyTrips/UpcomingTripsSection";
-import AIPlannerSection from "./sections/AIPlannerSection";
-import SavedTripsSection from "./sections/SavedTrips/SavedTrips";
+import TripQuestionnaire from "../tripQuestionnaire";
 import DashboardHome from "./sections/DashboardHome/ExploreSection";
 import ExploreSection from "./sections/Explore/ExploreSection";
 import { useNavigate, useLocation } from "react-router-dom";
@@ -31,8 +30,8 @@ const Dashboard: React.FC<DashboardProps> = ({ user }) => {
         return <UpcomingTripsSection user={user} />;
       case "/saved":
         return <SavedTrips />;
-      case "/planner":
-        return <AIPlannerSection />;
+      case "/tripQuestionnaire":
+        return <TripQuestionnaire />;
       case "/explore":
         return <ExploreSection />;
       case "/profile": 

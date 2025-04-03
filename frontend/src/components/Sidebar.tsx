@@ -2,7 +2,6 @@ import React from "react";
 import { Link, useLocation } from "react-router-dom";
 import { Sun, Moon } from "lucide-react";
 import { useTheme } from "../context/ThemeContext";
-import ExploreSection from "../pages/dashboard/sections/DashboardHome/ExploreSection";
 
 interface SidebarProps {
   isOpen: boolean;
@@ -19,7 +18,7 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, onToggle, onLogout }) => {
     { name: "Home", href: "/dashboard" },
     { name: "My Trips", href: "/upcoming" },
     { name: "Saved Trips", href: "/saved" },
-    { name: "Plan a Trip", href: "/planner" },
+    { name: "Plan a Trip", href: "/tripQuestionnaire" },
     { name: "Explore", href: "/explore" },
   ];
 
@@ -63,15 +62,15 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, onToggle, onLogout }) => {
       >
         {/* Sidebar Header */}
         <div className="d-flex align-items-center justify-content-between border-bottom p-3">
-        <h4
-          className="mb-0"
-          style={{
-            marginLeft: "3rem",  
-            marginTop: "0.5rem",
-          }}
-        >
-          Travel Genie
-        </h4>
+          <h4
+            className="mb-0"
+            style={{
+              marginLeft: "3rem",
+              marginTop: "0.5rem",
+            }}
+          >
+            Travel Genie
+          </h4>
           <button
             className="btn btn-link p-0"
             onClick={toggleTheme}
@@ -92,7 +91,9 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, onToggle, onLogout }) => {
               className={`nav-link ${
                 isActive(item.href)
                   ? "active fw-bold text-primary"
-                  : theme === "dark" ? "text-white" : "text-dark"
+                  : theme === "dark"
+                  ? "text-white"
+                  : "text-dark"
               }`}
             >
               {item.name}
