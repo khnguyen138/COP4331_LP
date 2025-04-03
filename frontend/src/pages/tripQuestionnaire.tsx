@@ -29,7 +29,11 @@ interface Itinerary {
   tags: string[];
   dailyBreakdown: {
     day: number;
-    activities: string[];
+    activities: {
+      time: string;
+      activity: string;
+      cost: string;
+    }[];
   }[];
 }
 
@@ -105,15 +109,18 @@ const TripQuestionnaire: React.FC<TripQuestionnaireProps> = ({
       console.log("Sending trip data:", tripData);
 
       // Generate itinerary
-      const response = await fetch("/api/generate-itinerary", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          "Cache-Control": "no-cache",
-          Pragma: "no-cache",
-        },
-        body: JSON.stringify(tripData),
-      });
+      const response = await fetch(
+        "http://localhost:5000/api/generate-itinerary",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            "Cache-Control": "no-cache",
+            Pragma: "no-cache",
+          },
+          body: JSON.stringify(tripData),
+        }
+      );
 
       if (!response.ok) {
         const errorData = await response.json().catch(() => ({}));
@@ -402,7 +409,15 @@ const TripQuestionnaire: React.FC<TripQuestionnaireProps> = ({
                             <ul className="activities-list">
                               {day.activities.map((activity, actIndex) => (
                                 <li key={actIndex} className="activity-item">
-                                  {activity}
+                                  <span className="activity-time">
+                                    {activity.time}
+                                  </span>
+                                  <span className="activity-name">
+                                    {activity.activity}
+                                  </span>
+                                  <span className="activity-cost">
+                                    {activity.cost}
+                                  </span>
                                 </li>
                               ))}
                             </ul>
@@ -524,23 +539,63 @@ const TripQuestionnaire: React.FC<TripQuestionnaireProps> = ({
                   <Card.Body>
                     <h6>Day {day.day}</h6>
                     {day.activities.map((activity, actIndex) => (
-                      <Form.Group key={actIndex} className="mb-2">
-                        <Form.Control
-                          type="text"
-                          value={activity}
-                          onChange={(e) => {
-                            const newBreakdown = [
-                              ...editingItinerary.dailyBreakdown,
-                            ];
-                            newBreakdown[dayIndex].activities[actIndex] =
-                              e.target.value;
-                            setEditingItinerary({
-                              ...editingItinerary,
-                              dailyBreakdown: newBreakdown,
-                            });
-                          }}
-                        />
-                      </Form.Group>
+                      <div key={actIndex} className="mb-3">
+                        <Form.Group className="mb-2">
+                          <Form.Label>Time</Form.Label>
+                          <Form.Control
+                            type="text"
+                            value={activity.time}
+                            onChange={(e) => {
+                              const newBreakdown = [
+                                ...editingItinerary.dailyBreakdown,
+                              ];
+                              newBreakdown[dayIndex].activities[actIndex].time =
+                                e.target.value;
+                              setEditingItinerary({
+                                ...editingItinerary,
+                                dailyBreakdown: newBreakdown,
+                              });
+                            }}
+                          />
+                        </Form.Group>
+                        <Form.Group className="mb-2">
+                          <Form.Label>Activity</Form.Label>
+                          <Form.Control
+                            type="text"
+                            value={activity.activity}
+                            onChange={(e) => {
+                              const newBreakdown = [
+                                ...editingItinerary.dailyBreakdown,
+                              ];
+                              newBreakdown[dayIndex].activities[
+                                actIndex
+                              ].activity = e.target.value;
+                              setEditingItinerary({
+                                ...editingItinerary,
+                                dailyBreakdown: newBreakdown,
+                              });
+                            }}
+                          />
+                        </Form.Group>
+                        <Form.Group className="mb-2">
+                          <Form.Label>Cost</Form.Label>
+                          <Form.Control
+                            type="text"
+                            value={activity.cost}
+                            onChange={(e) => {
+                              const newBreakdown = [
+                                ...editingItinerary.dailyBreakdown,
+                              ];
+                              newBreakdown[dayIndex].activities[actIndex].cost =
+                                e.target.value;
+                              setEditingItinerary({
+                                ...editingItinerary,
+                                dailyBreakdown: newBreakdown,
+                              });
+                            }}
+                          />
+                        </Form.Group>
+                      </div>
                     ))}
                   </Card.Body>
                 </Card>
