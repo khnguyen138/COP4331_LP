@@ -11,17 +11,22 @@ const AIPlannerSection: React.FC = () => {
   ];
 
   return (
-    <section className="bg-gray-800/50 rounded-xl p-6 backdrop-blur-sm">
-      <h2 className="text-2xl font-semibold text-white mb-6">
-        AI Trip Planner
-      </h2>
+    <section className="py-5">
+      <div className="container">
+        <div className="mb-4">
+          <h2 className="fw-bold display-6 mb-2">AI Trip Planner</h2>
+          <p className="text-muted mb-4">
+            Start planning your perfect trip with AI assistance
+          </p>
+        </div>
+      </div>
 
       {/* Chat Display Area */}
-      <div className="bg-gray-900/50 rounded-lg p-4 mb-4 h-[400px] overflow-y-auto">
+      {/* <div className="bg-gray-900/50 rounded-lg p-4 mb-4 h-[400px] overflow-y-auto">
         <div className="flex items-center justify-center h-full text-gray-400">
           Start planning your perfect trip with AI assistance
         </div>
-      </div>
+      </div> */}
 
       {/* Suggested Prompts */}
       <div className="flex gap-3 flex-wrap mb-4">

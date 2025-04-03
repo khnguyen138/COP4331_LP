@@ -106,7 +106,7 @@ const UpcomingTrips: React.FC = () => {
       {/* Search and Filter Section */}
       <div className="bg-white rounded-3 p-4 shadow-sm mb-4">
         <Row className="g-3">
-          <Col md={6}>
+          <Col md={8}>
             <div className="position-relative">
               <Search className="position-absolute top-50 start-0 translate-middle-y ms-3 text-muted" />
               <Form.Control
@@ -118,7 +118,7 @@ const UpcomingTrips: React.FC = () => {
               />
             </div>
           </Col>
-          <Col md={6}>
+          <Col md={4}>
             <div className="position-relative">
               <Filter className="position-absolute top-50 start-0 translate-middle-y ms-3 text-muted" />
               <Form.Select

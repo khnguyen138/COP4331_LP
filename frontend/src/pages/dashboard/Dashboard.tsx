@@ -7,6 +7,7 @@ import DashboardHome from "./sections/DashboardHome/ExploreSection";
 import ExploreSection from "./sections/Explore/ExploreSection";
 import { useNavigate, useLocation } from "react-router-dom";
 import SavedTrips from "./sections/SavedTrips/SavedTrips";
+import UserProfile from "./sections/UserProfile"; 
 
 interface DashboardProps {
   user: string;
@@ -34,6 +35,8 @@ const Dashboard: React.FC<DashboardProps> = ({ user }) => {
         return <AIPlannerSection />;
       case "/explore":
         return <ExploreSection />;
+      case "/profile": 
+        return <UserProfile />;
       default:
         return <DashboardHome />;
     }

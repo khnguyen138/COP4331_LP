@@ -120,7 +120,7 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, onToggle, onLogout }) => {
             {/* Buttons */}
             <div className="d-grid gap-2 w-100">
               <Link to="/profile" className="btn btn-outline-primary btn-sm">
-                Edit Profile
+                Profile
               </Link>
               <button
                 className="btn btn-outline-danger btn-sm"

@@ -15,7 +15,7 @@ import ResetPassword from "./pages/ResetPassword";
 import NavigationBar from "./components/navbar";
 import Footer from "./components/Footer";
 import LandingPage from "./pages/landing/LandingPage";
-import TripQuestionnaire from "./pages/tripQuestionnaire.tsx";
+import TripQuestionnaire from "./pages/tripQuestionnaire";
 import { ThemeProvider } from "./context/ThemeContext";
 import "bootstrap/dist/css/bootstrap.min.css";
 import './App.css';
@@ -33,7 +33,8 @@ const AppContent: React.FC = () => {
     location.pathname === "/saved" ||
     location.pathname === "/planner" ||
     location.pathname === "/explore" ||
-    location.pathname === "/tripquestionnaire";
+    location.pathname === "/tripquestionnaire" ||
+    location.pathname === "/profile";
 
   useEffect(() => {
     const storedUser = localStorage.getItem("user");
@@ -118,6 +119,10 @@ const AppContent: React.FC = () => {
           <Route
             path="/login"
             element={<Login onLoginSuccess={handleLogin} />}
+          />
+          <Route 
+            path="/profile" 
+            element={<Dashboard user={user || "Guest"} />} 
           />
           <Route path="/signup" element={<Signup />} />
           <Route path="/verify-email" element={<VerifyEmail />} />

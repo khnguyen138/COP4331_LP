@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Form, Button, Container, Alert } from 'react-bootstrap';
+import ReactMarkdown from 'react-markdown';
 
 const TripQuestionnaire: React.FC = () => {
   const [step, setStep] = useState(1);
@@ -17,6 +18,9 @@ const TripQuestionnaire: React.FC = () => {
   const [selectedInterests, setSelectedInterests] = useState<string[]>([]);
   const [specialNotes, setSpecialNotes] = useState('');
 
+  const [preview, setPreview] = useState('');
+  const [generating, setGenerating] = useState(false);
+
   const handleNext = () => {
     setStep((prevStep) => prevStep + 1);
   };
@@ -27,8 +31,19 @@ const TripQuestionnaire: React.FC = () => {
     }
   };
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  /* const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+
+    setGenerating(true);
+    try {
+      const prompt = buildPrompt();
+      const itinerary = await generateItinerary(prompt);
+      setPreview(itinerary);
+    } catch (err) {
+      setPreview("Failed to generate itinerary.");
+    }
+    setGenerating(false);
+
 
     /* if (!destination || !startDate || !endDate || !budget || !tripType) {
       setError('Please fill out all fields.');
@@ -51,8 +66,40 @@ const TripQuestionnaire: React.FC = () => {
       }
     } catch (err) {
       setError('An error occurred during submission.');
-    } */
+    } 
+  }; */
+
+  const handleGeneratePreview = async () => {
+    const prompt = buildPrompt();
+    setGenerating(true);
+  
+    try {
+      const response = await fetch("http://localhost:5000/api/gemini-preview", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ prompt }),
+      });
+  
+      const data = await response.json();
+      setPreview(data.itinerary || "No response received.");
+    } catch (err) {
+      setPreview("Failed to fetch itinerary.");
+    } finally {
+      setGenerating(false);
+    }
   };
+  
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+  
+    if (!destination) {
+      setError('Please fill out all required fields.');
+      return;
+    }
+  
+    await handleGeneratePreview();
+  };
+
   const navigate = useNavigate();
 
   const handleExit = () => {
@@ -81,6 +128,12 @@ const TripQuestionnaire: React.FC = () => {
     }
   };
 
+  const buildPrompt = () => {
+    return `Trip Name: ${tripName}, Destination: ${destination}, Duration: ${startDate} to ${endDate}, Budget: ${budget}, 
+    Trip Type: ${tripType}, Interests: ${selectedInterests.join(', ')}, Notes: ${specialNotes}. 
+    Please provide a personalized itinerary with activities and places to visit.`;
+  };
+  
 
   return (
     <div className="qWrapper">
@@ -103,7 +156,7 @@ const TripQuestionnaire: React.FC = () => {
                     <Form.Label>Trip Name</Form.Label>
                     <Form.Control
                       type="text"
-                      placeholder="Where do you want to go?"
+                      placeholder="What is the title of this trip?"
                       value={tripName}
                       onChange={(e) => setTripName(e.target.value)}
                     />
@@ -218,7 +271,7 @@ const TripQuestionnaire: React.FC = () => {
                       Next
                     </Button>
                   ) : (
-                    <Button variant="success" type="submit">
+                    <Button variant="success" onClick={handleSubmit}>
                       Submit
                     </Button>
                   )}
@@ -233,7 +286,29 @@ const TripQuestionnaire: React.FC = () => {
           Fill in your trip details and let our AI create a personalized itinerary for you.
         </p>
         <div className="preview-placeholder">
-          <span>✈️</span>
+            {generating ? (
+              <span>Generating itinerary...</span>
+            ) : (
+              <ReactMarkdown
+                children={preview || "✈️"}
+                components={{
+                  p: ({ children }) => (
+                    <p style={{ color: 'black', marginBottom: '1rem' }}>{children}</p>
+                  ),
+                  strong: ({ children }) => (
+                    <strong style={{ color: 'black' }}>{children}</strong>
+                  ),
+                  ul: ({ children }) => (
+                    <ul style={{ paddingLeft: '0', listStyleType: 'none', color: 'black' }}>
+                      {children}
+                    </ul>
+                  ),
+                  li: ({ children }) => (
+                    <li style={{ marginBottom: '0.5rem' }}>{children}</li>
+                  )
+                }}
+              />
+            )}
         </div>
       </div>
     </div>
