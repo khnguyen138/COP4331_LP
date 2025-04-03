@@ -105,26 +105,26 @@ const TripQuestionnaire: React.FC<TripQuestionnaireProps> = ({
       console.log("Sending trip data:", tripData);
 
       // Generate itinerary
-      const response = await fetch(
-        "http://localhost:5000/api/generate-itinerary",
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            "Cache-Control": "no-cache",
-            Pragma: "no-cache",
-          },
-          body: JSON.stringify(tripData),
-        }
-      );
-
-      const data = await response.json();
+      const response = await fetch("/api/generate-itinerary", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "Cache-Control": "no-cache",
+          Pragma: "no-cache",
+        },
+        body: JSON.stringify(tripData),
+      });
 
       if (!response.ok) {
+        const errorData = await response.json().catch(() => ({}));
         throw new Error(
-          data.details || data.error || "Failed to generate itinerary"
+          errorData.error ||
+            errorData.details ||
+            `Server error: ${response.status}`
         );
       }
+
+      const data = await response.json();
 
       setItinerary(data);
       setSuccess("Your itinerary has been generated!");

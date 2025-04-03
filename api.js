@@ -362,7 +362,7 @@ exports.setApp = function (app, dbInstance) {
 
       try {
         const model = genAI.getGenerativeModel({
-          model: "models/gemini-2.0-flash",
+          model: "gemini-1.5-pro",
         });
 
         const result = await model.generateContent(prompt);
@@ -389,105 +389,80 @@ exports.setApp = function (app, dbInstance) {
         return res.status(400).json({ error: "All fields are required" });
       }
 
+      let text = "";
+      let cleanedText = "";
+
       try {
         console.log("Initializing Gemini model");
         const model = genAI.getGenerativeModel({
-          model: "models/gemini-2.0-flash",
+          model: "gemini-1.5-pro",
         });
 
         const prompt = `Create a detailed travel itinerary for ${destination} for ${duration} days with ${groupSize} people. 
-      Preferences: ${preferences}
-      
-      Please provide a structured response in JSON format with the following fields:
-      {
-        "title": "Trip title",
-        "destination": "${destination}",
-        "duration": ${duration},
-        "groupSize": ${groupSize},
-        "description": "Brief trip description",
-        "image": "https://source.unsplash.com/1600x900/?${encodeURIComponent(
-          destination
-        )},travel",
-        "price": estimated total cost,
-        "tags": ["array", "of", "relevant", "tags"],
-        "dailyBreakdown": [
-          {
-            "day": day number,
-            "activities": ["array", "of", "activities"]
-          }
-        ]
-      }`;
+        Preferences: ${preferences}
+        
+        Please provide a structured response in JSON format with the following fields:
+        - title: A catchy title for the trip
+        - destination: The destination
+        - duration: Number of days
+        - groupSize: Number of people
+        - description: A brief overview of the trip
+        - image: A relevant Unsplash image URL (https://source.unsplash.com/1600x900/?[destination])
+        - price: Estimated total cost
+        - tags: Array of relevant tags
+        - dailyBreakdown: Array of objects with day number and activities
 
-        console.log("Generating content with Gemini");
+        IMPORTANT: Return ONLY the JSON object, no markdown formatting or additional text.`;
+
+        console.log("Generating response with prompt:", prompt);
         const result = await model.generateContent(prompt);
-        const response = await result.response.text();
-        console.log("Received response from Gemini:", response);
+        const response = await result.response;
+        text = response.text();
+        console.log("Raw response from Gemini:", text);
 
-        if (!response) {
-          throw new Error("Empty response received from Gemini");
-        }
+        // Clean up the response by removing any markdown code block formatting and extra whitespace
+        cleanedText = text
+          .replace(/```json\n?|\n?```/g, "") // Remove markdown code blocks
+          .replace(/^\s+|\s+$/g, "") // Trim whitespace
+          .replace(/[\u200B-\u200D\uFEFF]/g, ""); // Remove zero-width spaces
 
-        const cleanedResponse = response
-          .replace(/```json\n?|\n?```/g, "")
-          .trim();
-        console.log("Cleaned response:", cleanedResponse);
+        console.log("Cleaned response:", cleanedText);
 
-        if (!cleanedResponse) {
-          throw new Error("Empty response after cleaning");
-        }
+        // Try to parse the cleaned response
+        const itinerary = JSON.parse(cleanedText);
 
-        try {
-          // Parse the cleaned response as JSON
-          const itinerary = JSON.parse(cleanedResponse);
-          console.log("Successfully parsed itinerary:", itinerary);
+        // Validate required fields
+        const requiredFields = [
+          "title",
+          "destination",
+          "duration",
+          "groupSize",
+          "description",
+          "image",
+          "price",
+          "tags",
+          "dailyBreakdown",
+        ];
+        const missingFields = requiredFields.filter(
+          (field) => !(field in itinerary)
+        );
 
-          // Ensure destination matches the input
-          itinerary.destination = destination;
-
-          // Ensure we have a valid image URL
-          if (!itinerary.image || !itinerary.image.startsWith("http")) {
-            itinerary.image = `https://source.unsplash.com/1600x900/?${encodeURIComponent(
-              destination
-            )},travel`;
-          }
-
-          // Validate required fields
-          const requiredFields = [
-            "title",
-            "destination",
-            "duration",
-            "groupSize",
-            "description",
-            "image",
-            "price",
-            "tags",
-            "dailyBreakdown",
-          ];
-          const missingFields = requiredFields.filter(
-            (field) => !(field in itinerary)
+        if (missingFields.length > 0) {
+          throw new Error(
+            `Missing required fields: ${missingFields.join(", ")}`
           );
-
-          if (missingFields.length > 0) {
-            throw new Error(
-              `Missing required fields in itinerary: ${missingFields.join(
-                ", "
-              )}`
-            );
-          }
-
-          res.status(200).json(itinerary);
-        } catch (parseError) {
-          console.error("JSON Parse Error:", parseError);
-          console.error("Failed to parse response:", cleanedResponse);
-          throw new Error(`Failed to parse itinerary: ${parseError.message}`);
         }
+
+        res.json(itinerary);
       } catch (error) {
-        console.error("Error generating itinerary:", error);
+        console.error("Error in generate-itinerary:", error);
+        console.error("Raw response:", text);
+        console.error("Cleaned response:", cleanedText);
         res.status(500).json({
           error: "Failed to generate itinerary",
           details: error.message,
-          stack:
-            process.env.NODE_ENV === "development" ? error.stack : undefined,
+          rawResponse: text,
+          cleanedResponse: cleanedText,
         });
       }
     });
