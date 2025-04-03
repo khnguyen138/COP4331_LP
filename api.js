@@ -17,7 +17,7 @@ exports.setApp = function (app, client) {
     return Math.abs(hash); // Return positive integer
   }
 
-  async function generateUserIdFromMongo(login, db) {
+  async function generateIdFromMongo(login, db) {
     let userId = hashStringToInt(login);
 
     // Check if a user with this userId already exists.
@@ -54,7 +54,7 @@ exports.setApp = function (app, client) {
       const verificationToken = emailService.generateToken();
       const verificationExpires = new Date(Date.now() + 24 * 60 * 60 * 1000); // 24 hours
 
-      userId = await generateUserIdFromMongo(login, db);
+      userId = await generateIdFromMongo(login, db);
       newUser = {
         Login: login,
         Password: password,
@@ -256,54 +256,40 @@ exports.setApp = function (app, client) {
     }
   });
 
+  
   app.post("/api/add", async (req, res, next) => {
-    // incoming: userId, date, location, time
-    // outgoing:
-    var error = "";
-    // var token = require('./createJWT.js');
-    // const { userId, date, location, time , jwtToken} = req.body;
+  // Expecting: userId, tripName, tripArray
+  const { userId, tripName, tripArray } = req.body;
 
-    const { userId, date, location, time } = req.body;
-    if (!date || !location || !time) {
-      return res.status(400).json({ error: "All fields required" });
-    }
+  // Validate required fields
+  if (!userId || !tripName || !tripArray) {
+    return res
+      .status(400)
+      .json({ error: "All fields required: userId, tripName, tripArray" });
+  }
 
-    var error = "";
-    let newEvent;
-    try {
-      const db = client.db("TravelGenie");
-      newEvent = { UserId: userId, Date: date, Location: location, Time: time };
-      const result = db.collection("Events").insertOne(newEvent);
-      // adding jwtToken to api
-      /*
-      try {
-        if( token.isExpired(jwtToken))
-        {
-          var r = {error: 'The JWT is no longer valid', jwtToken: ''};;
-          res.status(200).json(r);
-          return;
-        }
-      }
-      catch (e)
-      {
-        console.log(e.message);
-      }
-      */
-    } catch (e) {
-      error = e.toString();
-    }
-    /*var refreshedToken = null;
-    try
-    {
-      refreshedToken = token.refresh(jwtToken);
-    }
-    catch(e)
-    {
-      console.log(e.message);
-    }*/
-    var ret = { error: error };
-    res.status(200).json(ret);
-  });
+  try {
+    const db = client.db("TravelGenie");
+    // Generate a unique trip ID for this user (assumes generateIdFromMongo is defined)
+    const tripID = await generateIdFromMongo(userId, db);
+
+    // Create the trip object to be stored
+    const newTrip = {
+      userId,
+      tripID,
+      tripName,
+      trip: tripArray, // tripArray can contain your events or locations array
+      createdAt: new Date()
+    };
+
+    // Insert the new trip into the Trips collection
+    const result = await db.collection("Trips").insertOne(newTrip);
+    res.status(200).json({ error: "", tripID, insertedId: result.insertedId });
+  } catch (e) {
+    res.status(500).json({ error: e.toString() });
+  }
+});
+
 
   app.post("/api/delete", async (req, res, next) => {
     // incoming: userId, eventId
@@ -374,21 +360,47 @@ exports.setApp = function (app, client) {
   //ENDPOINT FOR GENERATING TRAVEL PLAN USING GEMINI
   app.post("/api/generate-trip", async (req, res) => {
     const { prompt } = req.body;
-
+  
     if (!prompt) {
       return res.status(400).json({ error: "Prompt is required" });
     }
-
+  
     try {
-      const model = genAI.getGenerativeModel({ model: "models/gemini-2.0-flash" });
-
-      const result = await model.generateContent(prompt);
-
-      const response = await result.response.text(); 
-      res.status(200).json({ suggestion: response });
+      // Combine your prompt with instructions to output JSON.
+      const jsonPrompt = `
+        ${prompt}
+        
+        Please output only valid JSON with the following structure:
+        {
+          "trip": [
+            {
+              "location": "string",
+              "date": "MM/DD",
+              "time": "start time - end time",
+              "event": "string"
+            },
+            ...
+          ]
+        }
+      `;
+  
+      // Make sure to use the correct model name. Remove any "models/" prefix if required.
+      const model = genAI.getGenerativeModel({ model: "gemini-2.0-flash" });
+  
+      const result = await model.generateContent(jsonPrompt);
+  
+      let responseText = await result.response.text();
+  
+      // Remove markdown formatting if the response includes code block markers.
+      responseText = responseText.replace(/```json/g, "").replace(/```/g, "").trim();
+  
+      // Parse the JSON string.
+      const jsonResponse = JSON.parse(responseText);
+  
+      // Return the parsed JSON response.
+      res.status(200).json(jsonResponse);
     } catch (error) {
       res.status(500).json({ error: error.toString() });
     }
-  });
-
+  });  
 };
