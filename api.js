@@ -1,24 +1,22 @@
-require("dotenv").config(); // Load .env
 const express = require("express");
 const fetch = require("node-fetch");
 const emailService = require("./emailService");
 const { GoogleGenerativeAI } = require("@google/generative-ai");
-const { MongoClient } = require("mongodb");
 
 const genAI = new GoogleGenerativeAI(process.env.API_KEY, {
   apiVersion: "v1",
 });
 
 // MongoDB connection URI
-const uri = process.env.MONGODB_URI || "mongodb://localhost:27017";
-const client = new MongoClient(uri);
+// const uri = process.env.MONGODB_URI || "mongodb://localhost:27017";
+// const client = new MongoClient(uri);
+
+const User = require("./models/user.js");
 
 exports.setApp = function (app, dbInstance) {
   // Use the provided dbInstance instead of creating a new connection
   const db = dbInstance;
-
-  const User = require("./models/user.js");
-  exports.setApp = function (app, client) {
+    
     function hashStringToInt(str) {
       let hash = 0;
       for (let i = 0; i < str.length; i++) {
@@ -263,27 +261,28 @@ exports.setApp = function (app, dbInstance) {
       }
     });
 
-    app.post("/api/add", async (req, res, next) => {
+    app.post("/api/addItinerary", async (req, res, next) => {
       // Expecting: userId, tripName, tripArray
-      const { userId, tripName, tripArray } = req.body;
+      const { userId, itineraryNode } = req.body;
 
-      if (!userId || !tripName || !tripArray) {
+      if (!userId || !itineraryNode) {
         return res.status(400).json({ error: "All fields required" });
       }
 
       var error = "";
+      var itineraryID = await generateIdFromMongo(itineraryNode.title, db);
       try {
-        const newTrip = {
+        const newItinerary = {
           UserId: userId,
-          TripName: tripName,
-          TripArray: tripArray,
+          Itinerary: itineraryNode,
+          ItineraryID: itineraryID,
           createdAt: new Date(),
         };
 
-        const result = await db.collection("Trips").insertOne(newTrip);
+        const result = await db.collection("Itineraries").insertOne(newItinerary);
         res.status(200).json({
-          message: "Trip added successfully",
-          tripId: result.insertedId,
+          message: "Itinerary added successfully",
+          ItineraryId: result.itineraryID,
         });
       } catch (e) {
         error = e.toString();
@@ -291,13 +290,13 @@ exports.setApp = function (app, dbInstance) {
       }
     });
 
-    app.post("/api/delete", async (req, res, next) => {
+    app.post("/api/deleteIternerary", async (req, res, next) => {
       // incoming: userId, eventId
       // outgoing: success/error message
 
-      const { userId, eventId } = req.body;
+      const { userId, itineraryID } = req.body;
 
-      if (!userId || !eventId) {
+      if (!userId || !itineraryID ) {
         return res
           .status(400)
           .json({ error: "User ID and Event ID are required" });
@@ -305,9 +304,9 @@ exports.setApp = function (app, dbInstance) {
 
       try {
         //This goes through the Events collection and deletes the event with the matching userId and eventId
-        const result = await db.collection("Trips").deleteOne({
+        const result = await db.collection("Itineraries").deleteOne({
           UserId: userId,
-          _id: new require("mongodb").ObjectId(eventId),
+          _id: new require("mongodb").ObjectId(itineraryID),
         });
 
         if (result.deletedCount === 0) {
@@ -324,7 +323,7 @@ exports.setApp = function (app, dbInstance) {
     });
 
     //This function is used to search for events in the Events collection
-    app.post("/api/search", async (req, res, next) => {
+    app.post("/api/searchIternerary", async (req, res, next) => {
       // incoming: userId, (optional) date, location, time
       // outgoing: list of matching events or error message
 
@@ -353,7 +352,7 @@ exports.setApp = function (app, dbInstance) {
     });
 
     //ENDPOINT FOR GENERATING TRAVEL PLAN USING GEMINI
-    app.post("/api/generate-trip", async (req, res) => {
+    /* app.post("/api/generate-trip", async (req, res) => {
       const { prompt } = req.body;
 
       if (!prompt) {
@@ -372,7 +371,7 @@ exports.setApp = function (app, dbInstance) {
       } catch (error) {
         res.status(500).json({ error: error.toString() });
       }
-    });
+    }); */
 
     // Endpoint for generating travel itinerary using Gemini
     app.post("/api/generate-itinerary", async (req, res) => {
@@ -466,5 +465,4 @@ exports.setApp = function (app, dbInstance) {
         });
       }
     });
-  };
 };

@@ -3,7 +3,7 @@ require("dotenv").config();
 
 const url = process.env.MONGODB_URI;
 const client = new MongoClient(url);
-client.connect();
+//client.connect();
 
 /*
 const mongoose = require("mongoose");
@@ -19,9 +19,9 @@ const app = express();
 app.use(cors());
 app.use(express.json()); // Using Express’s built-in JSON parser
 
-var api = require("./api.js");
+// var api = require("./api.js");
 
-api.setApp(app, client);
+// api.setApp(app, client);
 // for applying mongoose
 // api.setApp(app, mongoose);
 
@@ -58,4 +58,4 @@ async function startServer() {
   }
 }
 
-startServer();
+startServer(); 
