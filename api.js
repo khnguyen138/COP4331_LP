@@ -248,10 +248,10 @@ exports.setApp = function (app, dbInstance) {
         }
 
         res.status(200).json({
-          id: id,
+          userId: id,
           firstName: fn,
           lastName: ln,
-          error: "",
+          token: ret,
         });
       } else {
         res.status(400).json({ error: "Invalid user name/password" });
@@ -375,117 +375,57 @@ exports.setApp = function (app, dbInstance) {
 
   // Endpoint for generating travel itinerary using Gemini
   app.post("/api/generate-itinerary", async (req, res) => {
-    console.log("Received generate-itinerary request:", req.body);
-    const { destination, duration, groupSize, preferences } = req.body;
-
-    if (!destination || !duration || !groupSize || !preferences) {
-      console.log("Missing required fields:", {
-        destination,
-        duration,
-        groupSize,
-        preferences,
-      });
-      return res.status(400).json({ error: "All fields are required" });
-    }
-
-    let text = "";
-    let cleanedText = "";
-
     try {
-      console.log("Initializing Gemini model");
-      const model = genAI.getGenerativeModel({
-        model: "gemini-1.5-pro",
-      });
+      const { destination, startDate, endDate, budget, preferences } = req.body;
 
-      const prompt = `You are a helpful travel planner AI. 
-Generate a detailed JSON itinerary for ${destination} spanning ${duration} days 
-for ${groupSize} travelers. Preferences: ${preferences}.
+      const prompt = `Create a detailed day-by-day itinerary for a trip to ${destination} from ${startDate} to ${endDate} with a budget of $${budget}. Consider these preferences: ${preferences}. For each day, provide specific activities with times, locations, and estimated costs.`;
 
-Only respond with valid JSON—no extra text—and must contain these keys:
-{
-  "title": "A descriptive title for the trip",
-  "destination": "${destination}",
-  "duration": ${duration},
-  "groupSize": ${groupSize},
-  "description": "A brief description of the trip",
-  "image": "https://source.unsplash.com/1600x900/?${destination}",
-  "price": 0,
-  "tags": ["relevant", "tags", "based", "on", "preferences"],
-  "dailyBreakdown": []
-}
-
-1) The "dailyBreakdown" is an array of day objects. 
-2) Each day object must have: {"day": number, "activities": [{"time": "Morning/Afternoon/Evening/Night", "activity": "main activity name", "details": "detailed description of the activity", "cost": "estimated cost"}]}
-3) Do not wrap your response in triple backticks or any markdown.
-4) Double-check that your response is valid JSON. If it won't parse, fix it until it does.
-5) Return nothing except the JSON object described above.
-6) Make sure each day has at least 3 activities.
-7) The time field must be one of: Morning, Afternoon, Evening, or Night.
-`;
-      console.log("Generating response with prompt:", prompt);
+      const model = genAI.getGenerativeModel({ model: "gemini-pro" });
       const result = await model.generateContent(prompt);
       const response = await result.response;
-      text = response.text();
-      console.log("Raw response from Gemini:", text);
+      const text = response.text();
 
-      // Clean up the response by removing any markdown code block formatting and extra whitespace
-      cleanedText = text
-        .replace(/```json\n?|\n?```/g, "") // Remove markdown code blocks
-        .replace(/^\s+|\s+$/g, "") // Trim whitespace
-        .replace(/[\u200B-\u200D\uFEFF]/g, ""); // Remove zero-width spaces
+      // Parse the response into a structured format
+      const itinerary = parseItineraryResponse(text);
 
-      console.log("Cleaned response:", cleanedText);
-
-      // Try to parse the cleaned response
-      const itinerary = JSON.parse(cleanedText);
-
-      // Validate required fields
-      const requiredFields = [
-        "title",
-        "destination",
-        "duration",
-        "groupSize",
-        "description",
-        "image",
-        "price",
-        "tags",
-        "dailyBreakdown",
-      ];
-      const missingFields = requiredFields.filter(
-        (field) => !(field in itinerary)
-      );
-
-      if (missingFields.length > 0) {
-        throw new Error(`Missing required fields: ${missingFields.join(", ")}`);
-      }
-
-      // Validate dailyBreakdown structure
-      if (!Array.isArray(itinerary.dailyBreakdown)) {
-        throw new Error("dailyBreakdown must be an array");
-      }
-
-      // Ensure each day has the correct structure
-      itinerary.dailyBreakdown = itinerary.dailyBreakdown.map((day, index) => ({
-        day: index + 1,
-        activities: day.activities.map((activity) => ({
-          time: activity.time || "Morning",
-          activity: activity.activity || activity.description || "",
-          details: activity.details || "",
-          cost: activity.cost || "0",
-        })),
-      }));
-
-      res.json(itinerary);
+      res.json({ itinerary });
     } catch (error) {
-      console.error("Error in generate-itinerary:", error);
-      console.error("Raw response:", text);
-      console.error("Cleaned response:", cleanedText);
-      res.status(500).json({
-        error: "Failed to generate itinerary",
-        details: error.message,
-        rawResponse: text,
-        cleanedResponse: cleanedText,
-      });
+      console.error("Error generating itinerary:", error);
+      res.status(500).json({ error: "Failed to generate itinerary" });
     }
   });
+
+  function parseItineraryResponse(text) {
+    // Split the text into days
+    const days = text.split(/Day \d+:/i).filter((day) => day.trim());
+
+    return days.map((day) => {
+      const activities = day
+        .split(/\n+/)
+        .filter((line) => line.trim() && !line.toLowerCase().includes("day"))
+        .map((line) => {
+          // Extract time, activity, and cost if available
+          const timeMatch = line.match(/(\d{1,2}:\d{2}\s*[AaPp][Mm])/);
+          const time = timeMatch ? timeMatch[1] : "";
+          const activity = line
+            .replace(timeMatch ? timeMatch[0] : "", "")
+            .trim();
+
+          return {
+            time,
+            activity,
+            cost: extractCost(line),
+          };
+        });
+
+      return {
+        activities,
+      };
+    });
+  }
+
+  function extractCost(line) {
+    const costMatch = line.match(/\$\d+/);
+    return costMatch ? costMatch[0] : "";
+  }
 };
