@@ -1,12 +1,12 @@
 import React, { useState } from "react";
 import Sidebar from "../../components/Sidebar";
 import UpcomingTripsSection from "./sections/MyTrips/UpcomingTripsSection";
-import TripQuestionnaire from "../tripQuestionnaire";
+import TripQuestionnaire from "./sections/TripQuestionnaire/tripQuestionnaire";
 import DashboardHome from "./sections/DashboardHome/ExploreSection";
 import ExploreSection from "./sections/Explore/ExploreSection";
 import { useNavigate, useLocation } from "react-router-dom";
 import SavedTrips from "./sections/SavedTrips/SavedTrips";
-import UserProfile from "./sections/UserProfile"; 
+import UserProfile from "./profile/UserProfile";
 
 interface DashboardProps {
   user: string;
@@ -34,7 +34,7 @@ const Dashboard: React.FC<DashboardProps> = ({ user }) => {
         return <TripQuestionnaire />;
       case "/explore":
         return <ExploreSection />;
-      case "/profile": 
+      case "/profile":
         return <UserProfile />;
       default:
         return <DashboardHome />;

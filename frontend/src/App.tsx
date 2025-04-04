@@ -7,15 +7,15 @@ import {
   useLocation,
 } from "react-router-dom";
 import Dashboard from "./pages/dashboard/Dashboard";
-import Login from "./pages/Login";
-import Signup from "./pages/Signup";
-import VerifyEmail from "./pages/VerifyEmail";
-import ForgotPassword from "./pages/ForgotPassword";
-import ResetPassword from "./pages/ResetPassword";
+import Login from "./pages/authentication/Login";
+import Signup from "./pages/authentication/Signup";
+import VerifyEmail from "./pages/authentication/VerifyEmail";
+import ForgotPassword from "./pages/authentication/ForgotPassword";
+import ResetPassword from "./pages/authentication/ResetPassword";
 import NavigationBar from "./components/navbar";
 import Footer from "./components/Footer";
 import LandingPage from "./pages/landing/LandingPage";
-import TripQuestionnaire from "./pages/tripQuestionnaire";
+import TripQuestionnaire from "./pages/dashboard/sections/TripQuestionnaire/tripQuestionnaire";
 import { ThemeProvider } from "./context/ThemeContext";
 import "bootstrap/dist/css/bootstrap.min.css";
 import "./App.css";
@@ -31,9 +31,8 @@ const AppContent: React.FC = () => {
     location.pathname.startsWith("/dashboard") ||
     location.pathname === "/upcoming" ||
     location.pathname === "/saved" ||
-    location.pathname === "/planner" ||
     location.pathname === "/explore" ||
-    location.pathname === "/tripquestionnaire" ||
+    location.pathname === "/tripQuestionnaire" ||
     location.pathname === "/profile";
 
   useEffect(() => {
@@ -78,8 +77,8 @@ const AppContent: React.FC = () => {
                 element={<Dashboard user={user || "Guest"} />}
               />
               <Route
-                path="/tripquestionnaire"
-                element={<TripQuestionnaire />}
+                path="/tripQuestionnaire"
+                element={<Dashboard user={user || "Guest"} />}
               />
               <Route
                 path="/upcoming"
@@ -115,39 +114,6 @@ const AppContent: React.FC = () => {
               />
             </>
           )}
-          <Route
-            path="/"
-            element={<LandingPage onLogin={handleLandingLogin} />}
-          />
-          <Route
-            path="/dashboard"
-            element={<Dashboard user={user || "Guest"} />}
-          />
-          <Route
-            path="/upcoming"
-            element={<Dashboard user={user || "Guest"} />}
-          />
-          <Route path="/saved" element={<Dashboard user={user || "Guest"} />} />
-          <Route
-            path="/planner"
-            element={<Dashboard user={user || "Guest"} />}
-          />
-          <Route
-            path="/explore"
-            element={<Dashboard user={user || "Guest"} />}
-          />
-          <Route
-            path="/login"
-            element={<Login onLoginSuccess={handleLogin} />}
-          />
-          <Route
-            path="/profile"
-            element={<Dashboard user={user || "Guest"} />}
-          />
-          <Route path="/signup" element={<Signup />} />
-          <Route path="/verify-email" element={<VerifyEmail />} />
-          <Route path="/forgot-password" element={<ForgotPassword />} />
-          <Route path="/reset-password" element={<ResetPassword />} />
         </Routes>
       </main>
       {!isDashboard && <Footer />}

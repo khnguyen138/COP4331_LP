@@ -5,8 +5,8 @@ import React, {
   forwardRef,
 } from "react";
 import { Navbar, Container, Nav } from "react-bootstrap";
-import Login from "../pages/Login";
-import Signup from "../pages/Signup";
+import Login from "../pages/authentication/Login";
+import Signup from "../pages/authentication/Signup";
 import { useNavigate } from "react-router-dom";
 
 interface NavigationBarProps {

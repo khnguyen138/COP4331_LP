@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { Container, Row, Col, Modal } from "react-bootstrap";
-import Signup from "../Signup";
+import Signup from "../authentication/Signup";
 import { Button } from "../../components/ui/Button";
 
 interface HeroSectionProps {
