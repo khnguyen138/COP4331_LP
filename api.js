@@ -322,6 +322,37 @@ exports.setApp = function (app, dbInstance) {
       }
     });
 
+
+    /* app.post("/api/editIternerary", async (req, res, next) => { 
+      // incoming: userId, eventId, updatedEventData
+      // outgoing: success/error message
+
+      const { userId, itineraryID, updatedItineraryNode } = req.body;
+
+      if (!userId || !itineraryID || !updatedItineraryNode) {
+        return res.status(400).json({ error: "All fields required" });
+      }
+
+      try {
+        //This goes through the Events collection and updates the event with the matching userId and eventId
+        const result = await db.collection("Itineraries").updateOne(
+          { UserId: userId, _id: new require("mongodb").ObjectId(itineraryID) },
+          { $set: { Itinerary: updatedItineraryNode } }
+        );
+
+        if (result.modifiedCount === 0) {
+          return res
+            .status(404)
+            .json({ error: "Event not found or already updated" });
+        }
+
+        //If the event is successfully updated, a message is sent back to the user
+        res.status(200).json({ message: "Event successfully updated" });
+      } catch (e) {
+        res.status(500).json({ error: e.toString() });
+      }
+    }); */
+
     //This function is used to search for events in the Events collection
     app.post("/api/searchIternerary", async (req, res, next) => {
       // incoming: userId, (optional) date, location, time
@@ -465,4 +496,36 @@ exports.setApp = function (app, dbInstance) {
         });
       }
     });
+
+    /*
+    app.post("/api/editProfile", async (req, res) => {
+      const { userId, firstName, lastName, email } = req.body;
+
+      if (!userId || !firstName || !lastName || !email) {
+        return res.status(400).json({ error: "All fields are required" });
+      }
+
+      try {
+        const result = await db.collection("Users").updateOne(
+          { UserId: userId },
+          {
+            $set: {
+              FirstName: firstName,
+              LastName: lastName,
+              Email: email,
+            },
+          }
+        );
+
+        if (result.modifiedCount === 0) {
+          return res.status(404).json({ error: "User not found" });
+        }
+
+        res.status(200).json({ message: "Profile updated successfully" });
+      } catch (error) {
+        res.status(500).json({ error: error.toString() });
+      }
+    }); */
+
+    app.post()
 };
