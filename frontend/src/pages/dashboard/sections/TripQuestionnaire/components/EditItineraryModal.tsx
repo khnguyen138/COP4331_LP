@@ -1,27 +1,10 @@
 import React from "react";
 import { Modal, Form, Button, Row, Col, Card } from "react-bootstrap";
-
-interface Activity {
-  time: string;
-  activity: string;
-  cost: string;
-}
+import { Activity, Itinerary } from "../../../../../types/itinerary";
 
 interface DailyBreakdown {
   day: number;
   activities: Activity[];
-}
-
-interface Itinerary {
-  title: string;
-  destination: string;
-  duration: number;
-  groupSize: number;
-  description: string;
-  image: string;
-  price: number;
-  tags: string[];
-  dailyBreakdown: DailyBreakdown[];
 }
 
 interface EditItineraryModalProps {
@@ -153,12 +136,12 @@ const EditItineraryModal: React.FC<EditItineraryModalProps> = ({
                       <Form.Label>Activity</Form.Label>
                       <Form.Control
                         type="text"
-                        value={activity.activity}
+                        value={activity.description}
                         onChange={(e) =>
                           handleActivityChange(
                             dayIndex,
                             actIndex,
-                            "activity",
+                            "description",
                             e.target.value
                           )
                         }

@@ -9,28 +9,11 @@ import {
 } from "lucide-react";
 import { useSwipeable } from "react-swipeable";
 import styles from "../styles/TripQuestionnaire.module.css";
-
-interface Activity {
-  time: string;
-  activity: string;
-  cost: string;
-}
+import { Activity, Itinerary } from "../../../../../types/itinerary";
 
 interface DailyBreakdown {
   day: number;
   activities: Activity[];
-}
-
-interface Itinerary {
-  title: string;
-  destination: string;
-  duration: number;
-  groupSize: number;
-  description: string;
-  image: string;
-  price: number;
-  tags: string[];
-  dailyBreakdown: DailyBreakdown[];
 }
 
 interface ItineraryPreviewProps {
@@ -49,12 +32,9 @@ const formatTime = (time: string): string => {
 };
 
 const getLocationFromActivity = (activity: string): string => {
-  // Extract location from activity description
-  const locationMatch = activity.match(/at\s+([^,.]+)|in\s+([^,.]+)/i);
-  if (locationMatch) {
-    return locationMatch[1] || locationMatch[2] || "Location details";
-  }
-  return "Location details";
+  if (!activity) return "Location not specified";
+  const match = activity.match(/at\s+([^.]+)/i);
+  return match ? match[1].trim() : "Location not specified";
 };
 
 const ItineraryPreview: React.FC<ItineraryPreviewProps> = ({
@@ -102,17 +82,21 @@ const ItineraryPreview: React.FC<ItineraryPreviewProps> = ({
     });
   };
 
+  const currentDayActivities =
+    itinerary.dailyBreakdown[activeDay - 1]?.activities || [];
+
   return (
     <div className={styles.itineraryPreview}>
-      <div className={styles.headerSection}>
-        <div className={styles.headerTitle}>
-          <h2>Itinerary</h2>
-          <button className={styles.editButton} onClick={onEdit}>
+      <div className={styles["header-section"]}>
+        <div className={styles["header-title"]}>
+          <h2>{itinerary.title}</h2>
+          <button className={styles["edit-button"]} onClick={onEdit}>
             <Pencil size={16} />
             Edit
           </button>
         </div>
-        <div className={styles.headerSubtitle}>
+        <div className={styles["header-subtitle"]}>
+          <MapPin size={16} className={styles.icon} />
           {itinerary.destination} • {itinerary.duration} days
         </div>
       </div>
@@ -138,32 +122,31 @@ const ItineraryPreview: React.FC<ItineraryPreviewProps> = ({
       </div>
 
       <div className={styles.contentSection} {...swipeHandlers}>
-        <div className={styles.dayHeader}>
+        <div className={styles["day-header"]}>
           <Calendar size={16} className={styles.icon} />
           {formatDate(activeDay)}
         </div>
 
         <div className={styles.activitiesList}>
-          {itinerary.dailyBreakdown[activeDay - 1]?.activities.map(
-            (activity, index) => (
-              <div key={index} className={styles.activityCard}>
-                <div className={styles.activityTime}>
-                  <Clock size={16} className={styles.icon} />
-                  {formatTime(activity.time)}
-                </div>
-                <div className={styles.activityTitle}>{activity.activity}</div>
-                <div className={styles.activityLocation}>
-                  <MapPin size={16} className={styles.icon} />
-                  {getLocationFromActivity(activity.activity)}
-                </div>
-                {activity.cost && (
-                  <div className={styles.activityNotes}>
-                    Estimated cost: {activity.cost}
-                  </div>
-                )}
+          {currentDayActivities.map((activity, index) => (
+            <div key={index} className={styles.activityCard}>
+              <div className={styles.activityTime}>
+                <Clock size={16} className={styles.icon} />
+                {formatTime(activity.time)}
               </div>
-            )
-          )}
+              <div className={styles.activityTitle}>
+                {activity.activity || activity.description}
+              </div>
+              {activity.details && (
+                <div className={styles.activityDetails}>{activity.details}</div>
+              )}
+              {activity.cost && (
+                <div className={styles.activityCost}>
+                  Estimated cost: {activity.cost}
+                </div>
+              )}
+            </div>
+          ))}
         </div>
       </div>
     </div>

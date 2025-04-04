@@ -14,11 +14,20 @@ interface FormData {
   startDate: Date | null;
   endDate: Date | null;
   travelers: string;
-  budget: string;
+  budget: number;
+  budgetTier: string;
   tripType: string;
   selectedInterests: string[];
   specialNotes: string;
 }
+
+const BUDGET_TIERS = [
+  { value: 1, label: "Very Low", description: "Budget-friendly" },
+  { value: 2, label: "Low", description: "Economical" },
+  { value: 3, label: "Medium", description: "Standard" },
+  { value: 4, label: "High", description: "Premium" },
+  { value: 5, label: "Luxury", description: "Ultra-luxury" },
+];
 
 const TripForm: React.FC<TripFormProps> = ({ onSubmit, loading }) => {
   const [step, setStep] = useState(1);
@@ -28,7 +37,8 @@ const TripForm: React.FC<TripFormProps> = ({ onSubmit, loading }) => {
     startDate: null,
     endDate: null,
     travelers: "",
-    budget: "",
+    budget: 3, // Default to Medium
+    budgetTier: "Medium",
     tripType: "",
     selectedInterests: [],
     specialNotes: "",
@@ -50,6 +60,15 @@ const TripForm: React.FC<TripFormProps> = ({ onSubmit, loading }) => {
     setFormData((prev) => ({ ...prev, [field]: value }));
   };
 
+  const handleBudgetChange = (value: number) => {
+    const tier = BUDGET_TIERS.find((tier) => tier.value === value);
+    setFormData((prev) => ({
+      ...prev,
+      budget: value,
+      budgetTier: tier ? tier.label : "Medium",
+    }));
+  };
+
   const handleCheckboxChange = (interest: string, isChecked: boolean) => {
     setFormData((prev) => ({
       ...prev,
@@ -59,15 +78,25 @@ const TripForm: React.FC<TripFormProps> = ({ onSubmit, loading }) => {
     }));
   };
 
+  const validateDates = (start: Date | null, end: Date | null): boolean => {
+    if (!start || !end) return false;
+    return end >= start;
+  };
+
   const handleNext = () => {
     if (step === 1) {
       if (
         !formData.destination ||
         !formData.startDate ||
         !formData.endDate ||
-        !formData.budget
+        !formData.travelers
       ) {
         setError("Please fill out all required fields.");
+        return;
+      }
+
+      if (!validateDates(formData.startDate, formData.endDate)) {
+        setError("End date must be equal to or later than start date.");
         return;
       }
     }
@@ -85,6 +114,15 @@ const TripForm: React.FC<TripFormProps> = ({ onSubmit, loading }) => {
       setError("Please select a trip type.");
       return;
     }
+
+    // Final validation before submission
+    if (!validateDates(formData.startDate, formData.endDate)) {
+      setError(
+        "Invalid date range. End date must be equal to or later than start date."
+      );
+      return;
+    }
+
     onSubmit(formData);
   };
 
@@ -121,11 +159,16 @@ const TripForm: React.FC<TripFormProps> = ({ onSubmit, loading }) => {
               <Form.Label>Start Date</Form.Label>
               <DatePicker
                 selected={formData.startDate}
-                onChange={(date: Date | null) =>
-                  handleInputChange("startDate", date)
-                }
+                onChange={(date: Date | null) => {
+                  handleInputChange("startDate", date);
+                  // Reset end date if it's before the new start date
+                  if (date && formData.endDate && formData.endDate < date) {
+                    handleInputChange("endDate", date);
+                  }
+                }}
                 className="form-control"
                 dateFormat="yyyy-MM-dd"
+                minDate={new Date()}
                 required
               />
             </Form.Group>
@@ -138,6 +181,7 @@ const TripForm: React.FC<TripFormProps> = ({ onSubmit, loading }) => {
                 }
                 className="form-control"
                 dateFormat="yyyy-MM-dd"
+                minDate={formData.startDate || new Date()}
                 required
               />
             </Form.Group>
@@ -147,6 +191,7 @@ const TripForm: React.FC<TripFormProps> = ({ onSubmit, loading }) => {
             <Form.Label>Travelers</Form.Label>
             <Form.Control
               type="number"
+              min="1"
               placeholder="Enter the number of travelers"
               value={formData.travelers}
               onChange={(e) => handleInputChange("travelers", e.target.value)}
@@ -155,14 +200,24 @@ const TripForm: React.FC<TripFormProps> = ({ onSubmit, loading }) => {
           </Form.Group>
 
           <Form.Group controlId="budget" className="mb-3">
-            <Form.Label>Budget</Form.Label>
-            <Form.Control
-              type="number"
-              placeholder="Enter your budget"
+            <Form.Label>Budget Tier: {formData.budgetTier}</Form.Label>
+            <Form.Range
+              min={1}
+              max={5}
+              step={1}
               value={formData.budget}
-              onChange={(e) => handleInputChange("budget", e.target.value)}
-              required
+              onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
+                handleBudgetChange(Number(e.target.value))
+              }
+              className="mb-2"
             />
+            <div className="d-flex justify-content-between">
+              {BUDGET_TIERS.map((tier) => (
+                <small key={tier.value} className="text-muted">
+                  {tier.label}
+                </small>
+              ))}
+            </div>
           </Form.Group>
         </>
       )}

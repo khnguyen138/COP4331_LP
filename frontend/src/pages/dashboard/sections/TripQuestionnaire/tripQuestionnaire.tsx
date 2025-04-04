@@ -5,56 +5,13 @@ import styles from "./styles/TripQuestionnaire.module.css";
 import TripForm from "./components/TripForm";
 import ItineraryPreview from "./components/ItineraryPreview";
 import EditItineraryModal from "./components/EditItineraryModal";
+import { Itinerary } from "../../../../types/itinerary";
 
 interface TripQuestionnaireProps {
   onComplete?: (data: any) => void;
   isSidebar?: boolean;
   user?: string;
 }
-
-interface Itinerary {
-  title: string;
-  destination: string;
-  duration: number;
-  groupSize: number;
-  description: string;
-  image: string;
-  price: number;
-  tags: string[];
-  dailyBreakdown: {
-    day: number;
-    activities: {
-      time: string;
-      activity: string;
-      cost: string;
-    }[];
-  }[];
-}
-
-const extractValue = (text: string, key: string): string => {
-  const regex = new RegExp(`"${key}":\\s*"([^"]+)"`);
-  const match = text.match(regex);
-  return match ? match[1] : "";
-};
-
-const extractArray = (text: string, key: string): string[] => {
-  const regex = new RegExp(`"${key}":\\s*\\[([^\\]]+)\\]`);
-  const match = text.match(regex);
-  if (!match) return [];
-  return match[1].split(",").map((item) => item.trim().replace(/"/g, ""));
-};
-
-const extractDailyBreakdown = (text: string): Itinerary["dailyBreakdown"] => {
-  const regex = /"dailyBreakdown":\s*\[([\s\S]*?)\]/;
-  const match = text.match(regex);
-  if (!match) return [];
-
-  try {
-    return JSON.parse(`[${match[1]}]`);
-  } catch {
-    return [];
-  }
-};
 
 const TripQuestionnaire: React.FC<TripQuestionnaireProps> = ({
   onComplete,
@@ -117,92 +74,11 @@ const TripQuestionnaire: React.FC<TripQuestionnaireProps> = ({
         );
       }
 
-      let data;
-      try {
-        const rawResponse = await response.text();
-        console.log("Raw response:", rawResponse);
+      const data = await response.json();
+      console.log("Response as JSON:", data);
 
-        // Clean the response by removing markdown code block markers and fixing JSON syntax
-        const cleanedResponse = rawResponse
-          .replace(/```json\n|\n```/g, "")
-          .replace(
-            /"time":\s*"([^"]+)":\s*"([^"]+)"/g,
-            '"time": "$1", "activity": "$2"'
-          )
-          .replace(
-            /"time":\s*"([^"]+)":\s*"([^"]+)"}/g,
-            '"time": "$1", "activity": "$2"}'
-          )
-          .replace(/,(\s*[}\]])/g, "$1")
-          .replace(/([{,])\s*([a-zA-Z0-9_]+)\s*:/g, '$1"$2":')
-          .replace(/:\s*'([^']*)'/g, ':"$1"')
-          .replace(/:\s*([^"'{}\[\],\s]+)([,\]}])/g, ':"$1"$2')
-          .replace(/\n/g, "")
-          .replace(/\r/g, "")
-          .replace(/\t/g, "")
-          .replace(/\s+/g, " ")
-          .trim();
-
-        console.log("Cleaned response:", cleanedResponse);
-
-        try {
-          data = JSON.parse(cleanedResponse);
-        } catch (parseError) {
-          console.error("JSON parse error:", parseError);
-          // Try to fix common JSON syntax errors
-          const fixedResponse = cleanedResponse
-            .replace(/,(\s*[}\]])/g, "$1")
-            .replace(/([{,])\s*([a-zA-Z0-9_]+)\s*:/g, '$1"$2":')
-            .replace(/:\s*'([^']*)'/g, ':"$1"')
-            .replace(/:\s*([^"'{}\[\],\s]+)([,\]}])/g, ':"$1"$2')
-            .replace(/([^\\])"/g, '$1\\"')
-            .replace(/\\"/g, '"')
-            .replace(/([^\\])\\([^"\\])/g, "$1\\\\$2")
-            .replace(/([^\\])\\([^"\\])/g, "$1\\\\$2")
-            .replace(/\\\\/g, "\\")
-            .replace(/([{,])\s*([a-zA-Z0-9_]+)\s*:/g, '$1"$2":')
-            .replace(/:\s*([^"'{}\[\],\s]+)([,\]}])/g, ':"$1"$2');
-
-          console.log("Fixed response:", fixedResponse);
-
-          try {
-            data = JSON.parse(fixedResponse);
-          } catch (finalError) {
-            console.error("Final JSON parse error:", finalError);
-            // If all else fails, try to extract just the essential data
-            const essentialData = {
-              title: extractValue(fixedResponse, "title"),
-              destination: extractValue(fixedResponse, "destination"),
-              duration:
-                parseInt(extractValue(fixedResponse, "duration")) || duration,
-              groupSize:
-                parseInt(extractValue(fixedResponse, "groupSize")) ||
-                parseInt(formData.travelers),
-              description: extractValue(fixedResponse, "description"),
-              image: `https://source.unsplash.com/featured/1600x900/?${formData.destination
-                .split(",")[0]
-                .trim()
-                .toLowerCase()},${formData.tripType.toLowerCase()}`,
-              price: parseInt(extractValue(fixedResponse, "price")) || 0,
-              tags: extractArray(fixedResponse, "tags"),
-              dailyBreakdown: extractDailyBreakdown(fixedResponse),
-            };
-            data = essentialData;
-          }
-        }
-      } catch (parseError) {
-        console.error("Error parsing response:", parseError);
-        throw new Error(
-          "Failed to parse itinerary response. Please try again."
-        );
-      }
-
-      // Validate the parsed data structure
-      if (
-        !data ||
-        !data.dailyBreakdown ||
-        !Array.isArray(data.dailyBreakdown)
-      ) {
+      // Validate the JSON structure
+      if (!data?.dailyBreakdown || !Array.isArray(data.dailyBreakdown)) {
         throw new Error("Invalid itinerary data structure received");
       }
 

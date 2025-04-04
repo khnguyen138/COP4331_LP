@@ -1,24 +1,12 @@
 import React, { useState } from "react";
 import { Search, Filter, MapPin, Calendar, Clock, Users } from "lucide-react";
-
-interface Itinerary {
-  id: number;
-  title: string;
-  destination: string;
-  duration: string;
-  groupSize: string;
-  description: string;
-  image: string;
-  price: string;
-  rating: number;
-  tags: string[];
-}
+import { SampleItinerary } from "../../../../types/itinerary";
 
 const ExploreSection: React.FC = () => {
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedFilter, setSelectedFilter] = useState("all");
 
-  const itineraries: Itinerary[] = [
+  const itineraries: SampleItinerary[] = [
     {
       id: 1,
       title: "Tokyo Adventure",
