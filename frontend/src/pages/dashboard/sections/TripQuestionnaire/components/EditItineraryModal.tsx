@@ -108,6 +108,22 @@ const EditItineraryModal: React.FC<EditItineraryModalProps> = ({
                 />
               </Form.Group>
             </Col>
+            <Col md={6}>
+              <Form.Group className="mb-3">
+                <Form.Label>Tags</Form.Label>
+                <Form.Control
+                  type="text"
+                  value={editingItinerary.tags.join(", ")}
+                  onChange={(e) =>
+                    handleInputChange(
+                      "tags",
+                      e.target.value.split(",").map((tag) => tag.trim())
+                    )
+                  }
+                  placeholder="Enter tags separated by commas"
+                />
+              </Form.Group>
+            </Col>
           </Row>
 
           <h5>Daily Activities</h5>
@@ -116,7 +132,7 @@ const EditItineraryModal: React.FC<EditItineraryModalProps> = ({
               <Card.Body>
                 <h6>Day {day.day}</h6>
                 {day.activities.map((activity, actIndex) => (
-                  <div key={actIndex} className="mb-3">
+                  <div key={actIndex} className="mb-3 p-3 border rounded">
                     <Form.Group className="mb-2">
                       <Form.Label>Time</Form.Label>
                       <Form.Control
@@ -130,18 +146,50 @@ const EditItineraryModal: React.FC<EditItineraryModalProps> = ({
                             e.target.value
                           )
                         }
+                        placeholder="e.g., 9:00 AM"
                       />
                     </Form.Group>
                     <Form.Group className="mb-2">
                       <Form.Label>Activity</Form.Label>
                       <Form.Control
                         type="text"
-                        value={activity.description}
+                        value={activity.activity}
                         onChange={(e) =>
                           handleActivityChange(
                             dayIndex,
                             actIndex,
-                            "description",
+                            "activity",
+                            e.target.value
+                          )
+                        }
+                      />
+                    </Form.Group>
+                    <Form.Group className="mb-2">
+                      <Form.Label>Location</Form.Label>
+                      <Form.Control
+                        type="text"
+                        value={activity.location}
+                        onChange={(e) =>
+                          handleActivityChange(
+                            dayIndex,
+                            actIndex,
+                            "location",
+                            e.target.value
+                          )
+                        }
+                      />
+                    </Form.Group>
+                    <Form.Group className="mb-2">
+                      <Form.Label>Details</Form.Label>
+                      <Form.Control
+                        as="textarea"
+                        rows={2}
+                        value={activity.details}
+                        onChange={(e) =>
+                          handleActivityChange(
+                            dayIndex,
+                            actIndex,
+                            "details",
                             e.target.value
                           )
                         }
@@ -160,6 +208,7 @@ const EditItineraryModal: React.FC<EditItineraryModalProps> = ({
                             e.target.value
                           )
                         }
+                        placeholder="e.g., $25"
                       />
                     </Form.Group>
                   </div>

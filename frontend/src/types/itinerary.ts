@@ -2,6 +2,7 @@ export interface Activity {
   time: string;
   description?: string;
   activity?: string;
+  location?: string;
   details?: string;
   cost?: string;
 }
