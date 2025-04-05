@@ -74,7 +74,7 @@ const TripCard: React.FC<TripCardProps> = ({ trip, type }) => {
   return (
     <div className="card h-100 shadow-sm">
       <div className="card-body d-flex flex-column">
-        <div
+        {/* <div
           className="card-img-top bg-light rounded-top"
           style={{
             height: "200px",
@@ -84,7 +84,14 @@ const TripCard: React.FC<TripCardProps> = ({ trip, type }) => {
           }}
         >
           <span className="text-muted">Preview Image</span>
-        </div>
+        </div> */}
+
+        <img
+          src={(trip as any).image}
+          alt={trip.title}
+          className="card-img-top rounded-top"
+          style={{ height: "200px", objectFit: "cover", width: "100%" }}
+        />
 
         <div className="mt-3">
           <h5 className="card-title mb-2">{trip.title}</h5>

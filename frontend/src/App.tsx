@@ -111,7 +111,9 @@ const AppContent: React.FC = () => {
                 element={<Login onLoginSuccess={handleLogin} />}
               />
               <Route path="/signup" element={<Signup />} />
+
               <Route path="/loginsignup" element={<LoginSignup />} />
+
               <Route path="/verify-email" element={<VerifyEmail />} />
               <Route path="/forgot-password" element={<ForgotPassword />} />
               <Route path="/reset-password" element={<ResetPassword />} />

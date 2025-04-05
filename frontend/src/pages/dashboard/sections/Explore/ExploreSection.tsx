@@ -16,7 +16,7 @@ const ExploreSection: React.FC = () => {
       description:
         "Experience the perfect blend of traditional culture and modern technology in Japan's vibrant capital.",
       image:
-        "https://images.unsplash.com/photo-1503899036084-c55cdd92da26?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1974&q=80",
+        "https://images.unsplash.com/photo-1513407030348-c983a97b98d8?q=80&w=2944&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
       price: "$2,499",
       rating: 4.9,
       tags: ["Culture", "Food", "Technology", "Shopping"],
@@ -30,7 +30,7 @@ const ExploreSection: React.FC = () => {
       description:
         "Discover the stunning beauty of the Greek islands with this comprehensive island-hopping itinerary.",
       image:
-        "https://images.unsplash.com/photo-1570077188670-e3a8d69ac5ff?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=2072&q=80",
+        "https://images.unsplash.com/photo-1688664562000-4c1f7cdb48f8?w=900&auto=format&fit=crop&q=60&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8Mnx8c2FudG9yaW5pJTIwZ3JlZWNlfGVufDB8MHwwfHx8MA%3D%3D0",
       price: "$3,299",
       rating: 4.8,
       tags: ["Beach", "Culture", "Romance", "Food"],
@@ -44,7 +44,7 @@ const ExploreSection: React.FC = () => {
       description:
         "Rejuvenate your mind and body with this wellness-focused journey through Bali's most peaceful spots.",
       image:
-        "https://images.unsplash.com/photo-1537996194471-e657df975ab4?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1938&q=80",
+        "https://images.unsplash.com/photo-1591206521749-6f6f8ead79c1?w=900&auto=format&fit=crop&q=60&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8MTV8fGJhcmNlbG9uYSUyMHNwYWlufGVufDB8MHwwfHx8MA%3D%3D",
       price: "$1,999",
       rating: 4.7,
       tags: ["Wellness", "Nature", "Culture", "Relaxation"],
