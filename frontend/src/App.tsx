@@ -21,6 +21,8 @@ import "bootstrap/dist/css/bootstrap.min.css";
 import "./App.css";
 import "./styles/themes.css";
 
+import LoginSignup from "./pages/authentication/LoginSignup";
+
 // Create a new component for the main app content
 const AppContent: React.FC = () => {
   const [isLoggedIn, setIsLoggedIn] = useState<boolean>(false);
@@ -43,6 +45,10 @@ const AppContent: React.FC = () => {
       setIsLoggedIn(true);
     }
   }, []);
+
+  /* useEffect(() => {
+    setIsLoggedIn(true); // TEMPORARY
+  }, []); */
 
   const handleLogin = (username: string) => {
     setUser(username);
@@ -105,6 +111,7 @@ const AppContent: React.FC = () => {
                 element={<Login onLoginSuccess={handleLogin} />}
               />
               <Route path="/signup" element={<Signup />} />
+              <Route path="/loginsignup" element={<LoginSignup />} />
               <Route path="/verify-email" element={<VerifyEmail />} />
               <Route path="/forgot-password" element={<ForgotPassword />} />
               <Route path="/reset-password" element={<ResetPassword />} />

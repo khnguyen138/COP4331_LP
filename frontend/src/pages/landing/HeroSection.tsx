@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { Container, Row, Col, Modal } from "react-bootstrap";
-import Signup from "../authentication/Signup";
+import Signup from "../authentication/LoginSignup";
 import { Button } from "../../components/ui/Button";
 
 interface HeroSectionProps {
@@ -8,7 +8,7 @@ interface HeroSectionProps {
 }
 
 export const HeroSection: React.FC<HeroSectionProps> = ({ onLogin }) => {
-  const [showSignup, setShowSignup] = useState(false);
+  const [showLoginSignup, setShowLoginSignup] = useState(false);
 
   return (
     <div className="d-flex flex-column min-vh-100">
@@ -25,7 +25,7 @@ export const HeroSection: React.FC<HeroSectionProps> = ({ onLogin }) => {
               <Button
                 variant="primary"
                 size="lg"
-                onClick={() => setShowSignup(true)}
+                onClick={() => setShowLoginSignup(true)}
               >
                 Start Planning
               </Button>
@@ -44,9 +44,8 @@ export const HeroSection: React.FC<HeroSectionProps> = ({ onLogin }) => {
       </main>
 
       {/* ✅ Modal for Signup */}
-      <Modal show={showSignup} onHide={() => setShowSignup(false)} centered>
+      <Modal show={showLoginSignup} onHide={() => setShowLoginSignup(false)} centered>
         <Modal.Header closeButton>
-          <Modal.Title>Sign Up</Modal.Title>
         </Modal.Header>
         <Modal.Body>
           <Signup />

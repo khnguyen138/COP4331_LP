@@ -88,3 +88,77 @@ button:focus-visible {
     background-color: #f9f9f9;
   }
 } */
+
+.login-signup-header {
+  text-align: center;
+  margin-bottom: 24px;
+}
+.login-signup-header p {
+  font-size: medium;
+}
+
+.tabs-trigger {
+  padding: 10px 20px;
+  cursor: pointer;
+  font-size: 16px;
+  background: none;
+  border: none;
+  color: #888;
+  transition: color 0.3s ease;
+}
+
+.tabs-trigger.active {
+  color: #000;
+  border-bottom: 2px solid #000;
+}
+
+.tabs-content {
+  animation: fadeIn 0.3s ease;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.password-field-wrapper {
+  position: relative;
+}
+
+.tooltip-icon {
+  display: inline-block;
+  margin-left: 8px;
+  background-color: #ccc;
+  color: white;
+  font-size: 12px;
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  text-align: center;
+  cursor: pointer;
+  position: relative;
+}
+
+.tooltip-text {
+  display: none;
+  position: absolute;
+  top: 50px;
+  right: -250px;
+  background-color: #fff;
+  color: #333;
+  padding: 8px;
+  border-radius: 6px;
+  font-size: 12px;
+  z-index: 100;
+}
+
+.tooltip-icon:hover + .tooltip-text,
+.tooltip-icon:focus + .tooltip-text {
+  display: block;
+}
