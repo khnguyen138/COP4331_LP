@@ -376,22 +376,119 @@ exports.setApp = function (app, dbInstance) {
   // Endpoint for generating travel itinerary using Gemini
   app.post("/api/generate-itinerary", async (req, res) => {
     try {
-      const { destination, startDate, endDate, budget, preferences } = req.body;
+      const { destination, duration, groupSize, preferences } = req.body;
 
-      const prompt = `Create a detailed day-by-day itinerary for a trip to ${destination} from ${startDate} to ${endDate} with a budget of $${budget}. Consider these preferences: ${preferences}. For each day, provide specific activities with times, locations, and estimated costs.`;
+      if (!destination || !duration || !groupSize) {
+        return res.status(400).json({
+          error: "Missing required fields",
+          details: "Destination, duration, and group size are required",
+        });
+      }
+
+      const prompt = `Create a detailed day-by-day itinerary for a ${duration}-day trip to ${destination} for ${groupSize} people. Consider these preferences: ${preferences}. 
+      
+      For each day, provide at least three distinct activities (morning, afternoon, and evening), including specific times, locations, estimated costs, and a brief description.
+      
+      Return the result as a JSON object with the following structure:
+      {
+        "title": "Trip Title",
+        "destination": "${destination}",
+        "duration": ${duration},
+        "groupSize": ${groupSize},
+        "description": "Brief trip description",
+        "image": "URL to a relevant image",
+        "price": 0,
+        "tags": ["tag1", "tag2"],
+        "dailyBreakdown": [
+          {
+            "day": 1,
+            "activities": [
+              {
+                "time": "HH:MM AM/PM",
+                "activity": "Activity name",
+                "location": "Specific location",
+                "details": "Detailed description",
+                "cost": "$Amount"
+              }
+            ]
+          }
+        ]
+      }
+      
+      Ensure the JSON is properly formatted and includes all required fields.`;
 
       const model = genAI.getGenerativeModel({ model: "gemini-pro" });
       const result = await model.generateContent(prompt);
       const response = await result.response;
       const text = response.text();
 
-      // Parse the response into a structured format
-      const itinerary = parseItineraryResponse(text);
+      // Parse the JSON response
+      let itinerary;
+      try {
+        itinerary = JSON.parse(text);
 
-      res.json({ itinerary });
+        // Validate the structure
+        if (
+          !itinerary.dailyBreakdown ||
+          !Array.isArray(itinerary.dailyBreakdown)
+        ) {
+          throw new Error(
+            "Invalid itinerary structure: missing dailyBreakdown array"
+          );
+        }
+
+        // Ensure each day has activities
+        itinerary.dailyBreakdown.forEach((day, index) => {
+          if (
+            !day.activities ||
+            !Array.isArray(day.activities) ||
+            day.activities.length === 0
+          ) {
+            throw new Error(`Day ${index + 1} has no activities`);
+          }
+
+          // Ensure each activity has required fields
+          day.activities.forEach((activity, actIndex) => {
+            if (!activity.time || !activity.activity) {
+              throw new Error(
+                `Activity ${actIndex + 1} on day ${
+                  index + 1
+                } is missing required fields`
+              );
+            }
+          });
+        });
+
+        // Add default values for required fields if they're missing
+        if (!itinerary.image) {
+          itinerary.image =
+            "https://via.placeholder.com/800x400?text=Trip+Image";
+        }
+        if (!itinerary.price) {
+          itinerary.price = 0;
+        }
+        if (!itinerary.tags || !Array.isArray(itinerary.tags)) {
+          itinerary.tags = [];
+        }
+
+        // Log the final itinerary for debugging
+        console.log("Generated itinerary:", JSON.stringify(itinerary, null, 2));
+
+        res.json(itinerary);
+      } catch (parseError) {
+        console.error("Error parsing AI response:", parseError);
+        res.status(500).json({
+          error: "Failed to parse itinerary data",
+          details: parseError.message,
+          rawResponse: text,
+        });
+      }
     } catch (error) {
       console.error("Error generating itinerary:", error);
-      res.status(500).json({ error: "Failed to generate itinerary" });
+      res.status(500).json({
+        error: "Failed to generate itinerary",
+        details: error.message,
+      });
     }
   });
 
