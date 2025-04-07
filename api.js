@@ -236,9 +236,9 @@ exports.setApp = function (app, dbInstance) {
         //     needsVerification: true,
         //   });
         // }
-        id: user.UserId;
-        fn: user.FirstName;
-        ln: user.LastName;
+        id = user.UserId;
+        fn = user.FirstName;
+        ln = user.LastName;
 
         try {
           const token = require("./createJWT.js");
@@ -252,6 +252,7 @@ exports.setApp = function (app, dbInstance) {
           firstName: fn,
           lastName: ln,
           token: ret,
+          error: error
         });
 
       } else {
@@ -269,7 +270,7 @@ exports.setApp = function (app, dbInstance) {
     // Expecting: userId, tripName, tripArray
     const { userId, itineraryNode, jwtToken } = req.body;
 
-    /*
+    
     try{
       if(token.isExpired(jwtToken)) {
         var r = {error:"The jwt token is no longer valid", jwtToken:""};;
@@ -279,7 +280,7 @@ exports.setApp = function (app, dbInstance) {
     }
     catch(e){
       console.log(e.message);
-    } */
+    } 
 
     if (!userId || !itineraryNode) {
       return res.status(400).json({ error: "All fields required" });
@@ -292,11 +293,11 @@ exports.setApp = function (app, dbInstance) {
         UserId: userId,
         Itinerary: itineraryNode,
         ItineraryID: itineraryID,
-        createdAt: new Date(),
+        createdAt: new Date()
       };
 
       const result = await db.collection("Itineraries").insertOne(newItinerary);
-      /*
+      
       var refreshedToken = null;
       try{
         refreshedToken = token.refreshedToken(jwtToken);
@@ -304,7 +305,7 @@ exports.setApp = function (app, dbInstance) {
       catch(e){
         console.log(e.message);
       }
-      */
+      
       res.status(200).json({
         message: "Itinerary added successfully",
         ItineraryId: result.itineraryID,
@@ -332,13 +333,21 @@ exports.setApp = function (app, dbInstance) {
       //This goes through the Events collection and deletes the event with the matching userId and eventId
       const result = await db.collection("Itineraries").deleteOne({
         UserId: userId,
-        _id: new require("mongodb").ObjectId(itineraryID),
+        ItineraryID: itineraryID
       });
 
       if (result.deletedCount === 0) {
         return res
           .status(404)
           .json({ error: "Event not found or already deleted" });
+      }
+
+      var refreshedToken = null;
+      try{
+        refreshedToken = token.refreshedToken(jwtToken);
+      }
+      catch(e){
+        console.log(e.message);
       }
 
       //If the event is successfully deleted, a message is sent back to the user
@@ -355,6 +364,19 @@ exports.setApp = function (app, dbInstance) {
 
     const { userId, itineraryName } = req.body;
 
+    //This checks if the jwt token is expired. If it is, it sends a 200 response with an error message and an empty jwtToken
+    try{
+      if(token.isExpired(jwtToken)) {
+        var r = {error:"The jwt token is no longer valid", jwtToken:""};;
+        res.status(200).json(r);
+        return;
+      }
+    }
+    catch(e){
+      console.log(e.message);
+    }
+    
+    //This checks if the userId is provided in the request body. If not, it sends a 400 error response
     if (!userId) {
       return res.status(400).json({ error: "User ID is required" });
     }
@@ -363,12 +385,18 @@ exports.setApp = function (app, dbInstance) {
       //This query is used to search for events with the matching userId, date, location, and time (if provided)
       let query = { UserId: userId };
 
-      if (date) query.Date = date;
-      if (location) query.Location = location;
-      if (time) query.Time = time;
+      if (itineraryName) query.Itinerary.title = itineraryName;
 
       //The results of the query are stored in the results variable
       const results = await db.collection("Events").find(query).toArray();
+      
+      var refreshedToken = null;
+      try{
+        refreshedToken = token.refreshedToken(jwtToken);
+      }
+      catch(e){
+        console.log(e.message);
+      }
 
       //The results are then sent back to the user
       res.status(200).json({ events: results, error: "" });
@@ -389,7 +417,7 @@ exports.setApp = function (app, dbInstance) {
     const updateData = {};
     if (firstName) updateData.FirstName = firstName;
     if (lastName) updateData.LastName = lastName;
-    
+
     if (email) {
       // Check if the email is already taken
       const existingUser = await db.collection("Users").findOne({ Email: email });
@@ -404,7 +432,15 @@ exports.setApp = function (app, dbInstance) {
         { UserId: userId },
         { $set: updateData }
       );
-  
+      
+      var refreshedToken = null;
+      try{
+        refreshedToken = token.refreshedToken(jwtToken);
+      }
+      catch(e){
+        console.log(e.message);
+      }
+
       res.status(200).json({ change: result, message: "User updated successfully" });
     } catch (e) {
       console.error("Error updating user:", e);
@@ -412,6 +448,39 @@ exports.setApp = function (app, dbInstance) {
     }
   });
   
+  app.post("/api/editItinerary", async (req, res, next) => {
+    // incoming: userId, itineraryID, itineraryNode
+    const { userId, itineraryID, itineraryNode } = req.body;
+
+    if (!userId || !itineraryID || !itineraryNode) {
+      return res.status(400).json({ error: "All fields required" });
+    }
+
+    var error = "";
+
+    try {
+      const result = await db.collection("Itineraries").updateOne(
+        { UserId: userId, ItineraryID: itineraryID },
+        { $set: { Itinerary: itineraryNode } }
+      );  
+
+      var refreshedToken = null;
+      try{
+        refreshedToken = token.refreshedToken(jwtToken);
+      }
+      catch(e){
+        console.log(e.message);
+      }
+
+      res.status(200).json({
+        message: "Itinerary updated successfully",
+        result: result,
+      });
+    } catch (e) {
+      error = e.toString();
+      res.status(500).json({ error: error });
+    }
+  });
 
   //ENDPOINT FOR GENERATING TRAVEL PLAN USING GEMINI
   /* app.post("/api/generate-trip", async (req, res) => {
