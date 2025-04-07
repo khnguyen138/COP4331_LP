@@ -3,10 +3,10 @@ require("dotenv").config();
 
 const url = process.env.MONGODB_URI;
 const client = new MongoClient(url);
+const mongoose = require("mongoose");
 //client.connect();
 
 /*
-const mongoose = require("mongoose");
 mongoose.connect(url)
   .then(()=> console.log("Mongo DB connected"))
   .catch(err => console.log(err));
@@ -43,6 +43,12 @@ async function startServer() {
     await client.connect();
     console.log("Connected to MongoDB");
     const dbInstance = client.db("TravelGenie");
+
+    /*
+    mongoose.connect(url)
+    .then(()=> console.log("Mongo DB connected"))
+    .catch(err => console.log(err));
+    */
 
     // Pass both the app and the db instance to your API module
     const api = require("./api.js");

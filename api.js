@@ -253,6 +253,7 @@ exports.setApp = function (app, dbInstance) {
           lastName: ln,
           token: ret,
         });
+
       } else {
         res.status(400).json({ error: "Invalid user name/password" });
       }
@@ -262,8 +263,23 @@ exports.setApp = function (app, dbInstance) {
   });
 
   app.post("/api/addItinerary", async (req, res, next) => {
+
+    var token = require("./createJWT.js");
+
     // Expecting: userId, tripName, tripArray
-    const { userId, itineraryNode } = req.body;
+    const { userId, itineraryNode, jwtToken } = req.body;
+
+    /*
+    try{
+      if(token.isExpired(jwtToken)) {
+        var r = {error:"The jwt token is no longer valid", jwtToken:""};;
+        res.status(200).json(r);
+        return;
+      }
+    }
+    catch(e){
+      console.log(e.message);
+    } */
 
     if (!userId || !itineraryNode) {
       return res.status(400).json({ error: "All fields required" });
@@ -280,10 +296,20 @@ exports.setApp = function (app, dbInstance) {
       };
 
       const result = await db.collection("Itineraries").insertOne(newItinerary);
+      /*
+      var refreshedToken = null;
+      try{
+        refreshedToken = token.refreshedToken(jwtToken);
+      }
+      catch(e){
+        console.log(e.message);
+      }
+      */
       res.status(200).json({
         message: "Itinerary added successfully",
         ItineraryId: result.itineraryID,
       });
+
     } catch (e) {
       error = e.toString();
       res.status(500).json({ error: error });
@@ -327,7 +353,7 @@ exports.setApp = function (app, dbInstance) {
     // incoming: userId, (optional) date, location, time
     // outgoing: list of matching events or error message
 
-    const { userId, date, location, time } = req.body;
+    const { userId, itineraryName } = req.body;
 
     if (!userId) {
       return res.status(400).json({ error: "User ID is required" });
@@ -350,6 +376,34 @@ exports.setApp = function (app, dbInstance) {
       res.status(500).json({ error: e.toString() });
     }
   });
+
+  app.post("/api/editUser", async (req, res, next) => {
+    // incoming: userId, newfirstName, newlastName, newEmail
+    const { userId, firstName, lastName, email } = req.body;
+  
+    if (!userId) {
+      return res.status(400).json({ error: "User ID is required" });
+    }
+  
+    // Build update object and check that at least one field is provided.
+    const updateData = {};
+    if (firstName) updateData.FirstName = firstName;
+    if (lastName) updateData.LastName = lastName;
+    if (email) updateData.Email = email;
+  
+    try {
+      const result = await db.collection("Users").updateOne(
+        { UserId: userId },
+        { $set: updateData }
+      );
+  
+      res.status(200).json({ change: result, message: "User updated successfully" });
+    } catch (e) {
+      console.error("Error updating user:", e);
+      res.status(500).json({ error: e.toString() });
+    }
+  });
+  
 
   //ENDPOINT FOR GENERATING TRAVEL PLAN USING GEMINI
   /* app.post("/api/generate-trip", async (req, res) => {
