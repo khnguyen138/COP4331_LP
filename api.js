@@ -389,7 +389,15 @@ exports.setApp = function (app, dbInstance) {
     const updateData = {};
     if (firstName) updateData.FirstName = firstName;
     if (lastName) updateData.LastName = lastName;
-    if (email) updateData.Email = email;
+    
+    if (email) {
+      // Check if the email is already taken
+      const existingUser = await db.collection("Users").findOne({ Email: email });
+      if (existingUser && existingUser.UserId !== userId) {
+        return res.status(400).json({ error: "Email is already taken" });
+      }
+      updateData.Email = email;
+    }
   
     try {
       const result = await db.collection("Users").updateOne(
