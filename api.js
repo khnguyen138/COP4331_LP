@@ -12,6 +12,7 @@ const genAI = new GoogleGenerativeAI(process.env.API_KEY, {
 // const client = new MongoClient(uri);
 
 const User = require("./models/user.js");
+const Itinerary = require("./models/Itinerary.js");
 
 exports.setApp = function (app, dbInstance) {
   // Use the provided dbInstance instead of creating a new connection
@@ -26,7 +27,7 @@ exports.setApp = function (app, dbInstance) {
     return Math.abs(hash); // Return positive integer
   }
 
-  async function generateIdFromMongo(login, db) {
+  async function generateUserIdFromMongo(login, db) {
     let userId = hashStringToInt(login);
 
     // Check if a user with this userId already exists.
@@ -38,6 +39,19 @@ exports.setApp = function (app, dbInstance) {
     }
     return userId;
   }
+
+  async function generateItineraryIdFromMongo(itinerary, db, userId) {
+    // Include userId and current timestamp to increase uniqueness
+    let baseString = itinerary + userId + Date.now();
+    let itineraryId = hashStringToInt(baseString);
+    let existing = await db.collection("Itineraries").findOne({ ItineraryID: itineraryId });
+    while (existing) {
+      itineraryId++;
+      existing = await db.collection("Itineraries").findOne({ ItineraryID: itineraryId });
+    }
+    return itineraryId;
+  }
+  
 
   app.post("/api/register", async (req, res, next) => {
     const { firstName, lastName, email, login, password } = req.body;
@@ -62,7 +76,7 @@ exports.setApp = function (app, dbInstance) {
       const verificationToken = emailService.generateToken();
       const verificationExpires = new Date(Date.now() + 24 * 60 * 60 * 1000); // 24 hours
 
-      userId = await generateIdFromMongo(login, db);
+      userId = await generateUserIdFromMongo(login, db);
       newUser = {
         Login: login,
         Password: password,
@@ -266,8 +280,7 @@ exports.setApp = function (app, dbInstance) {
   app.post("/api/addItinerary", async (req, res, next) => {
 
     var token = require("./createJWT.js");
-
-    // Expecting: userId, tripName, tripArray
+    // incoming: userId, itineraryNode
     const { userId, itineraryNode, jwtToken } = req.body;
 
     
@@ -278,16 +291,17 @@ exports.setApp = function (app, dbInstance) {
         return;
       }
     }
+
     catch(e){
       console.log(e.message);
     } 
 
-    if (!userId || !itineraryNode) {
+    if (!userId || !itineraryNode ) {
       return res.status(400).json({ error: "All fields required" });
     }
 
     var error = "";
-    var itineraryID = await generateIdFromMongo(itineraryNode.title, db);
+    var itineraryID = await generateItineraryIdFromMongo(itineraryNode.title, db);
     try {
       const newItinerary = {
         UserId: userId,
@@ -317,11 +331,22 @@ exports.setApp = function (app, dbInstance) {
     }
   });
 
-  app.post("/api/deleteIternerary", async (req, res, next) => {
+  app.post("/api/deleteItinerary", async (req, res, next) => {
     // incoming: userId, eventId
     // outgoing: success/error message
 
-    const { userId, itineraryID } = req.body;
+    const { userId, itineraryID, jwtToken } = req.body;
+
+    try{
+      if(token.isExpired(jwtToken)) {
+        var r = {error:"The jwt token is no longer valid", jwtToken:""};;
+        res.status(200).json(r);
+        return;
+      }
+    }
+    catch(e){
+      console.log(e.message);
+    } 
 
     if (!userId || !itineraryID) {
       return res
@@ -358,11 +383,11 @@ exports.setApp = function (app, dbInstance) {
   });
 
   //This function is used to search for events in the Events collection
-  app.post("/api/searchIternerary", async (req, res, next) => {
+  app.post("/api/searchItinerary", async (req, res, next) => {
     // incoming: userId, (optional) date, location, time
     // outgoing: list of matching events or error message
 
-    const { userId, itineraryName } = req.body;
+    const { userId, itineraryName, jwtToken } = req.body;
 
     //This checks if the jwt token is expired. If it is, it sends a 200 response with an error message and an empty jwtToken
     try{
@@ -385,10 +410,13 @@ exports.setApp = function (app, dbInstance) {
       //This query is used to search for events with the matching userId, date, location, and time (if provided)
       let query = { UserId: userId };
 
-      if (itineraryName) query.Itinerary.title = itineraryName;
-
+      if (itineraryName) {
+        // This regex will match any itinerary title that contains the search term (case-insensitive)
+        query["Itinerary.title"] = { $regex: itineraryName.trim(), $options: "i" };
+      }
+      
       //The results of the query are stored in the results variable
-      const results = await db.collection("Events").find(query).toArray();
+      const results = await db.collection("Itineraries").find(query).toArray();
       
       var refreshedToken = null;
       try{
@@ -399,7 +427,7 @@ exports.setApp = function (app, dbInstance) {
       }
 
       //The results are then sent back to the user
-      res.status(200).json({ events: results, error: "" });
+      res.status(200).json({ Itineraries: results, error: "" });
     } catch (e) {
       res.status(500).json({ error: e.toString() });
     }
@@ -408,11 +436,22 @@ exports.setApp = function (app, dbInstance) {
   app.post("/api/editUser", async (req, res, next) => {
     // incoming: userId, newfirstName, newlastName, newEmail
     const { userId, firstName, lastName, email } = req.body;
-  
+    
+    try{
+      if(token.isExpired(jwtToken)) {
+        var r = {error:"The jwt token is no longer valid", jwtToken:""};;
+        res.status(200).json(r);
+        return;
+      }
+    }
+    catch(e){
+      console.log(e.message);
+    } 
+
     if (!userId) {
       return res.status(400).json({ error: "User ID is required" });
     }
-  
+    
     // Build update object and check that at least one field is provided.
     const updateData = {};
     if (firstName) updateData.FirstName = firstName;
@@ -426,7 +465,7 @@ exports.setApp = function (app, dbInstance) {
       }
       updateData.Email = email;
     }
-  
+    
     try {
       const result = await db.collection("Users").updateOne(
         { UserId: userId },
@@ -452,6 +491,16 @@ exports.setApp = function (app, dbInstance) {
     // incoming: userId, itineraryID, itineraryNode
     const { userId, itineraryID, itineraryNode } = req.body;
 
+    try{
+      if(token.isExpired(jwtToken)) {
+        var r = {error:"The jwt token is no longer valid", jwtToken:""};;
+        res.status(200).json(r);
+        return;
+      }
+    }
+    catch(e){
+      console.log(e.message);
+    } 
     if (!userId || !itineraryID || !itineraryNode) {
       return res.status(400).json({ error: "All fields required" });
     }
@@ -548,7 +597,7 @@ exports.setApp = function (app, dbInstance) {
       
       Ensure the JSON is properly formatted and includes all required fields.`;
 
-      const model = genAI.getGenerativeModel({ model: "gemini-pro" });
+      const model = genAI.getGenerativeModel({ model: "gemini-2.0-flash" });
       const result = await model.generateContent(prompt);
       const response = await result.response;
       const text = response.text();
