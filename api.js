@@ -7,10 +7,6 @@ const genAI = new GoogleGenerativeAI(process.env.API_KEY, {
   apiVersion: "v1",
 });
 
-// MongoDB connection URI
-// const uri = process.env.MONGODB_URI || "mongodb://localhost:27017";
-// const client = new MongoClient(uri);
-
 const User = require("./models/user.js");
 const Itinerary = require("./models/Itinerary.js");
 
@@ -44,14 +40,17 @@ exports.setApp = function (app, dbInstance) {
     // Include userId and current timestamp to increase uniqueness
     let baseString = itinerary + userId + Date.now();
     let itineraryId = hashStringToInt(baseString);
-    let existing = await db.collection("Itineraries").findOne({ ItineraryID: itineraryId });
+    let existing = await db
+      .collection("Itineraries")
+      .findOne({ ItineraryID: itineraryId });
     while (existing) {
       itineraryId++;
-      existing = await db.collection("Itineraries").findOne({ ItineraryID: itineraryId });
+      existing = await db
+        .collection("Itineraries")
+        .findOne({ ItineraryID: itineraryId });
     }
     return itineraryId;
   }
-  
 
   app.post("/api/register", async (req, res, next) => {
     const { firstName, lastName, email, login, password } = req.body;
@@ -266,9 +265,8 @@ exports.setApp = function (app, dbInstance) {
           firstName: fn,
           lastName: ln,
           token: ret,
-          error: error
+          error: error,
         });
-
       } else {
         res.status(400).json({ error: "Invalid user name/password" });
       }
@@ -278,53 +276,50 @@ exports.setApp = function (app, dbInstance) {
   });
 
   app.post("/api/addItinerary", async (req, res, next) => {
-
     var token = require("./createJWT.js");
     // incoming: userId, itineraryNode
     const { userId, itineraryNode, jwtToken } = req.body;
 
-    
-    try{
-      if(token.isExpired(jwtToken)) {
-        var r = {error:"The jwt token is no longer valid", jwtToken:""};;
+    try {
+      if (token.isExpired(jwtToken)) {
+        var r = { error: "The jwt token is no longer valid", jwtToken: "" };
         res.status(200).json(r);
         return;
       }
+    } catch (e) {
+      console.log(e.message);
     }
 
-    catch(e){
-      console.log(e.message);
-    } 
-
-    if (!userId || !itineraryNode ) {
+    if (!userId || !itineraryNode) {
       return res.status(400).json({ error: "All fields required" });
     }
 
     var error = "";
-    var itineraryID = await generateItineraryIdFromMongo(itineraryNode.title, db);
+    var itineraryID = await generateItineraryIdFromMongo(
+      itineraryNode.title,
+      db
+    );
     try {
       const newItinerary = {
         UserId: userId,
         Itinerary: itineraryNode,
         ItineraryID: itineraryID,
-        createdAt: new Date()
+        createdAt: new Date(),
       };
 
       const result = await db.collection("Itineraries").insertOne(newItinerary);
-      
+
       var refreshedToken = null;
-      try{
+      try {
         refreshedToken = token.refreshedToken(jwtToken);
-      }
-      catch(e){
+      } catch (e) {
         console.log(e.message);
       }
-      
+
       res.status(200).json({
         message: "Itinerary added successfully",
         ItineraryId: result.itineraryID,
       });
-
     } catch (e) {
       error = e.toString();
       res.status(500).json({ error: error });
@@ -337,16 +332,15 @@ exports.setApp = function (app, dbInstance) {
 
     const { userId, itineraryID, jwtToken } = req.body;
 
-    try{
-      if(token.isExpired(jwtToken)) {
-        var r = {error:"The jwt token is no longer valid", jwtToken:""};;
+    try {
+      if (token.isExpired(jwtToken)) {
+        var r = { error: "The jwt token is no longer valid", jwtToken: "" };
         res.status(200).json(r);
         return;
       }
-    }
-    catch(e){
+    } catch (e) {
       console.log(e.message);
-    } 
+    }
 
     if (!userId || !itineraryID) {
       return res
@@ -358,7 +352,7 @@ exports.setApp = function (app, dbInstance) {
       //This goes through the Events collection and deletes the event with the matching userId and eventId
       const result = await db.collection("Itineraries").deleteOne({
         UserId: userId,
-        ItineraryID: itineraryID
+        ItineraryID: itineraryID,
       });
 
       if (result.deletedCount === 0) {
@@ -368,10 +362,9 @@ exports.setApp = function (app, dbInstance) {
       }
 
       var refreshedToken = null;
-      try{
+      try {
         refreshedToken = token.refreshedToken(jwtToken);
-      }
-      catch(e){
+      } catch (e) {
         console.log(e.message);
       }
 
@@ -390,17 +383,16 @@ exports.setApp = function (app, dbInstance) {
     const { userId, itineraryName, jwtToken } = req.body;
 
     //This checks if the jwt token is expired. If it is, it sends a 200 response with an error message and an empty jwtToken
-    try{
-      if(token.isExpired(jwtToken)) {
-        var r = {error:"The jwt token is no longer valid", jwtToken:""};;
+    try {
+      if (token.isExpired(jwtToken)) {
+        var r = { error: "The jwt token is no longer valid", jwtToken: "" };
         res.status(200).json(r);
         return;
       }
-    }
-    catch(e){
+    } catch (e) {
       console.log(e.message);
     }
-    
+
     //This checks if the userId is provided in the request body. If not, it sends a 400 error response
     if (!userId) {
       return res.status(400).json({ error: "User ID is required" });
@@ -412,17 +404,19 @@ exports.setApp = function (app, dbInstance) {
 
       if (itineraryName) {
         // This regex will match any itinerary title that contains the search term (case-insensitive)
-        query["Itinerary.title"] = { $regex: itineraryName.trim(), $options: "i" };
+        query["Itinerary.title"] = {
+          $regex: itineraryName.trim(),
+          $options: "i",
+        };
       }
-      
+
       //The results of the query are stored in the results variable
       const results = await db.collection("Itineraries").find(query).toArray();
-      
+
       var refreshedToken = null;
-      try{
+      try {
         refreshedToken = token.refreshedToken(jwtToken);
-      }
-      catch(e){
+      } catch (e) {
         console.log(e.message);
       }
 
@@ -436,22 +430,21 @@ exports.setApp = function (app, dbInstance) {
   app.post("/api/editUser", async (req, res, next) => {
     // incoming: userId, newfirstName, newlastName, newEmail
     const { userId, firstName, lastName, email } = req.body;
-    
-    try{
-      if(token.isExpired(jwtToken)) {
-        var r = {error:"The jwt token is no longer valid", jwtToken:""};;
+
+    try {
+      if (token.isExpired(jwtToken)) {
+        var r = { error: "The jwt token is no longer valid", jwtToken: "" };
         res.status(200).json(r);
         return;
       }
-    }
-    catch(e){
+    } catch (e) {
       console.log(e.message);
-    } 
+    }
 
     if (!userId) {
       return res.status(400).json({ error: "User ID is required" });
     }
-    
+
     // Build update object and check that at least one field is provided.
     const updateData = {};
     if (firstName) updateData.FirstName = firstName;
@@ -459,48 +452,49 @@ exports.setApp = function (app, dbInstance) {
 
     if (email) {
       // Check if the email is already taken
-      const existingUser = await db.collection("Users").findOne({ Email: email });
+      const existingUser = await db
+        .collection("Users")
+        .findOne({ Email: email });
       if (existingUser && existingUser.UserId !== userId) {
         return res.status(400).json({ error: "Email is already taken" });
       }
       updateData.Email = email;
     }
-    
+
     try {
-      const result = await db.collection("Users").updateOne(
-        { UserId: userId },
-        { $set: updateData }
-      );
-      
+      const result = await db
+        .collection("Users")
+        .updateOne({ UserId: userId }, { $set: updateData });
+
       var refreshedToken = null;
-      try{
+      try {
         refreshedToken = token.refreshedToken(jwtToken);
-      }
-      catch(e){
+      } catch (e) {
         console.log(e.message);
       }
 
-      res.status(200).json({ change: result, message: "User updated successfully" });
+      res
+        .status(200)
+        .json({ change: result, message: "User updated successfully" });
     } catch (e) {
       console.error("Error updating user:", e);
       res.status(500).json({ error: e.toString() });
     }
   });
-  
+
   app.post("/api/editItinerary", async (req, res, next) => {
     // incoming: userId, itineraryID, itineraryNode
     const { userId, itineraryID, itineraryNode } = req.body;
 
-    try{
-      if(token.isExpired(jwtToken)) {
-        var r = {error:"The jwt token is no longer valid", jwtToken:""};;
+    try {
+      if (token.isExpired(jwtToken)) {
+        var r = { error: "The jwt token is no longer valid", jwtToken: "" };
         res.status(200).json(r);
         return;
       }
-    }
-    catch(e){
+    } catch (e) {
       console.log(e.message);
-    } 
+    }
     if (!userId || !itineraryID || !itineraryNode) {
       return res.status(400).json({ error: "All fields required" });
     }
@@ -508,16 +502,17 @@ exports.setApp = function (app, dbInstance) {
     var error = "";
 
     try {
-      const result = await db.collection("Itineraries").updateOne(
-        { UserId: userId, ItineraryID: itineraryID },
-        { $set: { Itinerary: itineraryNode } }
-      );  
+      const result = await db
+        .collection("Itineraries")
+        .updateOne(
+          { UserId: userId, ItineraryID: itineraryID },
+          { $set: { Itinerary: itineraryNode } }
+        );
 
       var refreshedToken = null;
-      try{
+      try {
         refreshedToken = token.refreshedToken(jwtToken);
-      }
-      catch(e){
+      } catch (e) {
         console.log(e.message);
       }
 
@@ -602,10 +597,20 @@ exports.setApp = function (app, dbInstance) {
       const response = await result.response;
       const text = response.text();
 
+      function extractJsonFromCodeFences(str) {
+        const regex = /```(?:json)?\s*([\s\S]*?)\s*```/;
+        const match = str.match(regex);
+        if (match && match[1]) {
+          return match[1].trim();
+        }
+        return str.trim();
+      }
+
+      const cleanedText = extractJsonFromCodeFences(text);
       // Parse the JSON response
       let itinerary;
       try {
-        itinerary = JSON.parse(text);
+        itinerary = JSON.parse(cleanedText);
 
         // Validate the structure
         if (

@@ -254,6 +254,81 @@ const TripQuestionnaire: React.FC<TripQuestionnaireProps> = ({
 };
 
 /**
+ * Extracts JSON from a string that might contain markdown or other formatting
+ * @param input The input string that might contain JSON
+ * @returns The extracted JSON string or the original string if no extraction was needed
+ */
+function extractJsonFromString(input: string): string {
+  // Check if the input contains code fences
+  if (input.includes("```")) {
+    console.log("Detected code fences in the response, extracting JSON");
+    // Extract content between code fences
+    const codeBlockRegex = /```(?:json)?\s*([\s\S]*?)\s*```/;
+    const match = input.match(codeBlockRegex);
+    if (match && match[1]) {
+      const extracted = match[1].trim();
+      console.log("Successfully extracted JSON from code fences");
+      return extracted;
+    } else {
+      console.warn(
+        "Code fences detected but couldn't extract content properly"
+      );
+    }
+  }
+
+  // If no code fences, return the original string
+  return input;
+}
+
+/**
+ * Validates that the data has the expected structure for an itinerary
+ * @param data The data to validate
+ * @returns True if the data has the expected structure, false otherwise
+ */
+function validateItineraryStructure(data: any): boolean {
+  // Check if the data has the expected structure
+  if (!data || typeof data !== "object") {
+    console.error("Invalid data structure:", data);
+    return false;
+  }
+
+  // Ensure dailyBreakdown is an array
+  if (!data.dailyBreakdown || !Array.isArray(data.dailyBreakdown)) {
+    console.error("Missing or invalid dailyBreakdown:", data.dailyBreakdown);
+    return false;
+  }
+
+  // Ensure each day has activities
+  for (let i = 0; i < data.dailyBreakdown.length; i++) {
+    const day = data.dailyBreakdown[i];
+    if (!day.activities || !Array.isArray(day.activities)) {
+      console.error(`Day ${i + 1} has invalid activities:`, day.activities);
+      return false;
+    }
+
+    // Ensure each activity has time and activity properties
+    for (let j = 0; j < day.activities.length; j++) {
+      const activity = day.activities[j];
+      if (typeof activity === "string") {
+        // Convert string activities to objects
+        day.activities[j] = { time: "All Day", activity };
+      } else if (!activity || typeof activity !== "object") {
+        console.error(`Day ${i + 1}, Activity ${j + 1} is invalid:`, activity);
+        return false;
+      } else if (!activity.time || !activity.activity) {
+        console.error(
+          `Day ${i + 1}, Activity ${j + 1} is missing time or activity:`,
+          activity
+        );
+        return false;
+      }
+    }
+  }
+
+  return true;
+}
+
+/**
  * Cleans and validates the itinerary data
  * @param data The raw itinerary data from the API
  * @returns The cleaned and validated itinerary data, or null if invalid
@@ -263,14 +338,17 @@ function cleanAndValidateItinerary(data: any): any {
     // If the data is a string, try to parse it
     if (typeof data === "string") {
       try {
-        // First try to fix common JSON syntax errors
-        const fixedJson = fixJsonSyntax(data);
+        // First extract JSON if it's wrapped in code fences
+        const extractedJson = extractJsonFromString(data);
+
+        // Try to fix common JSON syntax errors
+        const fixedJson = fixJsonSyntax(extractedJson);
         try {
           data = JSON.parse(fixedJson);
         } catch (parseError) {
           console.error("Failed to parse fixed JSON:", parseError);
           // Try one more time with a more aggressive fix
-          const moreAggressiveFix = fixJsonSyntax(data)
+          const moreAggressiveFix = fixJsonSyntax(extractedJson)
             .replace(
               /"time":\s*"([^"]+)":\s*"([^"]+)"/g,
               '"time": "$1", "activity": "$2"'
@@ -294,54 +372,16 @@ function cleanAndValidateItinerary(data: any): any {
       }
     }
 
-    // Check if the data has the expected structure
-    if (!data || typeof data !== "object") {
-      console.error("Invalid data structure:", data);
-      return null;
-    }
-
-    // Ensure dailyBreakdown is an array
-    if (!data.dailyBreakdown || !Array.isArray(data.dailyBreakdown)) {
-      console.error("Missing or invalid dailyBreakdown:", data.dailyBreakdown);
+    // Validate the structure of the itinerary
+    if (!validateItineraryStructure(data)) {
       return null;
     }
 
     // Clean each day's activities
     data.dailyBreakdown.forEach((day: any, dayIndex: number) => {
-      if (!day.activities || !Array.isArray(day.activities)) {
-        console.error(
-          `Day ${dayIndex + 1} has invalid activities:`,
-          day.activities
-        );
-        day.activities = [];
-        return;
-      }
-
       // Clean each activity
       day.activities = day.activities.map(
         (activity: any, activityIndex: number) => {
-          // Check if the activity is a string (direct activity description)
-          if (typeof activity === "string") {
-            return { time: "All Day", activity: activity };
-          }
-
-          // Check if the activity has the correct structure
-          if (!activity || typeof activity !== "object") {
-            console.error(
-              `Day ${dayIndex + 1}, Activity ${activityIndex + 1} is invalid:`,
-              activity
-            );
-            return {
-              time: "Unknown",
-              activity: "Activity details not available",
-            };
-          }
-
-          // Ensure time and activity properties exist
-          if (!activity.time) activity.time = "Unknown";
-          if (!activity.activity)
-            activity.activity = "Activity details not available";
-
           // Fix any malformed activities (like the one with "time": "Evening": { ... })
           if (activity.time && typeof activity.time === "object") {
             console.error(
@@ -388,6 +428,9 @@ function cleanAndValidateItinerary(data: any): any {
 function fixJsonSyntax(jsonString: string): string {
   let fixedJson = jsonString;
 
+  // Remove any remaining code fences that might have been missed
+  fixedJson = fixedJson.replace(/```(?:json)?/g, "").trim();
+
   // Fix the "time": "Evening": { ... } pattern
   fixedJson = fixedJson.replace(/"time":\s*"([^"]+)":\s*{/g, '"time": "$1",');
 
@@ -396,6 +439,15 @@ function fixJsonSyntax(jsonString: string): string {
     /"time":\s*"([^"]+)":\s*"([^"]+)"/g,
     '"time": "$1", "activity": "$2"'
   );
+
+  // Fix missing quotes around property names
+  fixedJson = fixedJson.replace(/([{,]\s*)(\w+):/g, '$1"$2":');
+
+  // Fix trailing commas in arrays and objects
+  fixedJson = fixedJson.replace(/,(\s*[}\]])/g, "$1");
+
+  // Fix single quotes instead of double quotes
+  fixedJson = fixedJson.replace(/'/g, '"');
 
   // Log the changes for debugging
   if (fixedJson !== jsonString) {
