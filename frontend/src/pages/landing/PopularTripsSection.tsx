@@ -58,7 +58,7 @@ const PopularTripsSection: React.FC = () => {
   return (
     <section className="py-5 bg-light">
       <div className="container">
-        <h2 className="text-center mb-5">Explore Popular Trips</h2>
+        <h2 className="text-center mb-5 fw-bold">Explore Popular Trips</h2>
         <div className="row g-4">
           {sampleTrips.map((trip, index) => (
             <div key={index} className="col-12 col-md-6 col-lg-4">
