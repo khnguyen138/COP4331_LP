@@ -33,7 +33,7 @@ const TripCard: React.FC<TripCardProps> = ({ trip, type }) => {
 
   const handlePlanTrip = () => {
     if (isDestination) {
-      navigate("/tripquestionnaire", {
+      navigate("/tripQuestionnaire", {
         state: {
           tripData: {
             destination: destinationTrip?.title,
@@ -51,7 +51,7 @@ const TripCard: React.FC<TripCardProps> = ({ trip, type }) => {
         },
       });
     } else {
-      navigate("/tripquestionnaire", {
+      navigate("/tripQuestionnaire", {
         state: {
           tripData: {
             destination: upcomingTrip?.title,

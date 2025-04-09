@@ -468,7 +468,13 @@ exports.setApp = function (app, dbInstance) {
       }
       updateData.Email = email;
     }
+    
     if (password) updateData.Password = password;
+    /*const bcrypt = require('bcrypt');
+    if (password) {
+      const hashedPassword = await bcrypt.hash(password, 10);
+      updateData.Password = hashedPassword;
+    }*/
     
     try {
       const result = await User.findOneAndUpdate({ UserId: userId },{ $set: updateData });

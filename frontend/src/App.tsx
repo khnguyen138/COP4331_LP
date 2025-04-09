@@ -16,6 +16,7 @@ import NavigationBar from "./components/navbar";
 import Footer from "./components/Footer";
 import LandingPage from "./pages/landing/LandingPage";
 import TripQuestionnaire from "./pages/dashboard/sections/TripQuestionnaire/tripQuestionnaire";
+import ItineraryPage from "./pages/dashboard/sections/Itinerary/ItineraryPage";
 import { ThemeProvider } from "./context/ThemeContext";
 import "bootstrap/dist/css/bootstrap.min.css";
 import "./App.css";
@@ -35,20 +36,22 @@ const AppContent: React.FC = () => {
     location.pathname === "/saved" ||
     location.pathname === "/explore" ||
     location.pathname === "/tripQuestionnaire" ||
+    location.pathname === "/itinerary" ||
     location.pathname === "/profile";
 
-  useEffect(() => {
+
+  /* useEffect(() => {
     const storedUser = localStorage.getItem("user");
     if (storedUser) {
       const parsedUser = JSON.parse(storedUser);
       setUser(parsedUser.username);
       setIsLoggedIn(true);
     }
-  }, []);
-
-  /* useEffect(() => {
-    setIsLoggedIn(true); // TEMPORARY
   }, []); */
+
+  useEffect(() => {
+    setIsLoggedIn(true); // TEMPORARY
+  }, []);
 
   const handleLogin = (username: string) => {
     setUser(username);
@@ -96,6 +99,10 @@ const AppContent: React.FC = () => {
               />
               <Route
                 path="/explore"
+                element={<Dashboard user={user || "Guest"} />}
+              />
+              <Route
+                path="/itinerary"
                 element={<Dashboard user={user || "Guest"} />}
               />
               <Route path="*" element={<Dashboard user={user || "Guest"} />} />

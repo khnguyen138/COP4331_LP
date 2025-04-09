@@ -7,6 +7,7 @@ import ExploreSection from "./sections/Explore/ExploreSection";
 import { useNavigate, useLocation } from "react-router-dom";
 import SavedTrips from "./sections/SavedTrips/SavedTrips";
 import UserProfile from "./profile/UserProfile";
+import ItineraryPage from "./sections/Itinerary/ItineraryPage";
 
 interface DashboardProps {
   user: string;
@@ -36,6 +37,8 @@ const Dashboard: React.FC<DashboardProps> = ({ user }) => {
         return <ExploreSection />;
       case "/profile":
         return <UserProfile />;
+      case "/itinerary":
+        return <ItineraryPage />;
       default:
         return <DashboardHome />;
     }
