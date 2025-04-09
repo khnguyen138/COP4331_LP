@@ -1,24 +1,17 @@
 import React, { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { Search, Filter, MapPin, Calendar, Clock, Users } from "lucide-react";
-
-interface Itinerary {
-  id: number;
-  title: string;
-  destination: string;
-  duration: string;
-  groupSize: string;
-  description: string;
-  image: string;
-  price: string;
-  rating: number;
-  tags: string[];
-}
+import { SampleItinerary } from "../../../../types/itinerary";
+import { sampleItineraries } from "../../../../types/sampleItineraries";
+import "./ExploreSection.css";
 
 const ExploreSection: React.FC = () => {
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedFilter, setSelectedFilter] = useState("all");
-
-  const itineraries: Itinerary[] = [
+  const navigate = useNavigate();
+  const itineraries = sampleItineraries;
+  
+  /* const itineraries: SampleItinerary[] = [
     {
       id: 1,
       title: "Tokyo Adventure",
@@ -28,9 +21,8 @@ const ExploreSection: React.FC = () => {
       description:
         "Experience the perfect blend of traditional culture and modern technology in Japan's vibrant capital.",
       image:
-        "https://images.unsplash.com/photo-1503899036084-c55cdd92da26?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1974&q=80",
+        "https://images.unsplash.com/photo-1513407030348-c983a97b98d8?q=80&w=2944&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
       price: "$2,499",
-      rating: 4.9,
       tags: ["Culture", "Food", "Technology", "Shopping"],
     },
     {
@@ -42,9 +34,8 @@ const ExploreSection: React.FC = () => {
       description:
         "Discover the stunning beauty of the Greek islands with this comprehensive island-hopping itinerary.",
       image:
-        "https://images.unsplash.com/photo-1570077188670-e3a8d69ac5ff?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=2072&q=80",
+        "https://images.unsplash.com/photo-1688664562000-4c1f7cdb48f8?w=900&auto=format&fit=crop&q=60&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8Mnx8c2FudG9yaW5pJTIwZ3JlZWNlfGVufDB8MHwwfHx8MA%3D%3D0",
       price: "$3,299",
-      rating: 4.8,
       tags: ["Beach", "Culture", "Romance", "Food"],
     },
     {
@@ -56,12 +47,11 @@ const ExploreSection: React.FC = () => {
       description:
         "Rejuvenate your mind and body with this wellness-focused journey through Bali's most peaceful spots.",
       image:
-        "https://images.unsplash.com/photo-1537996194471-e657df975ab4?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1938&q=80",
+        "https://images.unsplash.com/photo-1591206521749-6f6f8ead79c1?w=900&auto=format&fit=crop&q=60&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8MTV8fGJhcmNlbG9uYSUyMHNwYWlufGVufDB8MHwwfHx8MA%3D%3D",
       price: "$1,999",
-      rating: 4.7,
       tags: ["Wellness", "Nature", "Culture", "Relaxation"],
     },
-  ];
+  ];  */
 
   const filters = [
     { id: "all", label: "All Itineraries" },
@@ -70,6 +60,15 @@ const ExploreSection: React.FC = () => {
     { id: "relaxation", label: "Relaxation" },
     { id: "food", label: "Food & Dining" },
   ];
+
+  const handleViewItinerary = (itinerary: SampleItinerary) => {
+    navigate("/itinerary", {
+      state: {
+        tripData: itinerary
+      },
+    });
+  };
+
 
   return (
     <div className="container py-4">
@@ -83,44 +82,43 @@ const ExploreSection: React.FC = () => {
 
       {/* Search and Filter Section */}
       <div className="row mb-4">
-        <div className="col-md-8">
-          <div className="input-group">
-            <span className="input-group-text bg-white border-end-0">
-              <Search size={20} className="text-muted" />
-            </span>
-            <input
-              type="text"
-              className="form-control border-start-0"
-              placeholder="Search itineraries..."
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-            />
+        <div className="search-filter flex-md-row">
+          <div className="flex-grow-1">
+            <div className="input-group">
+              <span className="input-group-text bg-white border-end-0">
+                <Search size={20} className="text-muted" />
+              </span>
+              <input
+                type="text"
+                className="form-control border-start-0"
+                placeholder="Search itineraries..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+              />
+            </div>
           </div>
-        </div>
-        <div className="col-md-4">
-          <div className="d-flex gap-2">
+          <div className="filter-buttons justify-content-md-start">
             {filters.map((filter) => (
               <button
                 key={filter.id}
-                className={`btn ${
-                  selectedFilter === filter.id
-                    ? "btn-primary"
-                    : "btn-outline-secondary"
-                }`}
+                className={`btn ${selectedFilter === filter.id
+                  ? "btn-primary"
+                  : "btn-outline-secondary"
+                  }`}
                 onClick={() => setSelectedFilter(filter.id)}
               >
                 {filter.label}
               </button>
             ))}
           </div>
-        </div>
-      </div>
+        </div>'
+      </div>'
 
       {/* Itineraries Grid */}
       <div className="row g-4">
         {itineraries.map((itinerary) => (
           <div key={itinerary.id} className="col-md-6 col-lg-4">
-            <div className="card h-100 shadow-sm">
+            <div className="card h-100 shadow-sm border-0 hover-shadow transition-all">
               <img
                 src={itinerary.image}
                 className="card-img-top"
@@ -155,14 +153,16 @@ const ExploreSection: React.FC = () => {
                     ))}
                   </div>
                   <div className="text-end">
-                    <div className="h5 mb-0">{itinerary.price}</div>
-                    <div className="d-flex align-items-center">
-                      <span className="text-warning me-1">★</span>
-                      <small>{itinerary.rating}</small>
-                    </div>
+                    <div className="h5 mb-0">${itinerary.price}</div>
                   </div>
                 </div>
               </div>
+              <button
+                className="btn btn-primary w-100"
+                onClick={() => handleViewItinerary(itinerary)}
+              >
+                View Itinerary
+              </button>
             </div>
           </div>
         ))}

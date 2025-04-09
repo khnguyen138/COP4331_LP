@@ -1,21 +1,20 @@
 import React, { useState } from "react";
 import { Container, Row, Col, Modal } from "react-bootstrap";
-import Signup from "../Signup";
+import Signup from "../authentication/LoginSignup";
 import { Button } from "../../components/ui/Button";
+import "./HeroSection.css";
+import LoginSignup from "../authentication/LoginSignup";
 
 interface HeroSectionProps {
   onLogin: () => void;
 }
 
 export const HeroSection: React.FC<HeroSectionProps> = ({ onLogin }) => {
-  const [showSignup, setShowSignup] = useState(false);
+  const [showLoginSignup, setShowLoginSignup] = useState(false);
 
   return (
-    <div className="d-flex flex-column min-vh-100">
-      <main className="main-content flex-grow-1 d-flex flex-column align-items-center justify-content-center">
-        <Container>
-          <Row className="align-items-center">
-            <Col lg={6} className="mb-4 mb-lg-0">
+    <main className="hero-section d-flex flex-column min-vh-100">
+      <div className="flex-grow-1 d-flex flex-column align-items-center justify-content-center">
               <h1 className="display-4 fw-bold">Welcome to TravelGenie</h1>
               <p className="lead mb-4">
                 Your ultimate travel companion that makes planning trips
@@ -25,34 +24,20 @@ export const HeroSection: React.FC<HeroSectionProps> = ({ onLogin }) => {
               <Button
                 variant="primary"
                 size="lg"
-                onClick={() => setShowSignup(true)}
+                onClick={() => setShowLoginSignup(true)}
               >
                 Start Planning
               </Button>
-            </Col>
-            <Col lg={6}>
-              <div className="text-center">
-                <img
-                  src="https://images.unsplash.com/photo-1503220317375-aaad61436b1b?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1000&q=80"
-                  alt="Travel planning illustration"
-                  className="img-fluid rounded shadow"
-                />
-              </div>
-            </Col>
-          </Row>
-        </Container>
-      </main>
+      </div>
 
-      {/* ✅ Modal for Signup */}
-      <Modal show={showSignup} onHide={() => setShowSignup(false)} centered>
+      <Modal show={showLoginSignup} onHide={() => setShowLoginSignup(false)} centered>
         <Modal.Header closeButton>
-          <Modal.Title>Sign Up</Modal.Title>
         </Modal.Header>
         <Modal.Body>
-          <Signup />
+          <LoginSignup />
         </Modal.Body>
       </Modal>
-    </div>
+    </main>
   );
 };
 

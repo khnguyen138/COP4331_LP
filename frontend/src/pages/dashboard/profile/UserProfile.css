@@ -1,0 +1,49 @@
+/* .profileContainer {
+    background-color: #f5f6fa;
+    padding: 0.5rem;
+    border-radius: 10px;
+    border: 1px #ccc;
+    height: 70vh;
+    overflow-y: auto;
+}
+
+[data-theme="dark"] input::placeholder,
+[data-theme="dark"] textarea::placeholder,
+[data-theme="dark"] select::placeholder {
+  color: #ccc; 
+  opacity: 1;
+}
+
+[data-theme="dark"] .profileContainer {
+  background-color: #191a20;
+  color: #ddd;
+} */
+
+.profile-layout {
+    display: flex;
+    gap: 2rem;
+    min-height: calc(100vh - 100px);
+    padding-bottom: 2rem;
+    align-items: flex-start;
+    overflow: hidden;
+}
+
+.left-panel {
+    flex: 0 0 250px;
+    text-align: center;
+}
+
+.right-panel {
+    flex: 1;
+}
+
+.profile-box {
+    background-color: #f0f0f0;
+    padding: 1.5rem;
+    border-radius: 12px;
+}
+
+[data-theme="dark"] .profile-box {
+    background-color: #222;
+    color: #ddd;
+}

@@ -7,19 +7,22 @@ import {
   useLocation,
 } from "react-router-dom";
 import Dashboard from "./pages/dashboard/Dashboard";
-import Login from "./pages/Login";
-import Signup from "./pages/Signup";
-import VerifyEmail from "./pages/VerifyEmail";
-import ForgotPassword from "./pages/ForgotPassword";
-import ResetPassword from "./pages/ResetPassword";
+import Login from "./pages/authentication/Login";
+import Signup from "./pages/authentication/Signup";
+import VerifyEmail from "./pages/authentication/VerifyEmail";
+import ForgotPassword from "./pages/authentication/ForgotPassword";
+import ResetPassword from "./pages/authentication/ResetPassword";
 import NavigationBar from "./components/navbar";
 import Footer from "./components/Footer";
 import LandingPage from "./pages/landing/LandingPage";
-import TripQuestionnaire from "./pages/tripQuestionnaire.tsx";
+import TripQuestionnaire from "./pages/dashboard/sections/TripQuestionnaire/tripQuestionnaire";
+import ItineraryPage from "./pages/dashboard/sections/Itinerary/ItineraryPage";
 import { ThemeProvider } from "./context/ThemeContext";
 import "bootstrap/dist/css/bootstrap.min.css";
-import './App.css';
+import "./App.css";
 import "./styles/themes.css";
+
+import LoginSignup from "./pages/authentication/LoginSignup";
 
 // Create a new component for the main app content
 const AppContent: React.FC = () => {
@@ -31,17 +34,23 @@ const AppContent: React.FC = () => {
     location.pathname.startsWith("/dashboard") ||
     location.pathname === "/upcoming" ||
     location.pathname === "/saved" ||
-    location.pathname === "/planner" ||
     location.pathname === "/explore" ||
-    location.pathname === "/tripquestionnaire";
+    location.pathname === "/tripQuestionnaire" ||
+    location.pathname === "/itinerary" ||
+    location.pathname === "/profile";
 
-  useEffect(() => {
+
+  /* useEffect(() => {
     const storedUser = localStorage.getItem("user");
     if (storedUser) {
       const parsedUser = JSON.parse(storedUser);
       setUser(parsedUser.username);
       setIsLoggedIn(true);
     }
+  }, []); */
+
+  useEffect(() => {
+    setIsLoggedIn(true); // TEMPORARY
   }, []);
 
   const handleLogin = (username: string) => {
@@ -72,57 +81,55 @@ const AppContent: React.FC = () => {
         <Routes>
           {isLoggedIn ? (
             <>
-              <Route path="/dashboard" element={<Dashboard user={user || "Guest"} />} />
-              <Route path="/tripquestionnaire" element={<TripQuestionnaire />} />
-              <Route path="*" element={<Dashboard user={user || "Guest"} />} />{" "}
-              {/* Redirect unknown routes */}
+              <Route
+                path="/dashboard"
+                element={<Dashboard user={user || "Guest"} />}
+              />
+              <Route
+                path="/tripQuestionnaire"
+                element={<Dashboard user={user || "Guest"} />}
+              />
+              <Route
+                path="/upcoming"
+                element={<Dashboard user={user || "Guest"} />}
+              />
+              <Route
+                path="/saved"
+                element={<Dashboard user={user || "Guest"} />}
+              />
+              <Route
+                path="/explore"
+                element={<Dashboard user={user || "Guest"} />}
+              />
+              <Route
+                path="/itinerary"
+                element={<Dashboard user={user || "Guest"} />}
+              />
+              <Route path="*" element={<Dashboard user={user || "Guest"} />} />
             </>
           ) : (
             <>
               <Route
                 path="/"
-                element={<LandingPage onLogin={() => handleLogin("Guest")} />}
+                element={<LandingPage onLogin={handleLandingLogin} />}
               />
               <Route
                 path="/login"
                 element={<Login onLoginSuccess={handleLogin} />}
               />
               <Route path="/signup" element={<Signup />} />
+
+              <Route path="/loginsignup" element={<LoginSignup />} />
+
+              <Route path="/verify-email" element={<VerifyEmail />} />
+              <Route path="/forgot-password" element={<ForgotPassword />} />
+              <Route path="/reset-password" element={<ResetPassword />} />
               <Route
                 path="*"
-                element={<LandingPage onLogin={() => handleLogin("Guest")} />}
+                element={<LandingPage onLogin={handleLandingLogin} />}
               />
             </>
           )}
-          <Route
-            path="/"
-            element={<LandingPage onLogin={handleLandingLogin} />}
-          />
-          <Route
-            path="/dashboard"
-            element={<Dashboard user={user || "Guest"} />}
-          />
-          <Route
-            path="/upcoming"
-            element={<Dashboard user={user || "Guest"} />}
-          />
-          <Route path="/saved" element={<Dashboard user={user || "Guest"} />} />
-          <Route
-            path="/planner"
-            element={<Dashboard user={user || "Guest"} />}
-          />
-          <Route
-            path="/explore"
-            element={<Dashboard user={user || "Guest"} />}
-          />
-          <Route
-            path="/login"
-            element={<Login onLoginSuccess={handleLogin} />}
-          />
-          <Route path="/signup" element={<Signup />} />
-          <Route path="/verify-email" element={<VerifyEmail />} />
-          <Route path="/forgot-password" element={<ForgotPassword />} />
-          <Route path="/reset-password" element={<ResetPassword />} />
         </Routes>
       </main>
       {!isDashboard && <Footer />}

@@ -48,11 +48,11 @@ const Signup: React.FC = () => {
 
   return (
     <div className="container mt-3">
-      <h2>Sign Up</h2>
       {error && <div className="alert alert-danger">{error}</div>}
       {success && <div className="alert alert-success">{success}</div>}
       <form onSubmit={handleSignup}>
-        <div className="mb-3">
+      <div className="mb-3 d-flex gap-3">
+        <div className="flex-fill">
           <label htmlFor="firstName" className="form-label">
             First Name:
           </label>
@@ -65,7 +65,7 @@ const Signup: React.FC = () => {
             required
           />
         </div>
-        <div className="mb-3">
+        <div className="flex-fill">
           <label htmlFor="lastName" className="form-label">
             Last Name:
           </label>
@@ -78,6 +78,7 @@ const Signup: React.FC = () => {
             required
           />
         </div>
+      </div>
         <div className="mb-3">
           <label htmlFor="email" className="form-label">
             Email:
@@ -104,9 +105,15 @@ const Signup: React.FC = () => {
             required
           />
         </div>
-        <div className="mb-3">
-          <label htmlFor="password" className="form-label">
+        <div className="mb-3 password-field-wrapper">
+          <label htmlFor="password">
             Password:
+            <span className="tooltip-icon" tabIndex={0}>?</span>
+            <div className="tooltip-text">
+              Must be at least 8 characters<br />
+              Include 1 uppercase, 1 lowercase,<br />
+              1 number, and 1 special character.
+            </div>
           </label>
           <input
             type="password"
@@ -116,10 +123,6 @@ const Signup: React.FC = () => {
             onChange={(e) => setPassword(e.target.value)}
             required
           />
-          <small className="form-text text-muted">
-            Password must be at least 8 characters long, contain one uppercase
-            letter, one lowercase letter, one number, and one special character.
-          </small>
         </div>
         <button type="submit" className="btn btn-primary">
           Sign Up

@@ -109,3 +109,60 @@ body {
 .hover-bg:hover {
   background-color: var(--hover-bg);
 }
+
+/* Trip Questionnaire Sidebar Styles */
+.qWrapper.sidebar {
+  width: 100%;
+  max-width: 400px;
+  margin: 0;
+  padding: 1rem;
+  background: var(--background-color);
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.qWrapper.sidebar .qContainer {
+  width: 100%;
+  padding: 0;
+}
+
+.qWrapper.sidebar .full-height {
+  min-height: auto;
+}
+
+.qWrapper.sidebar .mt-5 {
+  margin-top: 1rem !important;
+}
+
+.qWrapper.sidebar .previewContainer {
+  display: none;
+}
+
+.qWrapper.sidebar .travel-interests-container {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 0.5rem;
+  max-height: 200px;
+  overflow-y: auto;
+}
+
+.qWrapper.sidebar .date-container {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1rem;
+}
+
+.qWrapper.sidebar .form-group {
+  margin-bottom: 1rem;
+}
+
+.qWrapper.sidebar .notesBox {
+  min-height: 100px;
+  resize: vertical;
+}
+
+.qWrapper.sidebar .mt-4 {
+  display: flex;
+  justify-content: flex-end;
+  gap: 0.5rem;
+}

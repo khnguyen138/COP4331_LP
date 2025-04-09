@@ -61,6 +61,8 @@
   overflow: hidden;  
   padding: 2rem;
   box-sizing: border-box;
+  flex-direction: row;
+  overflow: hidden;
 }
 .qContainer {
   flex: 1;
@@ -72,7 +74,6 @@
   margin-top: 1.5rem;
   margin-bottom: 0.75rem;
 }
-
 
 .title {
   font-size: 2rem;
@@ -105,15 +106,32 @@
 }
 
 .preview-placeholder {
-  margin-top: 2rem;
-  height: 600px;
-  border: 2px dashed #ccc;
-  border-radius: 10px;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  font-size: 3rem;
-  color: #bbb;
+  border: 1px dashed #ccc;
+  padding: 1.5rem;
+  height: 100%;
+  overflow-y: auto;
+  background-color: #eee;
+  color: white;
+  border-radius: 8px;
+  max-height: 70vh;
+  font-family: 'Segoe UI', sans-serif;
+  white-space: normal;
+}
+
+.preview-placeholder h1,
+.preview-placeholder h2,
+.preview-placeholder h3 {
+  margin-top: 1rem;
+  font-weight: bold;
+}
+
+.preview-placeholder strong {
+  color: #ffffff;
+}
+
+.preview-placeholder ul {
+  padding-left: 1.5rem;
+  list-style: disc;
 }
 
 .qHeader {
@@ -131,4 +149,17 @@
 
 .exit-button:hover {
   color: red;
+}
+
+[data-theme="dark"] input::placeholder,
+[data-theme="dark"] textarea::placeholder,
+[data-theme="dark"] select::placeholder {
+  color: #ccc; 
+  opacity: 1;
+}
+
+[data-theme="dark"] .previewContainer {
+  background-color: #191a20;
+  border: 1px dashed #666;
+  color: #ddd;
 }

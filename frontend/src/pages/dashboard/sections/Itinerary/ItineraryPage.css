@@ -1,0 +1,17 @@
+.itinerary-header {
+    position: relative;
+}
+
+.itinerary-title {
+    position: absolute;
+    padding: 1rem;
+    font-size: 2rem;  
+    text-align: center;
+    background-color: white;
+    left: 50%;
+    bottom: 100px;
+    transform: translateX(-50%);
+    border-radius: 12px;
+    box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15);
+    margin-bottom: 1.25rem;
+}

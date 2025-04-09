@@ -9,7 +9,6 @@ import {
   Star,
   Search,
 } from "lucide-react";
-import { trips } from "../../../../lib/data";
 
 interface SavedTrip {
   id: string;
@@ -124,8 +123,8 @@ const SavedTrips: React.FC = () => {
           <p className="text-muted mb-4">
             Start exploring destinations and save your favorite trips
           </p>
-          <Button variant="primary" href="/explore">
-            Explore Destinations
+          <Button variant="primary" href="/tripquestionnaire">
+            Plan New Trip
           </Button>
         </div>
       )}
