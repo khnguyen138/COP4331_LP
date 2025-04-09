@@ -504,7 +504,7 @@ exports.setApp = function (app, dbInstance) {
     }
   
     try {
-      const user = await db.collection("Users").findOne({ UserId: userId });
+      const user = await User.findOne({ UserId: userId });
   
       if (!user) {
         return res.status(404).json({ error: "User not found" });
