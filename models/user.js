@@ -25,5 +25,5 @@ Email: {
     type: String,
     required: true
 }
-});
+}, { collection: "Users" });
 module.exports = user = mongoose.model("Users", UserSchema);

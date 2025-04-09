@@ -20,7 +20,8 @@ _createToken = function ( fn, ln, id )
             { expiresIn : '30m'} );
                           '24h'
                          '365d'  
-        */              
+        */ 
+       var ret = {accessToken:accessToken};             
     }
     catch(e)
     {
@@ -48,6 +49,7 @@ exports.isExpired = function ( token )
 exports.refresh = function( token )
 {
     var ud = jwt.decode(token, {complete:true});
+    
     var userId = ud.payload.id;
     var firstName = ud.payload.firstName;
     var lastName = ud.payload.lastName;
