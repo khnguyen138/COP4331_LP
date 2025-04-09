@@ -191,7 +191,7 @@ const UserProfile: React.FC = () => {
             }
 
             // send to backend
-            const response = await fetch("http://localhost:5001/api/editUser", {
+            const response = await fetch("http://localhost:5000/api/editUser", {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json",
@@ -221,7 +221,7 @@ const UserProfile: React.FC = () => {
             const userId = user.UserId;
 
             // send to backend
-            const response = await fetch("http://localhost:5001/api/editUser", {
+            const response = await fetch("http://localhost:5000/api/editUser", {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json",

@@ -72,8 +72,8 @@ exports.setApp = function (app, dbInstance) {
       }
 
       // Generate verification token
-      const verificationToken = emailService.generateToken();
-      const verificationExpires = new Date(Date.now() + 24 * 60 * 60 * 1000); // 24 hours
+      // const verificationToken = emailService.generateToken();
+      // const verificationExpires = new Date(Date.now() + 24 * 60 * 60 * 1000); // 24 hours
 
       userId = await generateUserIdFromMongo(login, db);
       newUser = {
@@ -83,17 +83,20 @@ exports.setApp = function (app, dbInstance) {
         LastName: lastName,
         UserId: userId,
         Email: email,
+
+        /*
         IsVerified: false,
         VerificationToken: verificationToken,
         VerificationExpires: verificationExpires,
         ResetPasswordToken: null,
         ResetPasswordExpires: null,
+        */
       };
 
       const result = await db.collection("Users").insertOne(newUser);
 
       // Send verification email
-      const emailSent = await emailService.sendVerificationEmail(
+      /*const emailSent = await emailService.sendVerificationEmail(
         email,
         verificationToken
       );
@@ -102,7 +105,7 @@ exports.setApp = function (app, dbInstance) {
         return res
           .status(500)
           .json({ error: "Failed to send verification email" });
-      }
+      }*/
 
       res.status(200).json({
         message:
@@ -189,7 +192,7 @@ exports.setApp = function (app, dbInstance) {
   // Reset password
   app.post("/api/reset-password", async (req, res) => {
     try {
-      const { token, newPassword } = req.body;
+      const { userId, token, newPassword } = req.body;
 
       const user = await db.collection("Users").findOne({
         ResetPasswordToken: token,
@@ -203,7 +206,7 @@ exports.setApp = function (app, dbInstance) {
       }
 
       await db.collection("Users").updateOne(
-        { _id: user._id },
+        { userId: userId },
         {
           $set: {
             Password: newPassword,
@@ -429,7 +432,7 @@ exports.setApp = function (app, dbInstance) {
 
   app.post("/api/editUser", async (req, res, next) => {
     // incoming: userId, newfirstName, newlastName, newEmail
-    const { userId, firstName, lastName, email } = req.body;
+    const { userId, firstName, lastName, email, password } = req.body;
 
     try {
       if (token.isExpired(jwtToken)) {
@@ -460,7 +463,8 @@ exports.setApp = function (app, dbInstance) {
       }
       updateData.Email = email;
     }
-
+    if (password) updateData.Password = password;
+    
     try {
       const result = await db
         .collection("Users")
