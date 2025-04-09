@@ -439,7 +439,7 @@ exports.setApp = function (app, dbInstance) {
   app.post("/api/editUser", async (req, res, next) => {
     var token = require("./createJWT.js");
     // incoming: userId, newfirstName, newlastName, newEmail
-    const { userId, firstName, lastName, email, password } = req.body;
+    const { userId, firstName, lastName, email, password, jwtToken } = req.body;
 
     try {
       if (token.isExpired(jwtToken)) {
@@ -498,7 +498,7 @@ exports.setApp = function (app, dbInstance) {
   app.post("/api/editItinerary", async (req, res, next) => {
     var token = require("./createJWT.js");
     // incoming: userId, itineraryID, itineraryNode
-    const { userId, itineraryId, newItinerary } = req.body;
+    const { userId, itineraryId, newItinerary, jwtToken } = req.body;
 
     try {
       if (token.isExpired(jwtToken)) {
@@ -509,6 +509,7 @@ exports.setApp = function (app, dbInstance) {
     } catch (e) {
       console.log(e.message);
     }
+
     if (!userId || !itineraryId || !newItinerary) {
       return res.status(400).json({ error: "All fields required" });
     }
@@ -541,8 +542,20 @@ exports.setApp = function (app, dbInstance) {
   // Endpoint for generating travel itinerary using Gemini
   app.post("/api/generate-itinerary", async (req, res) => {
     var token = require("./createJWT.js");
+    const { destination, duration, groupSize, preferences, jwtToken } = req.body;
+
+    // Check if the JWT token is expired
     try {
-      const { destination, duration, groupSize, preferences } = req.body;
+      if (token.isExpired(jwtToken)) {
+        var r = { error: "The jwt token is no longer valid", jwtToken: "" };
+        res.status(200).json(r);
+        return;
+      }
+    } catch (e) {
+      console.log(e.message);
+    }
+
+    try {
 
       if (!destination || !duration || !groupSize) {
         return res.status(400).json({
@@ -649,6 +662,13 @@ exports.setApp = function (app, dbInstance) {
 
         // Log the final itinerary for debugging
         console.log("Generated itinerary:", JSON.stringify(itinerary, null, 2));
+
+      var refreshedToken = null;
+      try {
+        refreshedToken = token.refreshedToken(jwtToken);
+      } catch (e) {
+        console.log(e.message);
+      }
 
         res.json(itinerary);
       } catch (parseError) {
