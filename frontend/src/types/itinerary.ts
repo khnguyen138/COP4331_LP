@@ -28,11 +28,21 @@ export interface SampleItinerary {
   id: number;
   title: string;
   destination: string;
-  duration: string;
-  groupSize: string;
+  duration: number | string;
+  groupSize: number | string;
   description: string;
   image: string;
-  price: string;
-  rating: number;
+  price: number | string;
   tags: string[];
+  dailyBreakdown: {
+    day: number;
+    activities: {
+      time: string;
+      activity: string;
+      location: string;
+      details: string;
+      cost: string;
+    }[];
+  }[];
 }
+

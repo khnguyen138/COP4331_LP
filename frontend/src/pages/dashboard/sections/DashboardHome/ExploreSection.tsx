@@ -8,7 +8,7 @@ const ExploreSection: React.FC = () => {
   const navigate = useNavigate();
 
   const handleCreateNewTrip = () => {
-    navigate("/tripquestionnaire"); 
+    navigate("/tripQuestionnaire"); 
   };
   const popularDestinations = [
     {
