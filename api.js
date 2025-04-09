@@ -27,11 +27,11 @@ exports.setApp = function (app, dbInstance) {
     let userId = hashStringToInt(login);
 
     // Check if a user with this userId already exists.
-    let existing = await db.collection("Users").findOne({ UserId: userId });
+    let existing = await User.findOne({ UserId: userId });
     // If a collision is found, increment until a unique userId is found.
     while (existing) {
       userId++;
-      existing = await db.collection("Users").findOne({ UserId: userId });
+      existing = await User.findOne({ UserId: userId });
     }
     return userId;
   }
@@ -40,14 +40,11 @@ exports.setApp = function (app, dbInstance) {
     // Include userId and current timestamp to increase uniqueness
     let baseString = itinerary + userId + Date.now();
     let itineraryId = hashStringToInt(baseString);
-    let existing = await db
-      .collection("Itineraries")
-      .findOne({ ItineraryID: itineraryId });
+    let existing = await Itinerary.findOne({ ItineraryID: itineraryId });
+
     while (existing) {
       itineraryId++;
-      existing = await db
-        .collection("Itineraries")
-        .findOne({ ItineraryID: itineraryId });
+      existing = await Itinerary.findOne({ ItineraryID: itineraryId });
     }
     return itineraryId;
   }
@@ -64,9 +61,9 @@ exports.setApp = function (app, dbInstance) {
     let userId;
 
     try {
-      const existingUser = await db
-      .collection("Users")
-      .findOne({ $or: [{ Login: login }, { Email: email }] });
+      // Check if the user already exists
+      const existingUser = await User.findOne({ $or: [{ Login: login }, { Email: email }] });
+
       if (existingUser) {
         return res.status(400).json({ error: "Login name or email already taken." });
       }
@@ -76,7 +73,8 @@ exports.setApp = function (app, dbInstance) {
       // const verificationExpires = new Date(Date.now() + 24 * 60 * 60 * 1000); // 24 hours
 
       userId = await generateUserIdFromMongo(login, db);
-      newUser = {
+
+      newUser = new User({
         Login: login,
         Password: password,
         FirstName: firstName,
@@ -91,9 +89,12 @@ exports.setApp = function (app, dbInstance) {
         ResetPasswordToken: null,
         ResetPasswordExpires: null,
         */
-      };
+      });
 
-      const result = await db.collection("Users").insertOne(newUser);
+      //const result = await User.insertOne(newUser);
+
+      // Save the new user to the database
+      newUser.save();
 
       // Send verification email
       /*const emailSent = await emailService.sendVerificationEmail(
@@ -121,7 +122,7 @@ exports.setApp = function (app, dbInstance) {
   // Verify email endpoint
   app.get("/api/verify-email/:token", async (req, res) => {
     try {
-      const user = await db.collection("Users").findOne({
+      const user = await User.findOne({
         VerificationToken: req.params.token,
         VerificationExpires: { $gt: new Date() },
       });
@@ -132,7 +133,7 @@ exports.setApp = function (app, dbInstance) {
           .json({ error: "Invalid or expired verification token" });
       }
 
-      await db.collection("Users").updateOne(
+      await User.updateOne(
         { _id: user._id },
         {
           $set: {
@@ -153,7 +154,7 @@ exports.setApp = function (app, dbInstance) {
   app.post("/api/forgot-password", async (req, res) => {
     try {
       const { email } = req.body;
-      const user = await db.collection("Users").findOne({ Email: email });
+      const user = await User.findOne({ Email: email });
 
       if (!user) {
         return res.status(404).json({ error: "User not found" });
@@ -162,7 +163,7 @@ exports.setApp = function (app, dbInstance) {
       const resetToken = emailService.generateToken();
       const resetExpires = new Date(Date.now() + 60 * 60 * 1000); // 1 hour
 
-      await db.collection("Users").updateOne(
+      await User.updateOne(
         { _id: user._id },
         {
           $set: {
@@ -194,7 +195,7 @@ exports.setApp = function (app, dbInstance) {
     try {
       const { userId, token, newPassword } = req.body;
 
-      const user = await db.collection("Users").findOne({
+      const user = await User.findOne({
         ResetPasswordToken: token,
         ResetPasswordExpires: { $gt: new Date() },
       });
@@ -205,7 +206,7 @@ exports.setApp = function (app, dbInstance) {
           .json({ error: "Invalid or expired reset token" });
       }
 
-      await db.collection("Users").updateOne(
+      await User.updateOne(
         { userId: userId },
         {
           $set: {
@@ -282,7 +283,7 @@ exports.setApp = function (app, dbInstance) {
   app.post("/api/addItinerary", async (req, res, next) => {
     var token = require("./createJWT.js");
     // incoming: userId, itineraryNode
-    const { userId, itineraryNode, jwtToken } = req.body;
+    const { userId, itinerary, jwtToken } = req.body;
 
     try {
       if (token.isExpired(jwtToken)) {
@@ -294,24 +295,26 @@ exports.setApp = function (app, dbInstance) {
       console.log(e.message);
     }
 
-    if (!userId || !itineraryNode) {
+    if (!userId || !itinerary) {
       return res.status(400).json({ error: "All fields required" });
     }
 
     var error = "";
-    var itineraryID = await generateItineraryIdFromMongo(
-      itineraryNode.title,
+    var itineraryId = await generateItineraryIdFromMongo(
+      itinerary.title,
       db
     );
     try {
-      const newItinerary = {
+      const newItinerary = new Itinerary({
         UserId: userId,
-        Itinerary: itineraryNode,
-        ItineraryID: itineraryID,
+        Itinerary: itinerary,
+        ItineraryId: itineraryId,
         createdAt: new Date(),
-      };
+      });
 
-      const result = await db.collection("Itineraries").insertOne(newItinerary);
+      // const result = await Itinerary.insertOne(newItinerary);
+
+      const savedItinerary = await newItinerary.save();
 
       var refreshedToken = null;
       try {
@@ -322,7 +325,7 @@ exports.setApp = function (app, dbInstance) {
 
       res.status(200).json({
         message: "Itinerary added successfully",
-        ItineraryId: result.itineraryID,
+        ItineraryId: savedItinerary.ItineraryID,
       });
     } catch (e) {
       error = e.toString();
@@ -335,7 +338,7 @@ exports.setApp = function (app, dbInstance) {
     // incoming: userId, eventId
     // outgoing: success/error message
 
-    const { userId, itineraryID, jwtToken } = req.body;
+    const { userId, itineraryId, jwtToken } = req.body;
 
     try {
       if (token.isExpired(jwtToken)) {
@@ -347,7 +350,7 @@ exports.setApp = function (app, dbInstance) {
       console.log(e.message);
     }
 
-    if (!userId || !itineraryID) {
+    if (!userId || !itineraryId) {
       return res
         .status(400)
         .json({ error: "User ID and Event ID are required" });
@@ -355,9 +358,9 @@ exports.setApp = function (app, dbInstance) {
 
     try {
       //This goes through the Events collection and deletes the event with the matching userId and eventId
-      const result = await db.collection("Itineraries").deleteOne({
+      const result = await Itinerary.deleteOne({
         UserId: userId,
-        ItineraryID: itineraryID,
+        ItineraryId: itineraryId,
       });
 
       if (result.deletedCount === 0) {
@@ -417,7 +420,7 @@ exports.setApp = function (app, dbInstance) {
       }
 
       //The results of the query are stored in the results variable
-      const results = await db.collection("Itineraries").find(query).toArray();
+      const results = await Itinerary.find(query);
 
       var refreshedToken = null;
       try {
@@ -459,9 +462,7 @@ exports.setApp = function (app, dbInstance) {
 
     if (email) {
       // Check if the email is already taken
-      const existingUser = await db
-        .collection("Users")
-        .findOne({ Email: email });
+      const existingUser = await User.findOne({ Email: email });
       if (existingUser && existingUser.UserId !== userId) {
         return res.status(400).json({ error: "Email is already taken" });
       }
@@ -470,9 +471,7 @@ exports.setApp = function (app, dbInstance) {
     if (password) updateData.Password = password;
     
     try {
-      const result = await db
-        .collection("Users")
-        .updateOne({ UserId: userId }, { $set: updateData });
+      const result = await User.findOneAndUpdate({ UserId: userId },{ $set: updateData });
 
       var refreshedToken = null;
       try {
@@ -493,7 +492,7 @@ exports.setApp = function (app, dbInstance) {
   app.post("/api/editItinerary", async (req, res, next) => {
     var token = require("./createJWT.js");
     // incoming: userId, itineraryID, itineraryNode
-    const { userId, itineraryID, itineraryNode } = req.body;
+    const { userId, itineraryId, newItinerary } = req.body;
 
     try {
       if (token.isExpired(jwtToken)) {
@@ -504,18 +503,16 @@ exports.setApp = function (app, dbInstance) {
     } catch (e) {
       console.log(e.message);
     }
-    if (!userId || !itineraryID || !itineraryNode) {
+    if (!userId || !itineraryId || !newItinerary) {
       return res.status(400).json({ error: "All fields required" });
     }
 
     var error = "";
 
     try {
-      const result = await db
-        .collection("Itineraries")
-        .updateOne(
-          { UserId: userId, ItineraryID: itineraryID },
-          { $set: { Itinerary: itineraryNode } }
+      const result = await Itinerary.updateOne(
+          { UserId: userId, ItineraryId: itineraryId },
+          { $set: { Itinerary: newItinerary } }
         );
 
       var refreshedToken = null;
@@ -534,28 +531,6 @@ exports.setApp = function (app, dbInstance) {
       res.status(500).json({ error: error });
     }
   });
-
-  //ENDPOINT FOR GENERATING TRAVEL PLAN USING GEMINI
-  /* app.post("/api/generate-trip", async (req, res) => {
-      const { prompt } = req.body;
-
-      if (!prompt) {
-        return res.status(400).json({ error: "Prompt is required" });
-      }
-
-      try {
-        const model = genAI.getGenerativeModel({
-          model: "gemini-1.5-pro",
-        });
-
-        const result = await model.generateContent(prompt);
-
-        const response = await result.response.text();
-        res.status(200).json({ suggestion: response });
-      } catch (error) {
-        res.status(500).json({ error: error.toString() });
-      }
-    }); */
 
   // Endpoint for generating travel itinerary using Gemini
   app.post("/api/generate-itinerary", async (req, res) => {

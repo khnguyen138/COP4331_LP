@@ -1,8 +1,9 @@
 const mongoose = require("mongoose");
 
 const itinerarySchema = new mongoose.Schema({
-  userId: {
-    type: Number
+  UserId: {
+    type: Number,
+    required: true
   },
   Itinerary: {
     title: {
@@ -38,12 +39,6 @@ const itinerarySchema = new mongoose.Schema({
       required: true,
       min: 0,
     },
-    rating: {
-      type: Number,
-      required: true,
-      min: 0,
-      max: 5,
-    },
     tags: [
       {
         type: String,
@@ -56,23 +51,18 @@ const itinerarySchema = new mongoose.Schema({
           type: Number,
           required: true,
         },
+        // Here is the crucial part: we store an array of objects, not an array of strings
         activities: [
           {
-            type: String,
-            required: true,
+            time: { type: String, required: true },
+            activity: { type: String, required: true },
+            location: { type: String },
+            details: { type: String },
+            cost: { type: String }
           },
-        ],
+        ]
       },
-    ],
-    createdBy: {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: "User",
-      required: true,
-    },
-    createdAt: {
-      type: Date,
-      default: Date.now,
-    },
+    ]
   },
   ItineraryId: {
     type: Number,
