@@ -71,6 +71,6 @@ const itinerarySchema = new mongoose.Schema({
       default: Date.now,
     },
   }
-});
+}, { collection: "Itineraries" });
 
 module.exports = mongoose.model("Itinerary", itinerarySchema);

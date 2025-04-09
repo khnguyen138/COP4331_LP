@@ -40,16 +40,16 @@ app.use((req, res, next) => {
 
 async function startServer() {
   try {
-    await client.connect();
+    
+    /*await client.connect();
     console.log("Connected to MongoDB");
-    const dbInstance = client.db("TravelGenie");
+    const dbInstance = client.db("TravelGenie");*/
 
-    /*
     mongoose.connect(url)
     .then(()=> console.log("Mongo DB connected"))
     .catch(err => console.log(err));
-    */
-
+    const dbInstance = mongoose.connection.db; // Use Mongoose connection instance
+    
     // Pass both the app and the db instance to your API module
     const api = require("./api.js");
     api.setApp(app, dbInstance);

@@ -65,10 +65,10 @@ exports.setApp = function (app, dbInstance) {
 
     try {
       const existingUser = await db
-        .collection("Users")
-        .findOne({ Login: login });
+      .collection("Users")
+      .findOne({ $or: [{ Login: login }, { Email: email }] });
       if (existingUser) {
-        return res.status(400).json({ error: "Login name already taken." });
+        return res.status(400).json({ error: "Login name or email already taken." });
       }
 
       // Generate verification token
@@ -235,13 +235,14 @@ exports.setApp = function (app, dbInstance) {
     var ret;
 
     try {
-      const results = await db
+      /*const results = await db
         .collection("Users")
         .find({ Login: login, Password: password })
         .toArray();
-
+      */
+     
       // Mongoose
-      /* const results = await User.find({Login: login, Password: password});*/
+      const results = await User.find({Login: login, Password: password});
 
       if (results.length > 0) {
         const user = results[0];
@@ -330,6 +331,7 @@ exports.setApp = function (app, dbInstance) {
   });
 
   app.post("/api/deleteItinerary", async (req, res, next) => {
+    var token = require("./createJWT.js");
     // incoming: userId, eventId
     // outgoing: success/error message
 
@@ -380,6 +382,7 @@ exports.setApp = function (app, dbInstance) {
 
   //This function is used to search for events in the Events collection
   app.post("/api/searchItinerary", async (req, res, next) => {
+    var token = require("./createJWT.js");
     // incoming: userId, (optional) date, location, time
     // outgoing: list of matching events or error message
 
@@ -431,6 +434,7 @@ exports.setApp = function (app, dbInstance) {
   });
 
   app.post("/api/editUser", async (req, res, next) => {
+    var token = require("./createJWT.js");
     // incoming: userId, newfirstName, newlastName, newEmail
     const { userId, firstName, lastName, email, password } = req.body;
 
@@ -487,6 +491,7 @@ exports.setApp = function (app, dbInstance) {
   });
 
   app.post("/api/editItinerary", async (req, res, next) => {
+    var token = require("./createJWT.js");
     // incoming: userId, itineraryID, itineraryNode
     const { userId, itineraryID, itineraryNode } = req.body;
 
@@ -554,6 +559,7 @@ exports.setApp = function (app, dbInstance) {
 
   // Endpoint for generating travel itinerary using Gemini
   app.post("/api/generate-itinerary", async (req, res) => {
+    var token = require("./createJWT.js");
     try {
       const { destination, duration, groupSize, preferences } = req.body;
 
