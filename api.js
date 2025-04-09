@@ -229,9 +229,9 @@ exports.setApp = function (app, client) {
         //     needsVerification: true,
         //   });
         // }
-        id: user.UserId;
-        fn: user.FirstName;
-        ln: user.LastName;
+        id = user.UserId;
+        fn = user.FirstName;
+        ln = user.LastName;
 
         try 
         {
@@ -390,5 +390,32 @@ exports.setApp = function (app, client) {
       res.status(500).json({ error: error.toString() });
     }
   });
+
+  app.post("/api/get-user", async (req, res) => {
+    // const token = require("./createJWT.js");
+    const { userId } = req.body;
+  
+    if (!userId) {
+      return res.status(400).json({ error: "User ID is required" });
+    }
+  
+    try {
+      const user = await db.collection("Users").findOne({ UserId: userId });
+  
+      if (!user) {
+        return res.status(404).json({ error: "User not found" });
+      }
+  
+      res.status(200).json({
+        userId: user.UserId,
+        firstName: user.FirstName,
+        lastName: user.LastName,
+        email: user.Email,
+      });
+    } catch (e) {
+      res.status(500).json({ error: e.toString() });
+    }
+  });
+  
 
 };
