@@ -1,7 +1,10 @@
 const mongoose = require("mongoose");
 
 const itinerarySchema = new mongoose.Schema({
-  itinerary: {
+  userId: {
+    type: Number
+  },
+  Itinerary: {
     title: {
       type: String,
       required: true,
@@ -70,6 +73,14 @@ const itinerarySchema = new mongoose.Schema({
       type: Date,
       default: Date.now,
     },
+  },
+  ItineraryId: {
+    type: Number,
+    required: true,
+  },
+  createdAt: {
+    type: Date,
+    default: Date.now,
   }
 }, { collection: "Itineraries" });
 
