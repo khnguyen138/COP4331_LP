@@ -11,6 +11,7 @@ interface Activity {
   location: string;
   details: string;
   cost: string;
+  tags: string;
 }
 
 interface Day {
@@ -26,6 +27,38 @@ const ItineraryPage = () => {
     return <div className="container py-5">No itinerary data found.</div>;
   }
 
+  const handleSaveTrip = async () => {
+
+    try {
+      // get user id
+      const user = JSON.parse(localStorage.getItem("user") || "{}");
+      const userId = user.UserId;
+      const jwtToken = JSON.parse(localStorage.getItem("jwtToken") || '""');
+
+      // send to backend
+      const response = await fetch("http://localhost:5000/api/addItinerary", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ userId, itinerary, jwtToken }),
+      });
+  
+      // server response
+      const data = await response.json();
+      if (response.ok) {
+        console.log("Itinerary saved successfully:", data);
+        alert("Itinerary saved successfully!");
+      }
+      else {
+        console.error(data.error);
+      }
+    } catch (error) {
+      console.error("Error saving itinerary:", error);
+      alert("Error saving itinerary. Please try again.");
+    }
+  }
+  
   return (
     <div className="container py-4">
       {/* Header Section */}
@@ -66,13 +99,21 @@ const ItineraryPage = () => {
             </div>
           </div>
           <p className="text-muted"> {itinerary.description} </p>
+
+          {itinerary.tags && (
+            <div className="tags-container">
+              {itinerary.tags.map((tag: string, index: number) => (
+                <span key={index} className="tags">
+                  {tag}
+                </span>
+              ))}
+            </div>
+          )}
+
           <Button
             variant="primary"
             className="w-100"
-            onClick={() => {
-              // Handle save itinerary logic here
-              console.log("Itinerary saved!");
-            }}
+            onClick={handleSaveTrip}
           >
             Save Itinerary
           </Button>

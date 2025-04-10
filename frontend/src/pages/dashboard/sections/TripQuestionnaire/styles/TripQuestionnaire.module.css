@@ -4,13 +4,12 @@
 } */
 .qWrapper {
   display: flex;
-  height: 100;
-  background-color: #f8f9fa;
   gap: 2rem;
-  padding: 2rem;
   box-sizing: border-box;
   justify-content: center;
   align-items: center;
+  height: 90vh;
+  padding: 2rem;
 }
 
 .qWrapper.sidebar {
@@ -75,12 +74,28 @@
   flex: 1;
   background-color: white;
   border-radius: 12px;
+  padding: 1rem;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
-  overflow: hidden;
-  position: sticky;
-  top: 2rem;
+  overflow-y: auto;
   height: 100%;
-  margin-left: 2rem;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+.previewPlaceholder {
+  width: 100%;
+  background-color: #f0f0f0;
+  border: 2px dashed #ccc;
+  border-radius: 12px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 400px;
+}
+
+.previewIcon span {
+  font-size: 2rem;
 }
 
 .empty-state {

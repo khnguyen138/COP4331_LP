@@ -80,8 +80,7 @@ const ItineraryPreview: React.FC<ItineraryPreviewProps> = ({
               // Check if activity is a string (direct activity description)
               if (typeof activity === "string") {
                 console.log(
-                  `Day ${dayIndex + 1}, Activity ${
-                    activityIndex + 1
+                  `Day ${dayIndex + 1}, Activity ${activityIndex + 1
                   } is a string:`,
                   activity
                 );
@@ -90,15 +89,13 @@ const ItineraryPreview: React.FC<ItineraryPreviewProps> = ({
 
               if (!activity || typeof activity !== "object") {
                 console.error(
-                  `Day ${dayIndex + 1}, Activity ${
-                    activityIndex + 1
+                  `Day ${dayIndex + 1}, Activity ${activityIndex + 1
                   } is invalid:`,
                   activity
                 );
               } else if (!activity.time || !activity.activity) {
                 console.error(
-                  `Day ${dayIndex + 1}, Activity ${
-                    activityIndex + 1
+                  `Day ${dayIndex + 1}, Activity ${activityIndex + 1
                   } is missing time or activity:`,
                   activity
                 );
@@ -138,7 +135,9 @@ const ItineraryPreview: React.FC<ItineraryPreviewProps> = ({
           itinerary for you.
         </p>
         <div className={styles.previewPlaceholder}>
-          <span>✈️</span>
+          <div className={styles.previewIcon}>
+            <span>✈️</span>
+          </div>
         </div>
       </div>
     );
@@ -157,8 +156,8 @@ const ItineraryPreview: React.FC<ItineraryPreviewProps> = ({
   // Ensure we have activities for the current day
   const currentDayActivities =
     itinerary.dailyBreakdown &&
-    itinerary.dailyBreakdown[activeDay - 1] &&
-    itinerary.dailyBreakdown[activeDay - 1].activities
+      itinerary.dailyBreakdown[activeDay - 1] &&
+      itinerary.dailyBreakdown[activeDay - 1].activities
       ? itinerary.dailyBreakdown[activeDay - 1].activities
       : [];
 
