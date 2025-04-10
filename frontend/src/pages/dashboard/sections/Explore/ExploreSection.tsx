@@ -4,6 +4,7 @@ import { Search, Filter, MapPin, Calendar, Clock, Users } from "lucide-react";
 import { SampleItinerary } from "../../../../types/itinerary";
 import { sampleItineraries } from "../../../../types/sampleItineraries";
 import "./ExploreSection.css";
+import { Button } from "react-bootstrap";
 
 const ExploreSection: React.FC = () => {
   const [searchQuery, setSearchQuery] = useState("");
@@ -118,14 +119,14 @@ const ExploreSection: React.FC = () => {
       <div className="row g-4">
         {itineraries.map((itinerary) => (
           <div key={itinerary.id} className="col-md-6 col-lg-4">
-            <div className="card h-100 shadow-sm border-0 hover-shadow transition-all">
+            <div className="card h-100 shadow-sm border-0 hover-shadow transition-all h-100 d-flex flex-column">
               <img
                 src={itinerary.image}
                 className="card-img-top"
                 alt={itinerary.title}
                 style={{ height: "200px", objectFit: "cover" }}
               />
-              <div className="card-body">
+              <div className="card-body d-flex flex-column flex-grow-1">
                 <h5 className="card-title">{itinerary.title}</h5>
                 <div className="d-flex align-items-center text-muted mb-2">
                   <MapPin size={16} className="me-1" />
@@ -141,7 +142,7 @@ const ExploreSection: React.FC = () => {
                     <small>{itinerary.groupSize}</small>
                   </div>
                 </div>
-                <p className="card-text text-muted small mb-3">
+                <p className="card-text text-muted small mb-3 flex-grow-1 mt-auto">
                   {itinerary.description}
                 </p>
                 <div className="d-flex justify-content-between align-items-center">
@@ -157,12 +158,15 @@ const ExploreSection: React.FC = () => {
                   </div>
                 </div>
               </div>
-              <button
-                className="btn btn-primary w-100"
-                onClick={() => handleViewItinerary(itinerary)}
-              >
-                View Itinerary
-              </button>
+              <div className="mt-auto px-3 pb-3">
+                  <Button
+                    variant="primary"
+                    className="w-100"
+                    onClick={() => handleViewItinerary(itinerary)}
+                  >
+                    View Itinerary
+                  </Button>
+                </div>
             </div>
           </div>
         ))}
