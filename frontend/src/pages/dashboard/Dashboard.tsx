@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import Sidebar from "../../components/Sidebar";
 import UpcomingTripsSection from "./sections/MyTrips/UpcomingTripsSection";
 import TripQuestionnaire from "./sections/TripQuestionnaire/tripQuestionnaire";
-import DashboardHome from "./sections/DashboardHome/ExploreSection";
+import DashboardHome from "./sections/DashboardHome/ExploreGrid";
 import ExploreSection from "./sections/Explore/ExploreSection";
 import { useNavigate, useLocation } from "react-router-dom";
 import SavedTrips from "./sections/SavedTrips/SavedTrips";

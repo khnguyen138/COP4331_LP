@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { Search, Filter, MapPin, Calendar, Clock, Users } from "lucide-react";
+import { Search, MapPin, Calendar, Users } from "lucide-react";
 import { SampleItinerary } from "../../../../types/itinerary";
 import { sampleItineraries } from "../../../../types/sampleItineraries";
 import "./ExploreSection.css";
@@ -11,7 +11,7 @@ const ExploreSection: React.FC = () => {
   const [selectedFilter, setSelectedFilter] = useState("all");
   const navigate = useNavigate();
   const itineraries = sampleItineraries;
-  
+
   /* const itineraries: SampleItinerary[] = [
     {
       id: 1,
@@ -65,11 +65,10 @@ const ExploreSection: React.FC = () => {
   const handleViewItinerary = (itinerary: SampleItinerary) => {
     navigate("/itinerary", {
       state: {
-        tripData: itinerary
+        tripData: itinerary,
       },
     });
   };
-
 
   return (
     <div className="container py-4">
@@ -80,7 +79,6 @@ const ExploreSection: React.FC = () => {
           Discover curated travel plans from around the world
         </p>
       </div>
-
       {/* Search and Filter Section */}
       <div className="row mb-4">
         <div className="search-filter flex-md-row">
@@ -102,20 +100,21 @@ const ExploreSection: React.FC = () => {
             {filters.map((filter) => (
               <button
                 key={filter.id}
-                className={`btn ${selectedFilter === filter.id
-                  ? "btn-primary"
-                  : "btn-outline-secondary"
-                  }`}
+                className={`btn ${
+                  selectedFilter === filter.id
+                    ? "btn-primary"
+                    : "btn-outline-secondary"
+                }`}
                 onClick={() => setSelectedFilter(filter.id)}
               >
                 {filter.label}
               </button>
             ))}
           </div>
-        </div>'
-      </div>'
-
-      {/* Itineraries Grid */}
+        </div>
+        '
+      </div>
+      '{/* Itineraries Grid */}
       <div className="row g-4">
         {itineraries.map((itinerary) => (
           <div key={itinerary.id} className="col-md-6 col-lg-4">
@@ -159,14 +158,14 @@ const ExploreSection: React.FC = () => {
                 </div>
               </div>
               <div className="mt-auto px-3 pb-3">
-                  <Button
-                    variant="primary"
-                    className="w-100"
-                    onClick={() => handleViewItinerary(itinerary)}
-                  >
-                    View Itinerary
-                  </Button>
-                </div>
+                <Button
+                  variant="primary"
+                  className="w-100"
+                  onClick={() => handleViewItinerary(itinerary)}
+                >
+                  View Itinerary
+                </Button>
+              </div>
             </div>
           </div>
         ))}

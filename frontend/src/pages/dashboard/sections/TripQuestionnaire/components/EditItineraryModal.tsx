@@ -2,11 +2,6 @@ import React from "react";
 import { Modal, Form, Button, Row, Col, Card } from "react-bootstrap";
 import { Activity, Itinerary } from "../../../../../types/itinerary";
 
-interface DailyBreakdown {
-  day: number;
-  activities: Activity[];
-}
-
 interface EditItineraryModalProps {
   show: boolean;
   onHide: () => void;

@@ -1,10 +1,5 @@
 import React from "react";
-import {
-  Tabs,
-  TabsList,
-  TabsTrigger,
-  TabsContent,
-} from "../../components/ui/tabs";
+import { Tabs, TabsTrigger, TabsContent } from "../../components/ui/tabs";
 import Login from "../authentication/Login";
 import Signup from "../authentication/Signup";
 
@@ -14,7 +9,8 @@ const LoginSignup: React.FC = () => {
       <div className="login-signup-header">
         <h2>Welcome to TravelGenie</h2>
         <p className="text-muted">
-          Sign in to your account or create a new one to start planning your next adventure.
+          Sign in to your account or create a new one to start planning your
+          next adventure.
         </p>
       </div>
 
@@ -23,7 +19,11 @@ const LoginSignup: React.FC = () => {
         <TabsTrigger value="signup">Sign Up</TabsTrigger>
 
         <TabsContent value="login">
-          <Login onLoginSuccess={(username) => console.log(`Logged in as ${username}`)} />
+          <Login
+            onLoginSuccess={(username) =>
+              console.log(`Logged in as ${username}`)
+            }
+          />
         </TabsContent>
 
         <TabsContent value="signup">

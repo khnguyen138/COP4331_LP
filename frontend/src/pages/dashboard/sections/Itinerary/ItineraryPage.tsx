@@ -1,8 +1,11 @@
-import React from "react";
-import { useState } from "react";
 import { useLocation } from "react-router-dom";
 import { Container, Button } from "react-bootstrap";
-import { CalendarIcon, UsersIcon, MapPin, CircleDollarSign } from "lucide-react";
+import {
+  CalendarIcon,
+  UsersIcon,
+  MapPin,
+  CircleDollarSign,
+} from "lucide-react";
 import "./ItineraryPage.css";
 
 interface Activity {
@@ -28,7 +31,6 @@ const ItineraryPage = () => {
   }
 
   const handleSaveTrip = async () => {
-
     try {
       // get user id
       const user = JSON.parse(localStorage.getItem("user") || "{}");
@@ -43,22 +45,21 @@ const ItineraryPage = () => {
         },
         body: JSON.stringify({ userId, itinerary, jwtToken }),
       });
-  
+
       // server response
       const data = await response.json();
       if (response.ok) {
         console.log("Itinerary saved successfully:", data);
         alert("Itinerary saved successfully!");
-      }
-      else {
+      } else {
         console.error(data.error);
       }
     } catch (error) {
       console.error("Error saving itinerary:", error);
       alert("Error saving itinerary. Please try again.");
     }
-  }
-  
+  };
+
   return (
     <div className="container py-4">
       {/* Header Section */}
@@ -67,7 +68,12 @@ const ItineraryPage = () => {
           <img
             src={itinerary.image}
             alt={itinerary.title}
-            style={{ width: "100%", height: "100%", borderRadius: "12px", objectFit: "cover" }}
+            style={{
+              width: "100%",
+              height: "100%",
+              borderRadius: "12px",
+              objectFit: "cover",
+            }}
           />
         </div>
         <div className="col-md-6 d-flex flex-column justify-content-center">
@@ -75,27 +81,19 @@ const ItineraryPage = () => {
           <div className="d-flex flex-wrap gap-3 mb-2 ">
             <div className="d-flex align-items-center me-3">
               <MapPin size={16} className="me-1" />
-              <span className="text-muted">
-                {itinerary.destination}
-              </span>
+              <span className="text-muted">{itinerary.destination}</span>
             </div>
             <div className="d-flex align-items-center me-3">
               <CalendarIcon size={16} className="me-1" />
-              <span className="text-muted">
-                {itinerary.duration}
-              </span>
+              <span className="text-muted">{itinerary.duration}</span>
             </div>
             <div className="d-flex align-items-center me-3">
               <UsersIcon size={16} className="me-1" />
-              <span className="text-muted">
-                {itinerary.groupSize}
-              </span>
+              <span className="text-muted">{itinerary.groupSize}</span>
             </div>
             <div className="d-flex align-items-center me-3">
               <CircleDollarSign size={16} className="me-1" />
-              <span className="text-muted">
-                {itinerary.price}
-              </span>
+              <span className="text-muted">{itinerary.price}</span>
             </div>
           </div>
           <p className="text-muted"> {itinerary.description} </p>
@@ -110,11 +108,7 @@ const ItineraryPage = () => {
             </div>
           )}
 
-          <Button
-            variant="primary"
-            className="w-100"
-            onClick={handleSaveTrip}
-          >
+          <Button variant="primary" className="w-100" onClick={handleSaveTrip}>
             Save Itinerary
           </Button>
         </div>
@@ -131,15 +125,24 @@ const ItineraryPage = () => {
 
               <div className="itinerary">
                 {dayObj.activities.map((activity: Activity, i: number) => (
-                  <div key={i} id={`day-${dayObj.day}`} className="itinerary-activity">
+                  <div
+                    key={i}
+                    id={`day-${dayObj.day}`}
+                    className="itinerary-activity"
+                  >
                     <div className="activity-time"> {activity.time} </div>
                     <div className="activity-content">
                       <div activity-content>
-                        <div className="activity-name"> {activity.activity} </div>
+                        <div className="activity-name">
+                          {" "}
+                          {activity.activity}{" "}
+                        </div>
                         <em>{activity.location}</em> <br />
                         <span>{activity.details}</span> <br />
                         <hr className="activity-divider" />
-                        <span className="cost"><strong>Cost:</strong> {activity.cost}</span>
+                        <span className="cost">
+                          <strong>Cost:</strong> {activity.cost}
+                        </span>
                       </div>
                     </div>
                   </div>

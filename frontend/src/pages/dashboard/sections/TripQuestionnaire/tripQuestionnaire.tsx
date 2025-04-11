@@ -16,7 +16,6 @@ interface TripQuestionnaireProps {
 const TripQuestionnaire: React.FC<TripQuestionnaireProps> = ({
   onComplete,
   isSidebar = false,
-  user,
 }): JSX.Element => {
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");

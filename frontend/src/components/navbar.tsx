@@ -1,10 +1,5 @@
-import React, {
-  useState,
-  useEffect,
-  useImperativeHandle,
-  forwardRef,
-} from "react";
 import { Navbar, Container, Nav } from "react-bootstrap";
+import { forwardRef, useState, useEffect, useImperativeHandle } from "react";
 import Login from "../pages/authentication/Login";
 import Signup from "../pages/authentication/Signup";
 import { useNavigate } from "react-router-dom";
@@ -42,7 +37,6 @@ const NavigationBar = forwardRef<unknown, NavigationBarProps>(
     }, []);
 
     const handleCloseLogin = () => setShowLogin(false);
-    const handleShowLogin = () => setShowLogin(true);
 
     const handleCloseSignup = () => setShowSignup(false);
     const handleShowSignup = () => setShowSignup(true);
@@ -74,10 +68,11 @@ const NavigationBar = forwardRef<unknown, NavigationBarProps>(
       <>
         <Navbar
           expand="lg"
-          className={`fixed-top w-100 transition-all duration-300 ${isScrolled
+          className={`fixed-top w-100 transition-all duration-300 ${
+            isScrolled
               ? "navbar-light bg-transparent text-dark"
               : "navbar-dark bg-black bg-opacity-75 text-light"
-            }`}
+          }`}
         >
           <Container>
             <Navbar.Brand href="#home">TravelGenie</Navbar.Brand>
@@ -105,7 +100,9 @@ const NavigationBar = forwardRef<unknown, NavigationBarProps>(
                   <>
                     {/* <Nav.Link onClick={handleShowLogin}>Login</Nav.Link>
                     <Nav.Link onClick={handleShowSignup}>Get Started</Nav.Link> */}
-                    <Nav.Link onClick={handleShowLoginSignup}>Login / SignUp</Nav.Link>
+                    <Nav.Link onClick={handleShowLoginSignup}>
+                      Login / SignUp
+                    </Nav.Link>
                   </>
                 )}
               </Nav>
@@ -171,7 +168,9 @@ const NavigationBar = forwardRef<unknown, NavigationBarProps>(
           tabIndex={-1}
           role="dialog"
           style={{
-            backgroundColor: showloginSignup ? "rgba(0,0,0,0.5)" : "transparent",
+            backgroundColor: showloginSignup
+              ? "rgba(0,0,0,0.5)"
+              : "transparent",
           }}
         >
           <div className="modal-dialog" role="document">

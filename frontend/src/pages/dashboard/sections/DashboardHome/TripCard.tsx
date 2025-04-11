@@ -1,5 +1,4 @@
 import React from "react";
-import { Card } from "react-bootstrap";
 import { CalendarIcon, UsersIcon, ClockIcon, StarIcon } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 
