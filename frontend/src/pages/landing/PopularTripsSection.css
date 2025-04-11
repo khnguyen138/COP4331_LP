@@ -6,3 +6,15 @@
   transform: translateY(-5px);
   box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15) !important;
 }
+
+.scroll {
+  height: 90vh;
+  display: flex;
+}
+
+.scroll .modal-content {
+  flex: 1;
+  overflow-y: auto;
+  border-radius: 12px;
+  padding: 1rem;
+}

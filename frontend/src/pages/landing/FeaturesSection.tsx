@@ -45,7 +45,7 @@ const FeaturesSection: React.FC = () => {
             <Col key={index} xs={12} sm={6} lg={3} className="mb-4">
               <Card className="h-100 hover-shadow border-0 shadow-sm">
                 <Card.Body className="text-center p-4">
-                  <div className="text-primary mb-3">{feature.icon}</div>
+                  <div className="icon mb-3">{feature.icon}</div>
                   <Card.Title as="h3" className="h5 fw-bold">
                     {feature.title}
                   </Card.Title>

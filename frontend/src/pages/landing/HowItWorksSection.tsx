@@ -5,6 +5,7 @@ import {
   CalendarIcon,
   ThumbsUpIcon,
 } from "lucide-react";
+
 export const HowItWorksSection: React.FC = () => {
   const steps = [
     {
@@ -50,8 +51,8 @@ export const HowItWorksSection: React.FC = () => {
                   style={{
                     width: "80px",
                     height: "80px",
-                    backgroundColor: "#D5C6E0",
-                    color: "#192A51",
+                    backgroundColor: "#bca598",
+                    color: "#242e2e",
                   }}
                 >
                   {step.icon}
