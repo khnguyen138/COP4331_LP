@@ -76,7 +76,7 @@ const NavigationBar = forwardRef<unknown, NavigationBarProps>(
           expand="lg"
           className={`fixed-top w-100 transition-all duration-300 ${isScrolled
               ? "navbar-light bg-transparent text-dark"
-              : "navbar-dark bg-black bg-opacity-75 text-light"
+              : "navbar-light bg-transparent text-dark" // "navbar-dark bg-black bg-opacity-75 text-light"
             }`}
         >
           <Container>

@@ -3,12 +3,14 @@ import TripCard from "./TripCard";
 import NewTripModal from "./NewTripModal";
 import { PlusIcon } from "lucide-react";
 import { useNavigate } from "react-router-dom";
+import Explore from "../../../../components/Explore";
+
 
 const ExploreSection: React.FC = () => {
   const navigate = useNavigate();
 
   const handleCreateNewTrip = () => {
-    navigate("/tripQuestionnaire"); 
+    navigate("/tripQuestionnaire");
   };
   const popularDestinations = [
     {
@@ -131,11 +133,13 @@ const ExploreSection: React.FC = () => {
       <div>
         <h2 className="h3 mb-4">Explore Popular Destinations</h2>
         <div className="row g-4">
-          {popularDestinations.map((destination) => (
+          <Explore />
+
+          {/* {popularDestinations.map((destination) => (
             <div key={destination.id} className="col-md-6 col-lg-4">
               <TripCard trip={destination} type="destination" />
-            </div>
-          ))}
+            </div> 
+          ))} */}
         </div>
       </div>
     </div>

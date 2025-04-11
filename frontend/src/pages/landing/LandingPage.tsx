@@ -3,6 +3,7 @@ import HeroSection from "./HeroSection";
 import FeaturesSection from "./FeaturesSection";
 import HowItWorksSection from "./HowItWorksSection";
 import PopularTripsSection from "./PopularTripsSection";
+import Explore from "../../components/Explore";
 import CTASection from "./CTASection";
 interface LandingPageProps {
   onLogin: () => void;
@@ -19,6 +20,9 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onLogin }) => {
       </div>
       <div id="popular-trips">
         <PopularTripsSection />
+      </div>
+      <div id="explore-popular-trips">
+        <Explore />
       </div>
       <div id="how-it-works">
         <HowItWorksSection />

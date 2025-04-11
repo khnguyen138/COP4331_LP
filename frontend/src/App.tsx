@@ -40,18 +40,18 @@ const AppContent: React.FC = () => {
     location.pathname === "/profile";
 
 
-  /* useEffect(() => {
+  useEffect(() => {
     const storedUser = localStorage.getItem("user");
     if (storedUser) {
       const parsedUser = JSON.parse(storedUser);
       setUser(parsedUser.username);
       setIsLoggedIn(true);
     }
-  }, []); */
-
-  useEffect(() => {
-    setIsLoggedIn(true); // TEMPORARY
   }, []);
+
+  /* useEffect(() => {
+    setIsLoggedIn(true); // TEMPORARY
+  }, []); */
 
   const handleLogin = (username: string) => {
     setUser(username);

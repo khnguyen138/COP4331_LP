@@ -1,5 +1,6 @@
 import type React from "react";
 import { Container, Row, Col, Card } from "react-bootstrap";
+import "./FeaturesSection.css";
 import { FaRoute, FaCloudSun, FaWallet, FaMapMarkedAlt } from "react-icons/fa";
 
 const FeaturesSection: React.FC = () => {
@@ -42,7 +43,7 @@ const FeaturesSection: React.FC = () => {
             },
           ].map((feature, index) => (
             <Col key={index} xs={12} sm={6} lg={3} className="mb-4">
-              <Card className="h-100 border-0 shadow-sm">
+              <Card className="h-100 hover-shadow border-0 shadow-sm">
                 <Card.Body className="text-center p-4">
                   <div className="text-primary mb-3">{feature.icon}</div>
                   <Card.Title as="h3" className="h5 fw-bold">
