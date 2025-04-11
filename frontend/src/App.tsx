@@ -15,8 +15,6 @@ import ResetPassword from "./pages/authentication/ResetPassword";
 import NavigationBar from "./components/navbar";
 import Footer from "./components/Footer";
 import LandingPage from "./pages/landing/LandingPage";
-import TripQuestionnaire from "./pages/dashboard/sections/TripQuestionnaire/tripQuestionnaire";
-import ItineraryPage from "./pages/dashboard/sections/Itinerary/ItineraryPage";
 import { ThemeProvider } from "./context/ThemeContext";
 import "bootstrap/dist/css/bootstrap.min.css";
 import "./App.css";

@@ -1,10 +1,11 @@
-import React, { useState } from "react";
+import React from "react";
 import HeroSection from "./HeroSection";
 import FeaturesSection from "./FeaturesSection";
 import HowItWorksSection from "./HowItWorksSection";
 import PopularTripsSection from "./PopularTripsSection";
 import Explore from "../../components/Explore";
 import CTASection from "./CTASection";
+
 interface LandingPageProps {
   onLogin: () => void;
 }

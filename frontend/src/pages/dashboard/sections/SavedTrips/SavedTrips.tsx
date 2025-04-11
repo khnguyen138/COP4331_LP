@@ -1,14 +1,6 @@
 import React, { useState } from "react";
 import { Card, Container, Row, Col, Button } from "react-bootstrap";
-import {
-  Heart,
-  MapPin,
-  Calendar,
-  Users,
-  Clock,
-  Star,
-  Search,
-} from "lucide-react";
+import { Heart, MapPin, Users, Clock, Star, Search } from "lucide-react";
 
 interface SavedTrip {
   id: string;

@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import { useNavigate } from "react-router-dom";
 
 const Signup: React.FC = () => {
   const [firstName, setFirstName] = useState("");
@@ -8,6 +9,7 @@ const Signup: React.FC = () => {
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
+  const navigate = useNavigate();
 
   const handleSignup = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -25,7 +27,7 @@ const Signup: React.FC = () => {
     }
 
     try {
-      const response = await fetch("http://localhost:5001/api/register", {
+      const response = await fetch("http://localhost:5000/api/register", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -37,8 +39,17 @@ const Signup: React.FC = () => {
         setError(data.error);
         console.error("Error signing up:", data.error);
       } else {
-        setSuccess("Signup successful!");
-        console.log("Signup successful:", data);
+        setSuccess(
+          "Registration successful! Please check your email to verify your account."
+        );
+        // Clear form
+        setFirstName("");
+        setLastName("");
+        setEmail("");
+        setLogin("");
+        setPassword("");
+        // Redirect to login after 5 seconds
+        setTimeout(() => navigate("/login"), 5000);
       }
     } catch (error) {
       setError("An error occurred during signup.");
@@ -51,34 +62,34 @@ const Signup: React.FC = () => {
       {error && <div className="alert alert-danger">{error}</div>}
       {success && <div className="alert alert-success">{success}</div>}
       <form onSubmit={handleSignup}>
-      <div className="mb-3 d-flex gap-3">
-        <div className="flex-fill">
-          <label htmlFor="firstName" className="form-label">
-            First Name:
-          </label>
-          <input
-            type="text"
-            className="form-control"
-            id="firstName"
-            value={firstName}
-            onChange={(e) => setFirstName(e.target.value)}
-            required
-          />
+        <div className="mb-3 d-flex gap-3">
+          <div className="flex-fill">
+            <label htmlFor="firstName" className="form-label">
+              First Name:
+            </label>
+            <input
+              type="text"
+              className="form-control"
+              id="firstName"
+              value={firstName}
+              onChange={(e) => setFirstName(e.target.value)}
+              required
+            />
+          </div>
+          <div className="flex-fill">
+            <label htmlFor="lastName" className="form-label">
+              Last Name:
+            </label>
+            <input
+              type="text"
+              className="form-control"
+              id="lastName"
+              value={lastName}
+              onChange={(e) => setLastName(e.target.value)}
+              required
+            />
+          </div>
         </div>
-        <div className="flex-fill">
-          <label htmlFor="lastName" className="form-label">
-            Last Name:
-          </label>
-          <input
-            type="text"
-            className="form-control"
-            id="lastName"
-            value={lastName}
-            onChange={(e) => setLastName(e.target.value)}
-            required
-          />
-        </div>
-      </div>
         <div className="mb-3">
           <label htmlFor="email" className="form-label">
             Email:
@@ -108,11 +119,14 @@ const Signup: React.FC = () => {
         <div className="mb-3 password-field-wrapper">
           <label htmlFor="password">
             Password:
-            <span className="tooltip-icon" tabIndex={0}>?</span>
+            <span className="tooltip-icon" tabIndex={0}>
+              ?
+            </span>
             <div className="tooltip-text">
-              Must be at least 8 characters<br />
-              Include 1 uppercase, 1 lowercase,<br />
-              1 number, and 1 special character.
+              Must be at least 8 characters
+              <br />
+              Include 1 uppercase, 1 lowercase,
+              <br />1 number, and 1 special character.
             </div>
           </label>
           <input

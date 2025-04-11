@@ -1,6 +1,5 @@
-import React, { useState } from "react";
+import React from "react";
 import TripCard from "./TripCard";
-import NewTripModal from "./NewTripModal";
 import { PlusIcon } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import Explore from "../../../../components/Explore";

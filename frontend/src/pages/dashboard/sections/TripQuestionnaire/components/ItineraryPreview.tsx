@@ -9,12 +9,7 @@ import {
 } from "lucide-react";
 import { useSwipeable } from "react-swipeable";
 import styles from "../styles/TripQuestionnaire.module.css";
-import { Activity, Itinerary } from "../../../../../types/itinerary";
-
-interface DailyBreakdown {
-  day: number;
-  activities: Activity[];
-}
+import { Itinerary } from "../../../../../types/itinerary";
 
 interface ItineraryPreviewProps {
   itinerary: Itinerary | null;
@@ -35,11 +30,11 @@ const formatTime = (time: string): string => {
   return timeMap[time] || time;
 };
 
-const getLocationFromActivity = (activity: string): string => {
-  if (!activity) return "Location not specified";
-  const match = activity.match(/at\s+([^.]+)/i);
-  return match ? match[1].trim() : "Location not specified";
-};
+// const getLocationFromActivity = (activity: string): string => {
+//   if (!activity) return "Location not specified";
+//   const match = activity.match(/at\s+([^.]+)/i);
+//   return match ? match[1].trim() : "Location not specified";
+// };
 
 const ItineraryPreview: React.FC<ItineraryPreviewProps> = ({
   itinerary,
@@ -80,7 +75,8 @@ const ItineraryPreview: React.FC<ItineraryPreviewProps> = ({
               // Check if activity is a string (direct activity description)
               if (typeof activity === "string") {
                 console.log(
-                  `Day ${dayIndex + 1}, Activity ${activityIndex + 1
+                  `Day ${dayIndex + 1}, Activity ${
+                    activityIndex + 1
                   } is a string:`,
                   activity
                 );
@@ -89,13 +85,15 @@ const ItineraryPreview: React.FC<ItineraryPreviewProps> = ({
 
               if (!activity || typeof activity !== "object") {
                 console.error(
-                  `Day ${dayIndex + 1}, Activity ${activityIndex + 1
+                  `Day ${dayIndex + 1}, Activity ${
+                    activityIndex + 1
                   } is invalid:`,
                   activity
                 );
               } else if (!activity.time || !activity.activity) {
                 console.error(
-                  `Day ${dayIndex + 1}, Activity ${activityIndex + 1
+                  `Day ${dayIndex + 1}, Activity ${
+                    activityIndex + 1
                   } is missing time or activity:`,
                   activity
                 );
@@ -156,8 +154,8 @@ const ItineraryPreview: React.FC<ItineraryPreviewProps> = ({
   // Ensure we have activities for the current day
   const currentDayActivities =
     itinerary.dailyBreakdown &&
-      itinerary.dailyBreakdown[activeDay - 1] &&
-      itinerary.dailyBreakdown[activeDay - 1].activities
+    itinerary.dailyBreakdown[activeDay - 1] &&
+    itinerary.dailyBreakdown[activeDay - 1].activities
       ? itinerary.dailyBreakdown[activeDay - 1].activities
       : [];
 
