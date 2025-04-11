@@ -3,6 +3,7 @@
 // const fetch = require("node-fetch");
 const emailService = require("./emailService");
 const { GoogleGenerativeAI } = require("@google/generative-ai");
+const fetch = require("node-fetch");
 
 // Initialize Google Generative AI client
 const genAI = new GoogleGenerativeAI(process.env.API_KEY, {
@@ -56,6 +57,28 @@ exports.setApp = function (app, dbInstance) {
       existing = await Itinerary.findOne({ ItineraryID: itineraryId });
     }
     return itineraryId;
+  }
+
+  async function fetchUnsplashImage(query) {
+    const accessKey = process.env.UNSPLASH_ACCESS_KEY;
+    const url = `https://api.unsplash.com/search/photos?query=${encodeURIComponent(
+      query
+    )}&client_id=${accessKey}&per_page=1`;
+
+    try {
+      const response = await fetch(url);
+      const data = await response.json();
+
+      if (data.results && data.results.length > 0) {
+        return data.results[0].urls.regular; // Return the URL of the first image
+      } else {
+        console.warn("No images found for query:", query);
+        return "https://via.placeholder.com/800x400?text=No+Image+Available"; // Fallback image
+      }
+    } catch (error) {
+      console.error("Error fetching image from Unsplash:", error);
+      return "https://via.placeholder.com/800x400?text=Error+Fetching+Image"; // Fallback image
+    }
   }
 
   // Registration endpoint
@@ -743,11 +766,13 @@ exports.setApp = function (app, dbInstance) {
           });
         });
 
+        // Fetch an image for the destination
+        const imageUrl = await fetchUnsplashImage(destination);
+
+        // Add the image URL to the itinerary
+        itinerary.image = imageUrl;
+
         // Add default values for required fields if they're missing
-        if (!itinerary.image) {
-          itinerary.image =
-            "https://via.placeholder.com/800x400?text=Trip+Image";
-        }
         if (!itinerary.price) {
           itinerary.price = 0;
         }
