@@ -1,21 +1,14 @@
 import React, { useState } from "react";
-<<<<<<< HEAD
-import { Search, Filter, MapPin, Calendar, Clock, Users } from "lucide-react";
-import Explore from "../../../../components/Explore";
-=======
 import { useNavigate } from "react-router-dom";
 import { Search, MapPin, Calendar, Users } from "lucide-react";
+import { Button } from "react-bootstrap";
 import { SampleItinerary } from "../../../../types/itinerary";
 import { sampleItineraries } from "../../../../types/sampleItineraries";
->>>>>>> 97af1bbdd333f30fd6a22a907c68654b23c0afe1
 import "./ExploreSection.css";
 
 const ExploreSection: React.FC = () => {
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedFilter, setSelectedFilter] = useState("all");
-<<<<<<< HEAD
-  
-=======
   const navigate = useNavigate();
   const itineraries = sampleItineraries;
 
@@ -61,7 +54,6 @@ const ExploreSection: React.FC = () => {
     },
   ];  */
 
->>>>>>> 97af1bbdd333f30fd6a22a907c68654b23c0afe1
   const filters = [
     { id: "all", label: "All Itineraries" },
     { id: "adventure", label: "Adventure" },
@@ -70,8 +62,6 @@ const ExploreSection: React.FC = () => {
     { id: "food", label: "Food & Dining" },
   ];
 
-<<<<<<< HEAD
-=======
   const handleViewItinerary = (itinerary: SampleItinerary) => {
     navigate("/itinerary", {
       state: {
@@ -80,7 +70,6 @@ const ExploreSection: React.FC = () => {
     });
   };
 
->>>>>>> 97af1bbdd333f30fd6a22a907c68654b23c0afe1
   return (
     <div className="container py-4">
       {/* Header Section */}
@@ -123,12 +112,6 @@ const ExploreSection: React.FC = () => {
             ))}
           </div>
         </div>
-<<<<<<< HEAD
-      </div>
-
-      {/* Itineraries Grid */}
-      <Explore/>
-=======
         '
       </div>
       '{/* Itineraries Grid */}
@@ -187,7 +170,6 @@ const ExploreSection: React.FC = () => {
           </div>
         ))}
       </div>
->>>>>>> 97af1bbdd333f30fd6a22a907c68654b23c0afe1
     </div>
   );
 };
