@@ -3,7 +3,11 @@ import { Tabs, TabsTrigger, TabsContent } from "../../components/ui/tabs";
 import Login from "../authentication/Login";
 import Signup from "../authentication/Signup";
 
-const LoginSignup: React.FC = () => {
+interface LoginSignupProps {
+  onLoginSuccess: (username: string) => void;
+}
+
+const LoginSignup: React.FC<LoginSignupProps> = ({ onLoginSuccess }) => {
   return (
     <div className="login-signup-wrapper">
       <div className="login-signup-header">
@@ -19,11 +23,7 @@ const LoginSignup: React.FC = () => {
         <TabsTrigger value="signup">Sign Up</TabsTrigger>
 
         <TabsContent value="login">
-          <Login
-            onLoginSuccess={(username) =>
-              console.log(`Logged in as ${username}`)
-            }
-          />
+          <Login onLoginSuccess={onLoginSuccess} />
         </TabsContent>
 
         <TabsContent value="signup">

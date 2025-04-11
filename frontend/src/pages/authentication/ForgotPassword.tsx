@@ -16,7 +16,7 @@ const ForgotPassword: React.FC = () => {
 
     try {
       const response = await fetch(
-        "http://localhost:5001/api/forgot-password",
+        "http://localhost:5000/api/forgot-password",
         {
           method: "POST",
           headers: {

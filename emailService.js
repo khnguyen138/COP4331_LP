@@ -17,6 +17,7 @@ const sendVerificationEmail = async (email, token) => {
     to: email,
     from: process.env.SENDGRID_FROM_EMAIL,
     subject: "Verify your TravelGenie account",
+    text: `Please click the link below to verify your email address:\n${verificationUrl}\n\nThis link will expire in 24 hours.\n\nIf you didn't create an account with TravelGenie, please ignore this email.`,
     html: `
       <h1>Welcome to TravelGenie!</h1>
       <p>Please click the link below to verify your email address:</p>
@@ -28,6 +29,7 @@ const sendVerificationEmail = async (email, token) => {
 
   try {
     await sgMail.send(msg);
+    console.log("Verification email sent successfully");
     return true;
   } catch (error) {
     console.error("Error sending verification email:", error);
@@ -43,6 +45,7 @@ const sendPasswordResetEmail = async (email, token) => {
     to: email,
     from: process.env.SENDGRID_FROM_EMAIL,
     subject: "Reset your TravelGenie password",
+    text: `You requested to reset your password. Click the link below to set a new password:\n${resetUrl}\n\nThis link will expire in 1 hour.\n\nIf you didn't request a password reset, please ignore this email.`,
     html: `
       <h1>Password Reset Request</h1>
       <p>You requested to reset your password. Click the link below to set a new password:</p>
@@ -54,6 +57,7 @@ const sendPasswordResetEmail = async (email, token) => {
 
   try {
     await sgMail.send(msg);
+    console.log("Password reset email sent successfully");
     return true;
   } catch (error) {
     console.error("Error sending password reset email:", error);

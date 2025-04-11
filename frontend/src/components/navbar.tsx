@@ -101,7 +101,7 @@ const NavigationBar = forwardRef<unknown, NavigationBarProps>(
                     {/* <Nav.Link onClick={handleShowLogin}>Login</Nav.Link>
                     <Nav.Link onClick={handleShowSignup}>Get Started</Nav.Link> */}
                     <Nav.Link onClick={handleShowLoginSignup}>
-                      Login / SignUp
+                      Get Started
                     </Nav.Link>
                   </>
                 )}

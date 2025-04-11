@@ -7,9 +7,10 @@
   gap: 2rem;
   box-sizing: border-box;
   justify-content: center;
-  align-items: center;
-  height: 90vh;
+  align-items: flex-start;
+  min-height: 100%;
   padding: 2rem;
+  overflow: hidden;
 }
 
 .qWrapper.sidebar {
@@ -24,7 +25,7 @@
   overflow-y: auto;
   max-width: none;
   margin: 0;
-  height: 100%;
+  max-height: calc(100vh - 4rem);
 }
 
 .qHeader {
@@ -77,7 +78,7 @@
   padding: 1rem;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
   overflow-y: auto;
-  height: 100%;
+  max-height: calc(100vh - 4rem);
   display: flex;
   flex-direction: column;
   justify-content: center;
@@ -195,7 +196,7 @@
   padding: 1.5rem;
   position: relative;
   touch-action: pan-y pinch-zoom;
-  height: calc(100% - 120px); /* Account for header and navigation height */
+  max-height: calc(100vh - 200px);
 }
 
 .activitiesList {

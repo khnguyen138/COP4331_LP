@@ -73,19 +73,23 @@ exports.setApp = function (app, dbInstance) {
     let newUser;
 
     // Generate a unique userId
-    const userId =  await generateUserIdFromMongo(login, db);
+    const userId = await generateUserIdFromMongo(login, db);
 
     try {
       // Check if the user already exists
-      const existingUser = await User.findOne({ $or: [{ Login: login }, { Email: email }] });
+      const existingUser = await User.findOne({
+        $or: [{ Login: login }, { Email: email }],
+      });
 
       if (existingUser) {
-        return res.status(400).json({ error: "Login name or email already taken." });
+        return res
+          .status(400)
+          .json({ error: "Login name or email already taken." });
       }
 
       // Generate verification token
-      // const verificationToken = emailService.generateToken();
-      // const verificationExpires = new Date(Date.now() + 24 * 60 * 60 * 1000); // 24 hours
+      const verificationToken = emailService.generateToken();
+      const verificationExpires = new Date(Date.now() + 24 * 60 * 60 * 1000); // 24 hours
 
       // Create a new user object
       newUser = new User({
@@ -95,21 +99,15 @@ exports.setApp = function (app, dbInstance) {
         LastName: lastName,
         UserId: userId,
         Email: email,
-
-        /*
         IsVerified: false,
         VerificationToken: verificationToken,
         VerificationExpires: verificationExpires,
         ResetPasswordToken: null,
         ResetPasswordExpires: null,
-        */
       });
 
-      // Save the new user to the database
-      newUser.save();
-
-      // Send verification email
-      /*const emailSent = await emailService.sendVerificationEmail(
+      // Send verification email first
+      const emailSent = await emailService.sendVerificationEmail(
         email,
         verificationToken
       );
@@ -118,7 +116,10 @@ exports.setApp = function (app, dbInstance) {
         return res
           .status(500)
           .json({ error: "Failed to send verification email" });
-      }*/
+      }
+
+      // Only save the user if email was sent successfully
+      await newUser.save();
 
       // Send a success response
       res.status(200).json({
@@ -242,9 +243,9 @@ exports.setApp = function (app, dbInstance) {
     // incoming: login, password
     // outgoing: userId, firstName, lastName, token, error message
     const { login, password } = req.body;
-    
+
     // error handling for missing fields
-    if(!login || !password) {
+    if (!login || !password) {
       return res.status(400).json({ error: "All fields required" });
     }
 
@@ -261,20 +262,20 @@ exports.setApp = function (app, dbInstance) {
         .find({ Login: login, Password: password })
         .toArray();
       */
-     
+
       // Mongoose query to find user by login and password
-      const results = await User.find({Login: login, Password: password});
-      
+      const results = await User.find({ Login: login, Password: password });
+
       // obtain the first result from the array
       if (results.length > 0) {
         const user = results[0];
-        // Temporarily disabled email verification check
-        // if (!user.IsVerified) {
-        //   return res.status(403).json({
-        //     error: "Please verify your email before logging in",
-        //     needsVerification: true,
-        //   });
-        // }
+        // Check if email is verified
+        if (!user.IsVerified) {
+          return res.status(403).json({
+            error: "Please verify your email before logging in",
+            needsVerification: true,
+          });
+        }
 
         // get user details
         id = user.UserId;
@@ -313,7 +314,7 @@ exports.setApp = function (app, dbInstance) {
 
     // incoming: userId, itineraryNode, jwtToken
     const { userId, itinerary, jwtToken } = req.body;
-    
+
     // check if the JWT token is expired. If it is, it sends a 200 response with an error message and an empty jwtToken
     try {
       if (token.isExpired(jwtToken)) {
@@ -370,7 +371,6 @@ exports.setApp = function (app, dbInstance) {
 
   // This endpoint is used to delete an itinerary from the database
   app.post("/api/deleteItinerary", async (req, res, next) => {
-
     var token = require("./createJWT.js");
 
     // incoming: userId, eventId
@@ -394,7 +394,7 @@ exports.setApp = function (app, dbInstance) {
         .status(400)
         .json({ error: "User ID and Event ID are required" });
     }
-    
+
     try {
       //This goes through the Events collection and deletes the event with the matching userId and eventId
       const result = await Itinerary.deleteOne({
@@ -427,7 +427,6 @@ exports.setApp = function (app, dbInstance) {
 
   //This function is used to search for events in the Events collection
   app.post("/api/searchItinerary", async (req, res, next) => {
-
     var token = require("./createJWT.js");
 
     // incoming: userId, (optional) date, location, time
@@ -516,17 +515,20 @@ exports.setApp = function (app, dbInstance) {
       }
       updateData.Email = email;
     }
-    
+
     if (password) updateData.Password = password;
     /*const bcrypt = require('bcrypt');
     if (password) {
       const hashedPassword = await bcrypt.hash(password, 10);
       updateData.Password = hashedPassword;
     }*/
-    
+
     try {
       // This query is used to update the user with the matching userId
-      const result = await User.findOneAndUpdate({ UserId: userId },{ $set: updateData });
+      const result = await User.findOneAndUpdate(
+        { UserId: userId },
+        { $set: updateData }
+      );
 
       // refresh the JWT token
       var refreshedToken = null;
@@ -552,21 +554,21 @@ exports.setApp = function (app, dbInstance) {
     // incoming: userId
     // outgoing: userId, firstName, lastName, email, error message
     const { userId } = req.body;
-    
+
     // check for missing fields in the request body. If any are missing, it sends a 400 error response
     if (!userId) {
       return res.status(400).json({ error: "User ID is required" });
     }
-  
+
     try {
       // This query is used to find the user with the matching userId
       const user = await User.findOne({ UserId: userId });
-      
+
       // If no user is found, a message is sent back to the user
       if (!user) {
         return res.status(404).json({ error: "User not found" });
       }
-      
+
       // refresh the JWT token
       res.status(200).json({
         userId: user.UserId,
@@ -579,7 +581,6 @@ exports.setApp = function (app, dbInstance) {
       res.status(500).json({ error: e.toString() });
     }
   });
-  
 
   app.post("/api/editItinerary", async (req, res, next) => {
     var token = require("./createJWT.js");
@@ -609,10 +610,10 @@ exports.setApp = function (app, dbInstance) {
     try {
       // This query is used to update the itinerary with the matching userId and itineraryId
       const result = await Itinerary.updateOne(
-          { UserId: userId, ItineraryId: itineraryId },
-          { $set: { Itinerary: newItinerary } }
-        );
-      
+        { UserId: userId, ItineraryId: itineraryId },
+        { $set: { Itinerary: newItinerary } }
+      );
+
       // refresh the JWT token
       var refreshedToken = null;
       try {
@@ -636,7 +637,8 @@ exports.setApp = function (app, dbInstance) {
   // Endpoint for generating travel itinerary using Gemini
   app.post("/api/generate-itinerary", async (req, res) => {
     var token = require("./createJWT.js");
-    const { destination, duration, groupSize, preferences, jwtToken } = req.body;
+    const { destination, duration, groupSize, preferences, jwtToken } =
+      req.body;
 
     // Check if the JWT token is expired
     try {
@@ -650,7 +652,6 @@ exports.setApp = function (app, dbInstance) {
     }
 
     try {
-
       if (!destination || !duration || !groupSize) {
         return res.status(400).json({
           error: "Missing required fields",
@@ -757,12 +758,12 @@ exports.setApp = function (app, dbInstance) {
         // Log the final itinerary for debugging
         console.log("Generated itinerary:", JSON.stringify(itinerary, null, 2));
 
-      var refreshedToken = null;
-      try {
-        refreshedToken = token.refreshedToken(jwtToken);
-      } catch (e) {
-        console.log(e.message);
-      }
+        var refreshedToken = null;
+        try {
+          refreshedToken = token.refreshedToken(jwtToken);
+        } catch (e) {
+          console.log(e.message);
+        }
 
         res.json(itinerary);
       } catch (parseError) {
@@ -817,4 +818,70 @@ exports.setApp = function (app, dbInstance) {
     const costMatch = line.match(/\$\d+/);
     return costMatch ? costMatch[0] : "";
   }
+
+  // Test email endpoint
+  app.post("/api/test-email", async (req, res) => {
+    try {
+      const { email } = req.body;
+
+      if (!email) {
+        return res.status(400).json({ error: "Email is required" });
+      }
+
+      // Check environment variables
+      if (!process.env.SENDGRID_API_KEY) {
+        console.error("SENDGRID_API_KEY is not set in environment variables");
+        return res.status(500).json({
+          error: "Email service not configured",
+          details: "SENDGRID_API_KEY is missing",
+        });
+      }
+
+      if (!process.env.SENDGRID_FROM_EMAIL) {
+        console.error(
+          "SENDGRID_FROM_EMAIL is not set in environment variables"
+        );
+        return res.status(500).json({
+          error: "Email service not configured",
+          details: "SENDGRID_FROM_EMAIL is missing",
+        });
+      }
+
+      if (!process.env.FRONTEND_URL) {
+        console.error("FRONTEND_URL is not set in environment variables");
+        return res.status(500).json({
+          error: "Email service not configured",
+          details: "FRONTEND_URL is missing",
+        });
+      }
+
+      // Generate a test token
+      const testToken = emailService.generateToken();
+
+      // Send test verification email
+      const emailSent = await emailService.sendVerificationEmail(
+        email,
+        testToken
+      );
+
+      if (emailSent) {
+        res.status(200).json({
+          message: "Test email sent successfully",
+          token: testToken, // For testing purposes
+        });
+      } else {
+        res.status(500).json({
+          error: "Failed to send test email",
+          details: "Check server logs for more information",
+        });
+      }
+    } catch (error) {
+      console.error("Test email error:", error);
+      res.status(500).json({
+        error: "Failed to send test email",
+        details: error.message,
+        stack: error.stack,
+      });
+    }
+  });
 };

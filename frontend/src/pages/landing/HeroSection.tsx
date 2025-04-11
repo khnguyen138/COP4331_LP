@@ -1,15 +1,24 @@
 import React, { useState } from "react";
 import { Modal } from "react-bootstrap";
+import { useNavigate } from "react-router-dom";
 
 import { Button } from "../../components/ui/Button";
 import "./HeroSection.css";
 import LoginSignup from "../authentication/LoginSignup";
+
 interface HeroSectionProps {
   onLogin: () => void;
 }
 
 export const HeroSection: React.FC<HeroSectionProps> = ({ onLogin }) => {
   const [showLoginSignup, setShowLoginSignup] = useState(false);
+  const navigate = useNavigate();
+
+  const handleLoginSuccess = () => {
+    setShowLoginSignup(false);
+    onLogin();
+    navigate("/Dashboard");
+  };
 
   return (
     <main className="hero-section d-flex flex-column min-vh-100">
@@ -23,10 +32,7 @@ export const HeroSection: React.FC<HeroSectionProps> = ({ onLogin }) => {
         <Button
           variant="primary"
           size="lg"
-          onClick={() => {
-            setShowLoginSignup(true);
-            onLogin(); // Call onLogin here if needed
-          }}
+          onClick={() => setShowLoginSignup(true)}
         >
           Start Planning
         </Button>
@@ -39,7 +45,7 @@ export const HeroSection: React.FC<HeroSectionProps> = ({ onLogin }) => {
       >
         <Modal.Header closeButton></Modal.Header>
         <Modal.Body>
-          <LoginSignup />
+          <LoginSignup onLoginSuccess={handleLoginSuccess} />
         </Modal.Body>
       </Modal>
     </main>
