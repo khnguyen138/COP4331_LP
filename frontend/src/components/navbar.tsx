@@ -11,7 +11,11 @@ interface NavigationBarProps {
   onLogout: () => void;
 }
 
-const NavigationBar = forwardRef<unknown, NavigationBarProps>(
+interface NavigationBarRef {
+  triggerSignupModal: () => void;
+}
+
+const NavigationBar = forwardRef<NavigationBarRef, NavigationBarProps>(
   ({ isLoggedIn, onLogout }, ref) => {
     const [showLogin, setShowLogin] = useState(false);
     const [showSignup, setShowSignup] = useState(false);
@@ -71,13 +75,8 @@ const NavigationBar = forwardRef<unknown, NavigationBarProps>(
           className={`fixed-top w-100 transition-all duration-300 ${
             isScrolled
               ? "navbar-light bg-transparent text-dark"
-<<<<<<< HEAD
-              : "navbar-light bg-transparent text-dark" // "navbar-dark bg-black bg-opacity-75 text-light"
-            }`}
-=======
               : "navbar-dark bg-black bg-opacity-75 text-light"
           }`}
->>>>>>> 97af1bbdd333f30fd6a22a907c68654b23c0afe1
         >
           <Container>
             <Navbar.Brand href="#home">TravelGenie</Navbar.Brand>
@@ -188,7 +187,7 @@ const NavigationBar = forwardRef<unknown, NavigationBarProps>(
                 ></button>
               </div>
               <div className="modal-body">
-                <LoginSignup />
+                <LoginSignup onLoginSuccess={handleLoginSuccess} />
               </div>
             </div>
           </div>
