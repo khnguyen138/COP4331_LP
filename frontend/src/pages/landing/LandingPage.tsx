@@ -22,9 +22,6 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onLogin }) => {
       <div id="popular-trips">
         <PopularTripsSection />
       </div>
-      <div id="explore-popular-trips">
-        <Explore />
-      </div>
       <div id="how-it-works">
         <HowItWorksSection />
       </div>

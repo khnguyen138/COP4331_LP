@@ -112,9 +112,8 @@ const ExploreSection: React.FC = () => {
             ))}
           </div>
         </div>
-        '
       </div>
-      '{/* Itineraries Grid */}
+      {/* Itineraries Grid */}
       <div className="row g-4">
         {itineraries.map((itinerary) => (
           <div key={itinerary.id} className="col-md-6 col-lg-4">

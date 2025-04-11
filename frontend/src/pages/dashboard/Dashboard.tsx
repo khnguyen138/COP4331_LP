@@ -11,16 +11,17 @@ import ItineraryPage from "./sections/Itinerary/ItineraryPage";
 
 interface DashboardProps {
   user: string;
+  onLogout: () => void;
 }
 
-const Dashboard: React.FC<DashboardProps> = ({ user }) => {
+const Dashboard: React.FC<DashboardProps> = ({ user, onLogout }) => {
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
   const navigate = useNavigate();
   const location = useLocation();
 
   const handleLogout = () => {
     localStorage.removeItem("user");
-    navigate("/");
+    onLogout();
   };
 
   const renderContent = () => {

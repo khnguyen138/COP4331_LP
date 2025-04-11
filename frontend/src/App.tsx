@@ -81,29 +81,29 @@ const AppContent: React.FC = () => {
             <>
               <Route
                 path="/dashboard"
-                element={<Dashboard user={user || "Guest"} />}
+                element={<Dashboard user={user || "Guest"} onLogout={handleLogout}/>}
               />
               <Route
                 path="/tripQuestionnaire"
-                element={<Dashboard user={user || "Guest"} />}
+                element={<Dashboard user={user || "Guest"} onLogout={handleLogout}/>}
               />
               <Route
                 path="/upcoming"
-                element={<Dashboard user={user || "Guest"} />}
+                element={<Dashboard user={user || "Guest"} onLogout={handleLogout}/>}
               />
               <Route
                 path="/saved"
-                element={<Dashboard user={user || "Guest"} />}
+                element={<Dashboard user={user || "Guest"} onLogout={handleLogout}/>}
               />
               <Route
                 path="/explore"
-                element={<Dashboard user={user || "Guest"} />}
+                element={<Dashboard user={user || "Guest"} onLogout={handleLogout}/>}
               />
               <Route
                 path="/itinerary"
-                element={<Dashboard user={user || "Guest"} />}
+                element={<Dashboard user={user || "Guest"} onLogout={handleLogout}/>}
               />
-              <Route path="*" element={<Dashboard user={user || "Guest"} />} />
+              <Route path="*" element={<Dashboard user={user || "Guest"} onLogout={handleLogout}/>} />
             </>
           ) : (
             <>
