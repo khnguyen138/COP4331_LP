@@ -105,7 +105,7 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, onToggle, onLogout }) => {
         {/* Profile Section */}
         <div className="border-top p-3">
           <div className="d-flex flex-column align-items-center">
-            {/* Profile Picture */}
+            {/* Profile Picture 
             <div
               className="rounded-circle bg-secondary mb-2"
               style={{ width: "64px", height: "64px" }}
@@ -113,7 +113,7 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, onToggle, onLogout }) => {
               <div className="d-flex align-items-center justify-content-center h-100 text-white">
                 <i className="bi bi-person-fill fs-4"></i>
               </div>
-            </div>
+            </div> */}
 
             {/* User Info */}
             <h6 className="mb-1">{user?.firstName} {user?.lastName}</h6>
