@@ -13,6 +13,7 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, onToggle, onLogout }) => {
   const location = useLocation();
   const { theme, toggleTheme } = useTheme();
   const sidebarWidth = 250;
+  const user = JSON.parse(localStorage.getItem("user") || "{}");
 
   const navigation = [
     { name: "Home", href: "/dashboard" },
@@ -115,8 +116,8 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, onToggle, onLogout }) => {
             </div>
 
             {/* User Info */}
-            <h6 className="mb-1">John Doe</h6>
-            <small className="text-muted mb-3">john.doe@example.com</small>
+            <h6 className="mb-1">{user?.firstName} {user?.lastName}</h6>
+            <small className="text-muted mb-3">{user?.email}</small>
 
             {/* Buttons */}
             <div className="d-grid gap-2 w-100">

@@ -7,10 +7,13 @@ import Explore from "../../../../components/Explore";
 
 const ExploreSection: React.FC = () => {
   const navigate = useNavigate();
+  const user = JSON.parse(localStorage.getItem("user") || "{}");
+  const { firstName } = user;
 
   const handleCreateNewTrip = () => {
     navigate("/tripQuestionnaire");
   };
+
   const popularDestinations = [
     {
       id: 1,
@@ -102,7 +105,7 @@ const ExploreSection: React.FC = () => {
       {/* Welcome section */}
       <div className="d-flex justify-content-between align-items-center mb-5">
         <div>
-          <h1 className="h2 mb-1">Welcome back, Alex</h1>
+          <h1 className="h2 mb-1">Welcome back, {firstName || "Traveler"}</h1>
           <p className="text-muted mb-0">Ready to plan your next adventure?</p>
         </div>
         <button
