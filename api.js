@@ -432,7 +432,7 @@ exports.setApp = function (app, dbInstance) {
   app.post("/api/deleteItinerary", async (req, res, next) => {
     var token = require("./createJWT.js");
 
-    // incoming: userId, eventId
+    // incoming: userId, eventId, jwtToken
     // outgoing: success/error message
     const { userId, itineraryId, jwtToken } = req.body;
 
@@ -523,6 +523,13 @@ exports.setApp = function (app, dbInstance) {
       //The results of the query are stored in the results variable
       const results = await Itinerary.find(query);
 
+      //Once the results are obtained, the itineraryId is added to each itinerary object
+      const itinerariesWithId = results.map((doc) => (
+      {
+        itineraryId: doc.ItineraryId,
+        ...doc._doc,
+      }));
+
       // refresh the JWT token
       var refreshedToken = null;
       try {
@@ -532,12 +539,13 @@ exports.setApp = function (app, dbInstance) {
       }
 
       //The results are then sent back to the user
-      res.status(200).json({ Itineraries: results, error: "" });
+      res.status(200).json({ Itineraries: itinerariesWithId, error: "" });
     } catch (e) {
       res.status(500).json({ error: e.toString() });
     }
   });
 
+  // This endpoint is used to edit user information
   app.post("/api/editUser", async (req, res, next) => {
     var token = require("./createJWT.js");
 
