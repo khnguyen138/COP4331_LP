@@ -490,7 +490,7 @@ exports.setApp = function (app, dbInstance) {
 
     // incoming: userId, (optional) date, location, time
     // outgoing: list of matching events or error message
-    const { userId, itineraryName, jwtToken } = req.body;
+    const { userId, search, jwtToken } = req.body;
 
     //This checks if the jwt token is expired. If it is, it sends a 200 response with an error message and an empty jwtToken
     try {
@@ -512,23 +512,16 @@ exports.setApp = function (app, dbInstance) {
       //This query is used to search for events with the matching userId, date, location, and time (if provided)
       let query = { UserId: userId };
 
-      if (itineraryName) {
+      if (search && search.trim().length > 0) {
         // This regex will match any itinerary title that contains the search term (case-insensitive)
         query["Itinerary.title"] = {
-          $regex: itineraryName.trim(),
+          $regex: search.trim(),
           $options: "i",
         };
       }
 
       //The results of the query are stored in the results variable
       const results = await Itinerary.find(query);
-
-      //Once the results are obtained, the itineraryId is added to each itinerary object
-      const itinerariesWithId = results.map((doc) => (
-      {
-        itineraryId: doc.ItineraryId,
-        ...doc._doc,
-      }));
 
       // refresh the JWT token
       var refreshedToken = null;
@@ -539,7 +532,7 @@ exports.setApp = function (app, dbInstance) {
       }
 
       //The results are then sent back to the user
-      res.status(200).json({ Itineraries: itinerariesWithId, error: "" });
+      res.status(200).json({ Itineraries: results, error: "" });
     } catch (e) {
       res.status(500).json({ error: e.toString() });
     }
