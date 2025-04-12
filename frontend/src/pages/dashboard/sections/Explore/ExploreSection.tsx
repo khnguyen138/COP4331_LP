@@ -115,7 +115,17 @@ const ExploreSection: React.FC = () => {
       </div>
       {/* Itineraries Grid */}
       <div className="row g-4">
-        {itineraries.map((itinerary) => (
+        {itineraries
+        .filter((itinerary) => {
+          const search = itinerary.title
+            .toLowerCase()
+            .includes(searchQuery.toLowerCase());
+          const filter =
+            selectedFilter === "all" ||
+            itinerary.tags.includes(selectedFilter);
+          return search && filter;
+        })
+        .map((itinerary) => (
           <div key={itinerary.id} className="col-md-6 col-lg-4">
             <div className="card h-100 shadow-sm border-0 hover-shadow transition-all h-100 d-flex flex-column">
               <img

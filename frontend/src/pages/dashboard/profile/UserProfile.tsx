@@ -109,7 +109,8 @@ const UserProfile: React.FC = () => {
       </div>
 
       <div className="container mt-5 profile-layout">
-        <div className="left-panel">
+
+        {/* <div className="left-panel">
           <img
             src={profileImage || "/default-avatar.png"}
             alt="Profile"
@@ -125,27 +126,12 @@ const UserProfile: React.FC = () => {
             onChange={handleImageChange}
             className="form-control mt-2"
           />
-        </div>
+        </div> */}
 
         <div className="right-panel">
-          {/* Stats Box */}
-          <div className="profile-box mb-4">
-            <h5 className="mb-2">User Statistics</h5>
-            <p className="mb-1">Confirmed Trips:</p>
-            <ProgressBar
-              now={(confirmedTrips / totalTrips) * 100}
-              label={`${confirmedTrips}`}
-              className="mb-3"
-            />
-
-            <p className="mb-1">Upcoming Trips:</p>
-            <ProgressBar
-              variant="info"
-              now={(upcomingTrips / totalTrips) * 100}
-              label={`${upcomingTrips}`}
-            />
-          </div>
-
+          <h6 className="display-6 mb-3">
+            {firstName} {lastName}
+          </h6>
           {/* Personal Info */}
           <div className="profile-box mb-4">
             <div className="d-flex justify-content-between">
