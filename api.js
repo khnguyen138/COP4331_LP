@@ -114,6 +114,9 @@ exports.setApp = function (app, dbInstance) {
       const verificationToken = emailService.generateToken();
       const verificationExpires = new Date(Date.now() + 24 * 60 * 60 * 1000); // 24 hours
 
+      console.log("Generated verification token:", verificationToken);
+      console.log("Token expires at:", verificationExpires);
+
       // Create a new user object
       newUser = new User({
         Login: login,
@@ -136,13 +139,17 @@ exports.setApp = function (app, dbInstance) {
       );
 
       if (!emailSent) {
+        console.error("Failed to send verification email to:", email);
         return res
           .status(500)
           .json({ error: "Failed to send verification email" });
       }
 
+      console.log("Verification email sent successfully to:", email);
+
       // Only save the user if email was sent successfully
       await newUser.save();
+      console.log("User saved to database with verification token");
 
       // Send a success response
       res.status(200).json({
@@ -153,6 +160,7 @@ exports.setApp = function (app, dbInstance) {
     } catch (e) {
       // Handle any errors that occur during registration
       error = e.toString();
+      console.error("Registration error:", error);
       res.status(500).json({ error: error });
     }
   });
@@ -160,16 +168,42 @@ exports.setApp = function (app, dbInstance) {
   // Verify email endpoint
   app.get("/api/verify-email/:token", async (req, res) => {
     try {
+      const token = req.params.token;
+      console.log("Verification attempt with token:", token);
+
+      // First check if any user has this token
+      const userWithToken = await User.findOne({ VerificationToken: token });
+      console.log(
+        "User found with token:",
+        userWithToken ? userWithToken.Email : "None"
+      );
+
+      if (userWithToken) {
+        console.log(
+          "Token expiration date:",
+          userWithToken.VerificationExpires
+        );
+        console.log("Current time:", new Date());
+        console.log(
+          "Is token expired?",
+          new Date() > userWithToken.VerificationExpires
+        );
+      }
+
       const user = await User.findOne({
-        VerificationToken: req.params.token,
+        VerificationToken: token,
         VerificationExpires: { $gt: new Date() },
       });
 
       if (!user) {
+        console.log("No valid user found with token or token expired");
         return res
           .status(400)
           .json({ error: "Invalid or expired verification token" });
       }
+
+      console.log("Found valid user:", user.Email);
+      console.log("Current verification status:", user.IsVerified);
 
       await User.updateOne(
         { _id: user._id },
@@ -182,8 +216,10 @@ exports.setApp = function (app, dbInstance) {
         }
       );
 
+      console.log("User verified successfully");
       res.status(200).json({ message: "Email verified successfully" });
     } catch (error) {
+      console.error("Verification error:", error);
       res.status(500).json({ error: error.toString() });
     }
   });
