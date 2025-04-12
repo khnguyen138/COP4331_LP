@@ -1,7 +1,7 @@
 .env
 node_modules
 gemini-test.js
-
+.env.example
 ecosystem.config.js
 sendgrid.env
 sendgrid.env
