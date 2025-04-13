@@ -16,16 +16,22 @@ import NavigationBar from "./components/navbar";
 import Footer from "./components/Footer";
 import LandingPage from "./pages/landing/LandingPage";
 import { ThemeProvider } from "./context/ThemeContext";
+import { AuthProvider, useAuth } from "./contexts/AuthContext";
 import "bootstrap/dist/css/bootstrap.min.css";
 import "./App.css";
 import "./styles/themes.css";
 
 import LoginSignup from "./pages/authentication/LoginSignup";
 
+interface LoginSignupProps {
+  onLoginSuccess: (username: string, userData: any) => void;
+}
+
 // Create a new component for the main app content
 const AppContent: React.FC = () => {
   const [isLoggedIn, setIsLoggedIn] = useState<boolean>(false);
   const [user, setUser] = useState<string | null>(null);
+  const { login, logout, user: authUser } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
   const isDashboard =
@@ -37,23 +43,36 @@ const AppContent: React.FC = () => {
     location.pathname === "/itinerary" ||
     location.pathname === "/profile";
 
+  // Only run this effect when the component mounts
   useEffect(() => {
     const storedUser = localStorage.getItem("user");
-    if (storedUser) {
+    if (storedUser && !authUser) {
       const parsedUser = JSON.parse(storedUser);
       setUser(parsedUser.username);
       setIsLoggedIn(true);
+      // Update auth context only if we have valid user data
+      if (parsedUser.userId && parsedUser.token) {
+        login({
+          userId: parsedUser.userId,
+          firstName: parsedUser.firstName,
+          lastName: parsedUser.lastName,
+          token: parsedUser.token,
+        });
+      }
     }
-  }, []);
+  }, []); // Empty dependency array means this only runs once on mount
 
-  /* useEffect(() => {
-    setIsLoggedIn(true); // TEMPORARY
-  }, []); */
-
-  const handleLogin = (username: string) => {
+  const handleLogin = (username: string, userData: any) => {
     setUser(username);
     setIsLoggedIn(true);
-    localStorage.setItem("user", JSON.stringify({ username }));
+    localStorage.setItem(
+      "user",
+      JSON.stringify({
+        username,
+        ...userData,
+      })
+    );
+    login(userData);
     navigate("/dashboard");
   };
 
@@ -61,12 +80,18 @@ const AppContent: React.FC = () => {
     setUser(null);
     setIsLoggedIn(false);
     localStorage.removeItem("user");
+    logout();
     navigate("/");
   };
 
   // Wrapper function for LandingPage's onLogin prop
   const handleLandingLogin = () => {
-    handleLogin("Guest");
+    handleLogin("Guest", {
+      userId: "guest",
+      firstName: "Guest",
+      lastName: "User",
+      token: "guest-token",
+    });
   };
 
   return (
@@ -129,19 +154,15 @@ const AppContent: React.FC = () => {
               />
               <Route
                 path="/login"
-                element={<Login onLoginSuccess={handleLogin} />}
+                element={<LoginSignup onLoginSuccess={handleLogin} />}
               />
-              <Route path="/signup" element={<Signup />} />
-
-              <Route path="/loginsignup" element={<LoginSignup />} />
-
-              <Route path="/verify-email" element={<VerifyEmail />} />
+              <Route
+                path="/signup"
+                element={<LoginSignup onLoginSuccess={handleLogin} />}
+              />
+              <Route path="/verify-email/:token" element={<VerifyEmail />} />
               <Route path="/forgot-password" element={<ForgotPassword />} />
               <Route path="/reset-password" element={<ResetPassword />} />
-              <Route
-                path="*"
-                element={<LandingPage onLogin={handleLandingLogin} />}
-              />
             </>
           )}
         </Routes>
@@ -153,11 +174,13 @@ const AppContent: React.FC = () => {
 
 const App: React.FC = () => {
   return (
-    <ThemeProvider>
-      <Router>
-        <AppContent />
-      </Router>
-    </ThemeProvider>
+    <Router>
+      <ThemeProvider>
+        <AuthProvider>
+          <AppContent />
+        </AuthProvider>
+      </ThemeProvider>
+    </Router>
   );
 };
 

@@ -1,8 +1,15 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 
+interface UserData {
+  userId: string;
+  firstName: string;
+  lastName: string;
+  token: string;
+}
+
 interface LoginProps {
-  onLoginSuccess: (username: string) => void;
+  onLoginSuccess: (username: string, userData: UserData) => void;
 }
 
 const Login: React.FC<LoginProps> = ({ onLoginSuccess }) => {
@@ -25,8 +32,17 @@ const Login: React.FC<LoginProps> = ({ onLoginSuccess }) => {
 
       if (response.ok) {
         console.log("Login successful:", data);
-        localStorage.setItem("user", JSON.stringify(data));
-        onLoginSuccess(data.username);
+        const userData: UserData = {
+          userId: data.userId,
+          firstName: data.firstName,
+          lastName: data.lastName,
+          token: data.token,
+        };
+        localStorage.setItem(
+          "user",
+          JSON.stringify({ username: login, ...userData })
+        );
+        onLoginSuccess(login, userData);
         navigate("/Dashboard");
       } else {
         if (data.needsVerification) {

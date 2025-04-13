@@ -1,11 +1,12 @@
-import React, { JSX, useState } from "react";
+import React, { JSX, useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { Container, Alert } from "react-bootstrap";
+import { Container, Alert, Modal, Button } from "react-bootstrap";
 import styles from "./styles/TripQuestionnaire.module.css";
 import TripForm from "./components/TripForm";
 import ItineraryPreview from "./components/ItineraryPreview";
 import EditItineraryModal from "./components/EditItineraryModal";
 import { Itinerary } from "../../../../types/itinerary";
+import { useAuth } from "../../../../contexts/AuthContext";
 
 interface TripQuestionnaireProps {
   onComplete?: (data: any) => void;
@@ -22,8 +23,21 @@ const TripQuestionnaire: React.FC<TripQuestionnaireProps> = ({
   const [loading, setLoading] = useState(false);
   const [itinerary, setItinerary] = useState<Itinerary | null>(null);
   const [showEditModal, setShowEditModal] = useState(false);
+  const [isSaved, setIsSaved] = useState(false);
+  const [showExitModal, setShowExitModal] = useState(false);
+  const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false);
+  const { user } = useAuth();
 
   const navigate = useNavigate();
+
+  // Track unsaved changes
+  useEffect(() => {
+    if (itinerary && !isSaved) {
+      setHasUnsavedChanges(true);
+    } else {
+      setHasUnsavedChanges(false);
+    }
+  }, [itinerary, isSaved]);
 
   const handleSubmit = async (formData: any) => {
     setLoading(true);
@@ -55,20 +69,17 @@ const TripQuestionnaire: React.FC<TripQuestionnaireProps> = ({
       const timeoutId = setTimeout(() => controller.abort(), 30000); // 30 second timeout
 
       try {
-        const response = await fetch(
-          "https://travelinggenie.com/api/generate-itinerary",
-          {
-            method: "POST",
-            headers: {
-              "Content-Type": "application/json",
-              "Cache-Control": "no-cache, no-store, must-revalidate",
-              Pragma: "no-cache",
-              Expires: "0",
-            },
-            body: JSON.stringify(tripData),
-            signal: controller.signal,
-          }
-        );
+        const response = await fetch("/api/generate-itinerary", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            "Cache-Control": "no-cache, no-store, must-revalidate",
+            Pragma: "no-cache",
+            Expires: "0",
+          },
+          body: JSON.stringify(tripData),
+          signal: controller.signal,
+        });
 
         clearTimeout(timeoutId);
 
@@ -200,12 +211,20 @@ const TripQuestionnaire: React.FC<TripQuestionnaireProps> = ({
   };
 
   const handleExit = () => {
-    const confirmExit = window.confirm(
-      "Are you sure you want to exit? Your responses will not be saved."
-    );
-    if (confirmExit) {
+    if (hasUnsavedChanges) {
+      setShowExitModal(true);
+    } else {
       navigate("/dashboard");
     }
+  };
+
+  const handleConfirmExit = () => {
+    setShowExitModal(false);
+    navigate("/dashboard");
+  };
+
+  const handleCancelExit = () => {
+    setShowExitModal(false);
   };
 
   const handleEdit = () => {
@@ -214,6 +233,37 @@ const TripQuestionnaire: React.FC<TripQuestionnaireProps> = ({
 
   const handleSaveEdit = (updatedItinerary: Itinerary) => {
     setItinerary(updatedItinerary);
+  };
+
+  const handleSaveItinerary = async (itineraryToSave: Itinerary) => {
+    if (!user) {
+      setError("Please log in to save trips");
+      return;
+    }
+
+    try {
+      const response = await fetch("/api/addItinerary", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          userId: user.userId,
+          itinerary: itineraryToSave,
+          jwtToken: user.token,
+        }),
+      });
+
+      if (!response.ok) {
+        throw new Error("Failed to save itinerary");
+      }
+
+      setIsSaved(true);
+      setSuccess("Trip saved successfully!");
+    } catch (error) {
+      setError("Failed to save trip. Please try again.");
+      console.error("Error saving itinerary:", error);
+    }
   };
 
   return (
@@ -237,7 +287,12 @@ const TripQuestionnaire: React.FC<TripQuestionnaireProps> = ({
           </div>
         ) : (
           <div className={styles.previewContainer}>
-            <ItineraryPreview itinerary={itinerary} onEdit={handleEdit} />
+            <ItineraryPreview
+              itinerary={itinerary}
+              onEdit={handleEdit}
+              onSave={handleSaveItinerary}
+              isSaved={isSaved}
+            />
           </div>
         )}
 
@@ -248,6 +303,25 @@ const TripQuestionnaire: React.FC<TripQuestionnaireProps> = ({
           onSave={handleSaveEdit}
         />
       </div>
+
+      {/* Exit Confirmation Modal */}
+      <Modal show={showExitModal} onHide={handleCancelExit}>
+        <Modal.Header closeButton>
+          <Modal.Title>Unsaved Changes</Modal.Title>
+        </Modal.Header>
+        <Modal.Body>
+          You have unsaved changes. Are you sure you want to leave without
+          saving?
+        </Modal.Body>
+        <Modal.Footer>
+          <Button variant="secondary" onClick={handleCancelExit}>
+            Cancel
+          </Button>
+          <Button variant="primary" onClick={handleConfirmExit}>
+            Leave Without Saving
+          </Button>
+        </Modal.Footer>
+      </Modal>
     </Container>
   );
 };

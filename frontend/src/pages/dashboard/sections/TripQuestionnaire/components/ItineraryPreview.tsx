@@ -6,6 +6,7 @@ import {
   Pencil,
   ChevronLeft,
   ChevronRight,
+  Heart,
 } from "lucide-react";
 import { useSwipeable } from "react-swipeable";
 import styles from "../styles/TripQuestionnaire.module.css";
@@ -14,6 +15,8 @@ import { Itinerary } from "../../../../../types/itinerary";
 interface ItineraryPreviewProps {
   itinerary: Itinerary | null;
   onEdit: () => void;
+  onSave?: (itinerary: Itinerary) => void;
+  isSaved?: boolean;
 }
 
 const formatTime = (time: string): string => {
@@ -39,8 +42,11 @@ const formatTime = (time: string): string => {
 const ItineraryPreview: React.FC<ItineraryPreviewProps> = ({
   itinerary,
   onEdit,
+  onSave,
+  isSaved = false,
 }) => {
   const [activeDay, setActiveDay] = useState(1);
+  const [isSaving, setIsSaving] = useState(false);
 
   // Add logging to see when the component receives new itinerary data
   React.useEffect(() => {
@@ -124,6 +130,19 @@ const ItineraryPreview: React.FC<ItineraryPreviewProps> = ({
     trackMouse: true,
   });
 
+  const handleSave = async () => {
+    if (!itinerary || !onSave) return;
+
+    setIsSaving(true);
+    try {
+      await onSave(itinerary);
+    } catch (error) {
+      console.error("Error saving itinerary:", error);
+    } finally {
+      setIsSaving(false);
+    }
+  };
+
   if (!itinerary) {
     return (
       <div className={styles.emptyState}>
@@ -184,10 +203,22 @@ const ItineraryPreview: React.FC<ItineraryPreviewProps> = ({
       <div className={styles["header-section"]}>
         <div className={styles["header-title"]}>
           <h2>{itinerary.title}</h2>
-          <button className={styles["edit-button"]} onClick={onEdit}>
-            <Pencil size={16} />
-            Edit
-          </button>
+          <div className={styles["header-buttons"]}>
+            <button className={styles["edit-button"]} onClick={onEdit}>
+              <Pencil size={16} />
+              Edit
+            </button>
+            <button
+              className={`${styles["save-button"]} ${
+                isSaved ? styles.saved : ""
+              }`}
+              onClick={handleSave}
+              disabled={isSaving || isSaved}
+            >
+              <Heart size={16} fill={isSaved ? "currentColor" : "none"} />
+              {isSaved ? "Saved" : "Save Trip"}
+            </button>
+          </div>
         </div>
         <div className={styles["header-subtitle"]}>
           <MapPin size={16} className={styles.icon} />

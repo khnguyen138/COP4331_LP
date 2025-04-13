@@ -13,16 +13,27 @@ mongoose.connect(url)
 
 const express = require("express");
 const cors = require("cors");
+const api = require("./api");
 
 const app = express();
-app.use(cors());
-app.use(express.json()); // Using Express’s built-in JSON parser
 
-// var api = require("./api.js");
+// CORS configuration
+const corsOptions = {
+  origin: [
+    "http://localhost:5173",
+    "https://travelinggenie.com",
+    "http://travelinggenie.com",
+  ],
+  methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+  allowedHeaders: ["Content-Type", "Authorization"],
+  credentials: true,
+};
 
-// api.setApp(app, client);
-// for applying mongoose
-// api.setApp(app, mongoose);
+// Apply CORS middleware
+app.use(cors(corsOptions));
+
+// Parse JSON bodies
+app.use(express.json());
 
 // Middleware to parse JSON request bodies
 app.use((req, res, next) => {
@@ -51,7 +62,6 @@ async function startServer() {
       .catch((err) => console.log(err));
 
     // Pass both the app and the db instance to your API module
-    const api = require("./api.js");
     api.setApp(app, mongoose);
 
     // set server port and start listening

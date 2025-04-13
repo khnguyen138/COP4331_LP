@@ -4,8 +4,15 @@ import { Tabs, TabsTrigger, TabsContent } from "../../components/ui/tabs";
 import Login from "../authentication/Login";
 import Signup from "../authentication/Signup";
 
+interface UserData {
+  userId: string;
+  firstName: string;
+  lastName: string;
+  token: string;
+}
+
 interface LoginSignupProps {
-  onLoginSuccess: (username: string) => void;
+  onLoginSuccess: (username: string, userData: UserData) => void;
 }
 
 const LoginSignup: React.FC<LoginSignupProps> = ({ onLoginSuccess }) => {
@@ -17,6 +24,7 @@ const LoginSignup: React.FC<LoginSignupProps> = ({ onLoginSuccess }) => {
       setActiveTab("login");
     }
   }, [location.state]);
+
   return (
     <div className="login-signup-wrapper">
       <div className="login-signup-header">
@@ -36,7 +44,7 @@ const LoginSignup: React.FC<LoginSignupProps> = ({ onLoginSuccess }) => {
         </TabsContent>
 
         <TabsContent value="signup">
-          <Signup />
+          <Signup onSignupSuccess={onLoginSuccess} />
         </TabsContent>
       </Tabs>
     </div>
