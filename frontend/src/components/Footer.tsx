@@ -1,13 +1,14 @@
 import type React from "react";
 import { Container, Row, Col } from "react-bootstrap";
+import 'bootstrap-icons/font/bootstrap-icons.css';
 
 const Footer: React.FC = () => {
   return (
     <footer
       className="py-4"
-      style={{ backgroundColor: "#000", color: "white" }}
+      style={{ backgroundColor: "#232a2b", color: "white" }}
     >
-      <Container>
+      <Container className="small" >
         <Row>
           <Col md={4} className="mb-3 mb-md-0">
             <h5>TravelGenie</h5>
@@ -61,7 +62,7 @@ const Footer: React.FC = () => {
             </div>
           </Col>
         </Row>
-        <hr className="my-3" style={{ backgroundColor: "#AAA1C8" }} />
+        <hr className="my-2" style={{ backgroundColor: "#AAA1C8" }} />
         <Row>
           <Col className="text-center">
             <p className="small mb-0">

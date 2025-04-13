@@ -274,7 +274,7 @@ const TripForm: React.FC<TripFormProps> = ({ onSubmit, loading }) => {
         </>
       )}
 
-      <div className="mt-4">
+      <div className="mt-4 d-flex justify-content-between">
         {step > 1 && (
           <Button variant="secondary" onClick={handleBack} className="mr-2">
             Back

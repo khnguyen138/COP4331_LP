@@ -1,7 +1,18 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 
-const Signup: React.FC = () => {
+interface UserData {
+  userId: string;
+  firstName: string;
+  lastName: string;
+  token: string;
+}
+
+interface SignupProps {
+  onSignupSuccess: (username: string, userData: UserData) => void;
+}
+
+const Signup: React.FC<SignupProps> = ({ onSignupSuccess }) => {
   const [firstName, setFirstName] = useState("");
   const [lastName, setLastName] = useState("");
   const [email, setEmail] = useState("");
@@ -42,17 +53,31 @@ const Signup: React.FC = () => {
         setSuccess(
           "Registration successful! Please check your email to verify your account."
         );
+
+        // Create user data object
+        const userData: UserData = {
+          userId: data.userId,
+          firstName: firstName,
+          lastName: lastName,
+          token: data.token,
+        };
+
+        // Store user data
+        localStorage.setItem(
+          "user",
+          JSON.stringify({ username: login, ...userData })
+        );
+        onSignupSuccess(login, userData);
+
         // Clear form
         setFirstName("");
         setLastName("");
         setEmail("");
         setLogin("");
         setPassword("");
+
         // Redirect to login after 5 seconds
-        setTimeout(
-          () => navigate("/loginsignup", { state: { showLogin: true } }),
-          5000
-        );
+        setTimeout(() => navigate("/"), 5000);
       }
     } catch (error) {
       setError("An error occurred during signup.");

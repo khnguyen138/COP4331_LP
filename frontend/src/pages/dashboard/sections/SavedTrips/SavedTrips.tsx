@@ -1,15 +1,15 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Card, Container, Row, Col, Button } from "react-bootstrap";
 import { Heart, MapPin, Users, Clock, Star, Search } from "lucide-react";
+import { useAuth } from "../../../../contexts/AuthContext";
 
 interface SavedTrip {
   id: string;
   title: string;
-  location: string;
+  destination: string;
   image: string;
-  rating: number;
-  days: number;
-  people: number;
+  duration: number;
+  groupSize: number;
   price: number;
   savedAt: Date;
 }
@@ -17,22 +17,116 @@ interface SavedTrip {
 const SavedTrips: React.FC = () => {
   const [savedTrips, setSavedTrips] = useState<SavedTrip[]>([]);
   const [searchQuery, setSearchQuery] = useState("");
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
+  const { user } = useAuth();
+
+  useEffect(() => {
+    const fetchSavedTrips = async () => {
+      if (!user) {
+        setError("Please log in to view saved trips");
+        setLoading(false);
+        return;
+      }
+
+      try {
+        const response = await fetch("/api/searchItinerary", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            userId: user.userId,
+            jwtToken: user.token,
+          }),
+        });
+
+        if (!response.ok) {
+          throw new Error("Failed to fetch saved trips");
+        }
+
+        const data = await response.json();
+        if (data.error) {
+          throw new Error(data.error);
+        }
+
+        // Transform the data to match our SavedTrip interface
+        const transformedTrips = data.Itineraries.map((itinerary: any) => ({
+          id: itinerary.ItineraryId,
+          title: itinerary.Itinerary.title,
+          destination: itinerary.Itinerary.destination,
+          image:
+            itinerary.Itinerary.image ||
+            "https://via.placeholder.com/800x400?text=Trip+Image",
+          duration: itinerary.Itinerary.duration,
+          groupSize: itinerary.Itinerary.groupSize,
+          price: itinerary.Itinerary.price || 0,
+          savedAt: new Date(itinerary.createdAt),
+        }));
+
+        setSavedTrips(transformedTrips);
+      } catch (err) {
+        setError(
+          err instanceof Error ? err.message : "Failed to fetch saved trips"
+        );
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchSavedTrips();
+  }, [user]);
+
+  const handleDeleteTrip = async (tripId: string) => {
+    if (!user) return;
+
+    try {
+      const response = await fetch("/api/deleteItinerary", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          userId: user.userId,
+          itineraryId: tripId,
+          jwtToken: user.token,
+        }),
+      });
+
+      if (!response.ok) {
+        throw new Error("Failed to delete trip");
+      }
+
+      // Remove the deleted trip from the state
+      setSavedTrips((prev) => prev.filter((trip) => trip.id !== tripId));
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Failed to delete trip");
+    }
+  };
 
   const filteredTrips = savedTrips.filter(
     (trip) =>
       trip.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      trip.location.toLowerCase().includes(searchQuery.toLowerCase())
+      trip.destination.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
-  const handleSaveTrip = (trip: SavedTrip) => {
-    setSavedTrips((prev) => {
-      const isAlreadySaved = prev.some((saved) => saved.id === trip.id);
-      if (isAlreadySaved) {
-        return prev.filter((saved) => saved.id !== trip.id);
-      }
-      return [...prev, { ...trip, savedAt: new Date() }];
-    });
-  };
+  if (loading) {
+    return (
+      <Container className="py-5 text-center">
+        <div className="spinner-border text-primary" role="status">
+          <span className="visually-hidden">Loading...</span>
+        </div>
+      </Container>
+    );
+  }
+
+  if (error) {
+    return (
+      <Container className="py-5">
+        <div className="alert alert-danger">{error}</div>
+      </Container>
+    );
+  }
 
   return (
     <Container className="py-5">
@@ -77,31 +171,29 @@ const SavedTrips: React.FC = () => {
                     <Button
                       variant="link"
                       className="p-0 text-danger"
-                      onClick={() => handleSaveTrip(trip)}
+                      onClick={() => handleDeleteTrip(trip.id)}
                     >
                       <Heart size={20} fill="currentColor" />
                     </Button>
                   </div>
                   <p className="card-text text-muted mb-3">
                     <MapPin size={16} className="me-1" />
-                    {trip.location}
+                    {trip.destination}
                   </p>
                   <div className="d-flex justify-content-between align-items-center mb-3">
                     <div className="d-flex align-items-center text-muted">
                       <Clock size={16} className="me-1" />
-                      <span>{trip.days} days</span>
+                      <span>{trip.duration} days</span>
                     </div>
                     <div className="d-flex align-items-center text-muted">
                       <Users size={16} className="me-1" />
-                      <span>Up to {trip.people}</span>
+                      <span>Up to {trip.groupSize}</span>
                     </div>
                   </div>
                   <div className="d-flex justify-content-between align-items-center mt-auto">
                     <div className="d-flex align-items-center">
-                      <Star size={16} className="text-warning me-1" />
-                      <span>{trip.rating}</span>
+                      <span className="h5 mb-0">${trip.price}</span>
                     </div>
-                    <span className="h5 mb-0">${trip.price}</span>
                   </div>
                 </Card.Body>
               </Card>

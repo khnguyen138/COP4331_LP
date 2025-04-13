@@ -15,30 +15,27 @@ const ForgotPassword: React.FC = () => {
     setMessage("");
 
     try {
-      const response = await fetch(
-        "http://travelinggenie.com/api/forgot-password",
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({ email }),
-        }
-      );
+      const response = await fetch("/api/forgot-password", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ email }),
+      });
 
       const data = await response.json();
-
-      if (response.ok) {
-        setStatus("success");
-        setMessage("Password reset instructions have been sent to your email.");
-        setTimeout(() => navigate("/login"), 3000);
-      } else {
+      if (data.error) {
         setStatus("error");
-        setMessage(data.error || "Failed to send reset instructions");
+        setMessage(data.error);
+      } else {
+        setStatus("success");
+        setMessage("Password reset email sent. Please check your inbox.");
+        setTimeout(() => navigate("/login"), 3000);
       }
     } catch (error) {
       setStatus("error");
       setMessage("An error occurred. Please try again.");
+      console.error("Error:", error);
     }
   };
 
