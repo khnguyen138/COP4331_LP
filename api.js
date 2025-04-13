@@ -299,6 +299,7 @@ exports.setApp = function (app, dbInstance) {
 
   // Update login endpoint
   app.post("/api/login", async (req, res) => {
+
     // incoming: login, password
     // outgoing: userId, firstName, lastName, token, error message
     const { login, password } = req.body;
@@ -313,7 +314,6 @@ exports.setApp = function (app, dbInstance) {
     var id = -1;
     var fn = "";
     var ln = "";
-    var ret;
 
     try {
       /*const results = await db
@@ -341,20 +341,11 @@ exports.setApp = function (app, dbInstance) {
         fn = user.FirstName;
         ln = user.LastName;
 
-        // generate JWT token
-        try {
-          const token = require("./createJWT.js");
-          ret = token.createToken(fn, ln, id);
-        } catch (e) {
-          ret = { error: e.message };
-        }
-
         // send response
         res.status(200).json({
           userId: id,
           firstName: fn,
           lastName: ln,
-          token: ret,
           error: error,
         });
       } else {
@@ -369,21 +360,9 @@ exports.setApp = function (app, dbInstance) {
 
   // This endpoint is used to add a new itinerary to the database
   app.post("/api/addItinerary", async (req, res, next) => {
-    var token = require("./createJWT.js");
-
-    // incoming: userId, itineraryNode, jwtToken
-    const { userId, itinerary, jwtToken } = req.body;
-
-    // check if the JWT token is expired. If it is, it sends a 200 response with an error message and an empty jwtToken
-    try {
-      if (token.isExpired(jwtToken)) {
-        var r = { error: "The jwt token is no longer valid", jwtToken: "" };
-        res.status(200).json(r);
-        return;
-      }
-    } catch (e) {
-      console.log(e.message);
-    }
+  
+    // incoming: userId, itineraryNode, 
+    const { userId, itinerary } = req.body;    
 
     // check for missing fields in the request body. If any are missing, it sends a 400 error response
     if (!userId || !itinerary) {
@@ -408,14 +387,6 @@ exports.setApp = function (app, dbInstance) {
       // Save the new itinerary to the database
       const savedItinerary = await newItinerary.save();
 
-      // refresh the JWT token
-      var refreshedToken = null;
-      try {
-        refreshedToken = token.refreshedToken(jwtToken);
-      } catch (e) {
-        console.log(e.message);
-      }
-
       // Send a success response
       res.status(200).json({
         message: "Itinerary added successfully",
@@ -430,11 +401,10 @@ exports.setApp = function (app, dbInstance) {
 
   // This endpoint is used to delete an itinerary from the database
   app.post("/api/deleteItinerary", async (req, res, next) => {
-    var token = require("./createJWT.js");
 
     // incoming: userId, eventId, jwtToken
     // outgoing: success/error message
-    const { userId, itineraryId, jwtToken } = req.body;
+    const { userId, itineraryId } = req.body;
 
     // This checks if the jwt token is expired. If it is, it sends a 200 response with an error message and an empty jwtToken
     try {
@@ -468,14 +438,6 @@ exports.setApp = function (app, dbInstance) {
           .json({ error: "Event not found or already deleted" });
       }
 
-      // refresh the JWT token
-      var refreshedToken = null;
-      try {
-        refreshedToken = token.refreshedToken(jwtToken);
-      } catch (e) {
-        console.log(e.message);
-      }
-
       //If the event is successfully deleted, a message is sent back to the user
       res.status(200).json({ message: "Event successfully deleted" });
     } catch (e) {
@@ -486,22 +448,10 @@ exports.setApp = function (app, dbInstance) {
 
   //This function is used to search for events in the Events collection
   app.post("/api/searchItinerary", async (req, res, next) => {
-    var token = require("./createJWT.js");
 
     // incoming: userId, (optional) date, location, time
     // outgoing: list of matching events or error message
-    const { userId, search, jwtToken } = req.body;
-
-    //This checks if the jwt token is expired. If it is, it sends a 200 response with an error message and an empty jwtToken
-    try {
-      if (token.isExpired(jwtToken)) {
-        var r = { error: "The jwt token is no longer valid", jwtToken: "" };
-        res.status(200).json(r);
-        return;
-      }
-    } catch (e) {
-      console.log(e.message);
-    }
+    const { userId, search } = req.body;
 
     //This checks if the userId is provided in the request body. If not, it sends a 400 error response
     if (!userId) {
@@ -523,14 +473,6 @@ exports.setApp = function (app, dbInstance) {
       //The results of the query are stored in the results variable
       const results = await Itinerary.find(query);
 
-      // refresh the JWT token
-      var refreshedToken = null;
-      try {
-        refreshedToken = token.refreshedToken(jwtToken);
-      } catch (e) {
-        console.log(e.message);
-      }
-
       //The results are then sent back to the user
       res.status(200).json({ Itineraries: results, error: "" });
     } catch (e) {
@@ -540,22 +482,10 @@ exports.setApp = function (app, dbInstance) {
 
   // This endpoint is used to edit user information
   app.post("/api/editUser", async (req, res, next) => {
-    var token = require("./createJWT.js");
 
     // incoming: userId, newfirstName, newlastName, newEmail
     // outgoing: success/error message
     const { userId, firstName, lastName, email, password, jwtToken } = req.body;
-
-    // This checks if the jwt token is expired. If it is, it sends a 200 response with an error message and an empty jwtToken
-    try {
-      if (token.isExpired(jwtToken)) {
-        var r = { error: "The jwt token is no longer valid", jwtToken: "" };
-        res.status(200).json(r);
-        return;
-      }
-    } catch (e) {
-      console.log(e.message);
-    }
 
     // This checks if the userId is provided in the request body. If not, it sends a 400 error response
     if (!userId) {
@@ -590,14 +520,6 @@ exports.setApp = function (app, dbInstance) {
         { $set: updateData }
       );
 
-      // refresh the JWT token
-      var refreshedToken = null;
-      try {
-        refreshedToken = token.refreshedToken(jwtToken);
-      } catch (e) {
-        console.log(e.message);
-      }
-
       // send response
       res
         .status(200)
@@ -610,7 +532,6 @@ exports.setApp = function (app, dbInstance) {
   });
 
   app.post("/api/get-user", async (req, res) => {
-    // const token = require("./createJWT.js");
     // incoming: userId
     // outgoing: userId, firstName, lastName, email, error message
     const { userId } = req.body;
@@ -643,21 +564,10 @@ exports.setApp = function (app, dbInstance) {
   });
 
   app.post("/api/editItinerary", async (req, res, next) => {
-    var token = require("./createJWT.js");
+
     // incoming: userId, itineraryID, itineraryNode
     // outgoing: success/error message
     const { userId, itineraryId, newItinerary, jwtToken } = req.body;
-
-    // This checks if the jwt token is expired. If it is, it sends a 200 response with an error message and an empty jwtToken
-    try {
-      if (token.isExpired(jwtToken)) {
-        var r = { error: "The jwt token is no longer valid", jwtToken: "" };
-        res.status(200).json(r);
-        return;
-      }
-    } catch (e) {
-      console.log(e.message);
-    }
 
     // check for missing fields in the request body. If any are missing, it sends a 400 error response
     if (!userId || !itineraryId || !newItinerary) {
@@ -674,14 +584,6 @@ exports.setApp = function (app, dbInstance) {
         { $set: { Itinerary: newItinerary } }
       );
 
-      // refresh the JWT token
-      var refreshedToken = null;
-      try {
-        refreshedToken = token.refreshedToken(jwtToken);
-      } catch (e) {
-        console.log(e.message);
-      }
-
       // send response
       res.status(200).json({
         message: "Itinerary updated successfully",
@@ -696,20 +598,8 @@ exports.setApp = function (app, dbInstance) {
 
   // Endpoint for generating travel itinerary using Gemini
   app.post("/api/generate-itinerary", async (req, res) => {
-    var token = require("./createJWT.js");
     const { destination, duration, groupSize, preferences, jwtToken } =
       req.body;
-
-    // Check if the JWT token is expired
-    try {
-      if (token.isExpired(jwtToken)) {
-        var r = { error: "The jwt token is no longer valid", jwtToken: "" };
-        res.status(200).json(r);
-        return;
-      }
-    } catch (e) {
-      console.log(e.message);
-    }
 
     try {
       if (!destination || !duration || !groupSize) {
@@ -818,13 +708,6 @@ exports.setApp = function (app, dbInstance) {
 
         // Log the final itinerary for debugging
         console.log("Generated itinerary:", JSON.stringify(itinerary, null, 2));
-
-        var refreshedToken = null;
-        try {
-          refreshedToken = token.refreshedToken(jwtToken);
-        } catch (e) {
-          console.log(e.message);
-        }
 
         res.json(itinerary);
       } catch (parseError) {
