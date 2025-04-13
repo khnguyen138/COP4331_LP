@@ -5,3 +5,5 @@ gemini-test.js
 ecosystem.config.js
 sendgrid.env
 sendgrid.env
+*.json
+*.json
