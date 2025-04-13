@@ -1,4 +1,5 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
+import { useLocation } from "react-router-dom";
 import { Tabs, TabsTrigger, TabsContent } from "../../components/ui/tabs";
 import Login from "../authentication/Login";
 import Signup from "../authentication/Signup";
@@ -8,6 +9,14 @@ interface LoginSignupProps {
 }
 
 const LoginSignup: React.FC<LoginSignupProps> = ({ onLoginSuccess }) => {
+  const location = useLocation();
+  const [activeTab, setActiveTab] = useState("login");
+
+  useEffect(() => {
+    if (location.state?.showLogin) {
+      setActiveTab("login");
+    }
+  }, [location.state]);
   return (
     <div className="login-signup-wrapper">
       <div className="login-signup-header">
@@ -18,7 +27,7 @@ const LoginSignup: React.FC<LoginSignupProps> = ({ onLoginSuccess }) => {
         </p>
       </div>
 
-      <Tabs defaultValue="login">
+      <Tabs defaultValue={activeTab}>
         <TabsTrigger value="login">Log In</TabsTrigger>
         <TabsTrigger value="signup">Sign Up</TabsTrigger>
 

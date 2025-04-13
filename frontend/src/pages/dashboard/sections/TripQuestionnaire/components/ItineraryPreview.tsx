@@ -134,7 +134,7 @@ const ItineraryPreview: React.FC<ItineraryPreviewProps> = ({
         </p>
         <div className={styles.previewPlaceholder}>
           <div className={styles.previewIcon}>
-            <span>✈️</span>
+            <span>🧞</span>
           </div>
         </div>
       </div>

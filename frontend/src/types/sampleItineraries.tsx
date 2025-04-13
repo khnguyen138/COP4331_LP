@@ -1309,7 +1309,7 @@ export const sampleItineraries: SampleItinerary[] = [
     "description": "A 10-day journey through Peru, blending the awe-inspiring wonder of Machu Picchu with rich cultural experiences, outdoor adventures, and opportunities for relaxation, tailored for a group of five.",
     "image": "https://upload.wikimedia.org/wikipedia/commons/e/eb/Machu_Picchu%2C_Peru.jpg",
     "price": 3500,
-    "tags": ["cultural", "outdoor", "food", "relaxation"],
+    "tags": ["culture", "outdoor", "food", "adventure"],
     "dailyBreakdown": [
       {
         "day": 1,

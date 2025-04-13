@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect, use } from "react";
 import { Container, Form, Button, Modal, ProgressBar } from "react-bootstrap";
 import "./UserProfile.css";
 
@@ -7,14 +7,15 @@ const UserProfile: React.FC = () => {
   const [showModal, setShowModal] = useState(false);
 
   const [profileImage, setProfileImage] = useState<string | null>(null);
-  const [firstName, setFirst] = useState("John");
-  const [lastName, setLast] = useState("Doe");
-  const [email, setEmail] = useState("john.doe@example.com");
+  const [firstName, setFirst] = useState("");
+  const [lastName, setLast] = useState("");
+  const [email, setEmail] = useState("");
   const [password] = useState("password");
+  const [currentPass, setCurrentPass] = useState("");
   const [newPass, setNewPass] = useState("");
   const [confirmPass, setConfirmPass] = useState("");
 
-  const confirmedTrips = 3;
+  {/* const confirmedTrips = 3;
   const upcomingTrips = 2;
   const totalTrips = 5;
 
@@ -27,7 +28,40 @@ const UserProfile: React.FC = () => {
       };
       reader.readAsDataURL(file);
     }
-  };
+  }; */}
+
+  useEffect(() => {
+    // get user data from the backend
+    const getUserData = async () => {
+      try {
+        // get user id
+        const user = JSON.parse(localStorage.getItem("user") || "{}");
+        console.log("Local user:", user);
+        const userId = user.userId;
+
+        // send to backend
+        const response = await fetch("http://localhost:5000/api/get-user", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ userId }),
+        });
+
+        const data = await response.json();
+        if (response.ok) {
+          setFirst(data.firstName);
+          setLast(data.lastName);
+          setEmail(data.email);
+        } else {
+          console.error(data.error);
+        }
+      } catch (error) {
+        console.error("Error fetching user data:", error);
+      }
+    };
+
+    getUserData();
+  }
+    , []);
 
   const handleModalToggle = () => {
     setShowModal(!showModal);
@@ -37,7 +71,7 @@ const UserProfile: React.FC = () => {
     try {
       // get user id
       const user = JSON.parse(localStorage.getItem("user") || "{}");
-      const userId = user.UserId;
+      const userId = user.userId;
 
       // check if passwords match before sending to backend
       if (newPass !== confirmPass) {
@@ -51,7 +85,7 @@ const UserProfile: React.FC = () => {
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({ userId, password: newPass }),
+        body: JSON.stringify({ userId, currentPassword: currentPass, password: newPass }),
       });
 
       // server response
@@ -72,7 +106,7 @@ const UserProfile: React.FC = () => {
     try {
       // get user id
       const user = JSON.parse(localStorage.getItem("user") || "{}");
-      const userId = user.UserId;
+      const userId = user.userId;
 
       // send to backend
       const response = await fetch("http://localhost:5000/api/editUser", {
@@ -109,7 +143,8 @@ const UserProfile: React.FC = () => {
       </div>
 
       <div className="container mt-5 profile-layout">
-        <div className="left-panel">
+
+        {/* <div className="left-panel">
           <img
             src={profileImage || "/default-avatar.png"}
             alt="Profile"
@@ -125,27 +160,12 @@ const UserProfile: React.FC = () => {
             onChange={handleImageChange}
             className="form-control mt-2"
           />
-        </div>
+        </div> */}
 
         <div className="right-panel">
-          {/* Stats Box */}
-          <div className="profile-box mb-4">
-            <h5 className="mb-2">User Statistics</h5>
-            <p className="mb-1">Confirmed Trips:</p>
-            <ProgressBar
-              now={(confirmedTrips / totalTrips) * 100}
-              label={`${confirmedTrips}`}
-              className="mb-3"
-            />
-
-            <p className="mb-1">Upcoming Trips:</p>
-            <ProgressBar
-              variant="info"
-              now={(upcomingTrips / totalTrips) * 100}
-              label={`${upcomingTrips}`}
-            />
-          </div>
-
+          <h6 className="display-6 mb-3">
+            {firstName} {lastName}
+          </h6>
           {/* Personal Info */}
           <div className="profile-box mb-4">
             <div className="d-flex justify-content-between">
@@ -225,6 +245,15 @@ const UserProfile: React.FC = () => {
           <Modal.Title>Change Password</Modal.Title>
         </Modal.Header>
         <Modal.Body>
+          <Form.Group className="mb-3">
+            <Form.Label>Current Password</Form.Label>
+            <Form.Control
+              type="password"
+              placeholder="Enter current password"
+              value={currentPass}
+              onChange={(e) => setCurrentPass(e.target.value)}
+            />
+          </Form.Group>
           <Form.Group className="mb-3">
             <Form.Label>New Password</Form.Label>
             <Form.Control
