@@ -97,7 +97,6 @@ const NavigationBar = forwardRef<NavigationBarRef, NavigationBarProps>(
                 </Nav.Link>
                 {isLoggedIn ? (
                   <>
-                    <Nav.Link>Welcome, {user?.firstName || "User"}</Nav.Link>
                     <Nav.Link onClick={onLogout}>Sign Out</Nav.Link>
                   </>
                 ) : (
