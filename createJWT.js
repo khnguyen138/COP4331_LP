@@ -32,7 +32,7 @@ _createToken = function ( fn, ln, id )
 
 exports.isExpired = function ( token )
 {
-    var isError = jwt.verify( token, process.abort.env.ACCESS_TOKEN_SECRET, (err, verifiedJwt) =>
+    var isError = jwt.verify( token, process.env.ACCESS_TOKEN_SECRET, (err, verifiedJwt) =>
     {
         if( err )
         {

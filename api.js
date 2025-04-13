@@ -49,12 +49,12 @@ exports.setApp = function (app, dbInstance) {
     // Include userId and current timestamp to increase uniqueness
     let baseString = itinerary + userId + Date.now();
     let itineraryId = hashStringToInt(baseString);
-    let existing = await Itinerary.findOne({ ItineraryID: itineraryId });
+    let existing = await Itinerary.findOne({ ItineraryId: itineraryId });
 
     // If a collision is found, increment until a unique itineraryId is found.
     while (existing) {
       itineraryId++;
-      existing = await Itinerary.findOne({ ItineraryID: itineraryId });
+      existing = await Itinerary.findOne({ ItineraryId: itineraryId });
     }
     return itineraryId;
   }
@@ -419,7 +419,7 @@ exports.setApp = function (app, dbInstance) {
       // Send a success response
       res.status(200).json({
         message: "Itinerary added successfully",
-        ItineraryId: savedItinerary.ItineraryID,
+        ItineraryId: savedItinerary.ItineraryId,
       });
     } catch (e) {
       // handle any errors that occur during itinerary addition
