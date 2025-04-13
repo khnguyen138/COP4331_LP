@@ -21,7 +21,7 @@ const VerifyEmail: React.FC = () => {
 
       try {
         const response = await fetch(
-          `http://localhost:5000/api/verify-email/${token}`
+          `http://travelinggenie.com/api/verify-email/${token}`
         );
         const data = await response.json();
 

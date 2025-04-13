@@ -15,7 +15,8 @@ const UserProfile: React.FC = () => {
   const [newPass, setNewPass] = useState("");
   const [confirmPass, setConfirmPass] = useState("");
 
-  {/* const confirmedTrips = 3;
+  {
+    /* const confirmedTrips = 3;
   const upcomingTrips = 2;
   const totalTrips = 5;
 
@@ -28,7 +29,8 @@ const UserProfile: React.FC = () => {
       };
       reader.readAsDataURL(file);
     }
-  }; */}
+  }; */
+  }
 
   useEffect(() => {
     // get user data from the backend
@@ -40,11 +42,14 @@ const UserProfile: React.FC = () => {
         const userId = user.userId;
 
         // send to backend
-        const response = await fetch("http://localhost:5000/api/get-user", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ userId }),
-        });
+        const response = await fetch(
+          "https://travelinggenie.com/api/get-user",
+          {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ userId }),
+          }
+        );
 
         const data = await response.json();
         if (response.ok) {
@@ -60,8 +65,7 @@ const UserProfile: React.FC = () => {
     };
 
     getUserData();
-  }
-    , []);
+  }, []);
 
   const handleModalToggle = () => {
     setShowModal(!showModal);
@@ -80,12 +84,16 @@ const UserProfile: React.FC = () => {
       }
 
       // send to backend
-      const response = await fetch("http://localhost:5000/api/editUser", {
+      const response = await fetch("https://travelinggenie.com/api/editUser", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({ userId, currentPassword: currentPass, password: newPass }),
+        body: JSON.stringify({
+          userId,
+          currentPassword: currentPass,
+          password: newPass,
+        }),
       });
 
       // server response
@@ -109,7 +117,7 @@ const UserProfile: React.FC = () => {
       const userId = user.userId;
 
       // send to backend
-      const response = await fetch("http://localhost:5000/api/editUser", {
+      const response = await fetch("https://travelinggenie.com/api/editUser", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -143,7 +151,6 @@ const UserProfile: React.FC = () => {
       </div>
 
       <div className="container mt-5 profile-layout">
-
         {/* <div className="left-panel">
           <img
             src={profileImage || "/default-avatar.png"}

@@ -38,13 +38,16 @@ const ItineraryPage = () => {
       const jwtToken = JSON.parse(localStorage.getItem("jwtToken") || '""');
 
       // send to backend
-      const response = await fetch("http://localhost:5000/api/addItinerary", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ userId, itinerary, jwtToken }),
-      });
+      const response = await fetch(
+        "https://travelinggenie.com/api/addItinerary",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ userId, itinerary, jwtToken }),
+        }
+      );
 
       // server response
       const data = await response.json();

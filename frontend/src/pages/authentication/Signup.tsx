@@ -27,7 +27,7 @@ const Signup: React.FC = () => {
     }
 
     try {
-      const response = await fetch("http://localhost:5000/api/register", {
+      const response = await fetch("http:travelinggenie/api/register", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -49,7 +49,10 @@ const Signup: React.FC = () => {
         setLogin("");
         setPassword("");
         // Redirect to login after 5 seconds
-        setTimeout(() => navigate("/loginsignup", { state: { showLogin: true } }), 5000);
+        setTimeout(
+          () => navigate("/loginsignup", { state: { showLogin: true } }),
+          5000
+        );
       }
     } catch (error) {
       setError("An error occurred during signup.");

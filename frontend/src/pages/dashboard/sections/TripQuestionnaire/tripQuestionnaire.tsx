@@ -56,7 +56,7 @@ const TripQuestionnaire: React.FC<TripQuestionnaireProps> = ({
 
       try {
         const response = await fetch(
-          "http://localhost:5000/api/generate-itinerary",
+          "https://travelinggenie.com/api/generate-itinerary",
           {
             method: "POST",
             headers: {
@@ -219,23 +219,23 @@ const TripQuestionnaire: React.FC<TripQuestionnaireProps> = ({
   return (
     <Container className="py-5">
       <div className={`${styles.qWrapper} ${isSidebar ? styles.sidebar : ""}`}>
-        <div className={styles.qContainer}>
-          <div className="p-4">
-            {!isSidebar && (
-              <div className={styles.qHeader}>
-                <h2 className={styles.title}>Plan Your Trip</h2>
-                <div className={styles.exitButton} onClick={handleExit}>
-                  &times;
+        {!itinerary ? (
+          <div className={styles.qContainer}>
+            <div className="p-4">
+              {!isSidebar && (
+                <div className={styles.qHeader}>
+                  <h2 className={styles.title}>Plan Your Trip</h2>
+                  <div className={styles.exitButton} onClick={handleExit}>
+                    &times;
+                  </div>
                 </div>
-              </div>
-            )}
-            {error && <Alert variant="danger">{error}</Alert>}
-            {success && <Alert variant="success">{success}</Alert>}
-            <TripForm onSubmit={handleSubmit} loading={loading} />
+              )}
+              {error && <Alert variant="danger">{error}</Alert>}
+              {success && <Alert variant="success">{success}</Alert>}
+              <TripForm onSubmit={handleSubmit} loading={loading} />
+            </div>
           </div>
-        </div>
-
-        {!isSidebar && (
+        ) : (
           <div className={styles.previewContainer}>
             <ItineraryPreview itinerary={itinerary} onEdit={handleEdit} />
           </div>

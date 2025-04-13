@@ -23,9 +23,10 @@
   border-radius: 12px;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
   overflow-y: auto;
-  max-width: none;
-  margin: 0;
+  max-width: 800px;
+  margin: 0 auto;
   max-height: calc(100vh - 4rem);
+  width: 100%;
 }
 
 .qHeader {
@@ -79,9 +80,9 @@
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
   overflow-y: auto;
   max-height: calc(100vh - 4rem);
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
+  width: 100%;
+  max-width: 800px;
+  margin: 0 auto;
 }
 
 .previewPlaceholder {
@@ -272,24 +273,12 @@
     min-height: 100vh;
   }
 
-  .qContainer {
-    max-width: none;
+  .qContainer,
+  .previewContainer {
+    max-width: 100%;
     margin-bottom: 1rem;
     height: auto;
-    max-height: 50vh;
-  }
-
-  .previewContainer {
-    width: 100%;
-    position: relative;
-    top: 0;
-    height: auto;
-    max-height: 50vh;
-    margin-left: 0;
-  }
-
-  .contentSection {
-    height: auto;
+    max-height: none;
   }
 }
 
