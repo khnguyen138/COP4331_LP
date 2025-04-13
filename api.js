@@ -730,7 +730,6 @@ exports.setApp = function (app, dbInstance) {
         "duration": ${duration},
         "groupSize": ${groupSize},
         "description": "Brief trip description",
-        "image": "URL to a relevant image",
         "price": 0,
         "tags": ["tag1", "tag2"],
         "dailyBreakdown": [
@@ -844,37 +843,6 @@ exports.setApp = function (app, dbInstance) {
       });
     }
   });
-
-  /*
-  function parseItineraryResponse(text) {
-    // Split the text into days
-    const days = text.split(/Day \d+:/i).filter((day) => day.trim());
-
-    return days.map((day) => {
-      const activities = day
-        .split(/\n+/)
-        .filter((line) => line.trim() && !line.toLowerCase().includes("day"))
-        .map((line) => {
-          // Extract time, activity, and cost if available
-          const timeMatch = line.match(/(\d{1,2}:\d{2}\s*[AaPp][Mm])/);
-          const time = timeMatch ? timeMatch[1] : "";
-          const activity = line
-            .replace(timeMatch ? timeMatch[0] : "", "")
-            .trim();
-
-          return {
-            time,
-            activity,
-            cost: extractCost(line),
-          };
-        });
-
-      return {
-        activities,
-      };
-    });
-  }
-  */
 
   function extractCost(line) {
     const costMatch = line.match(/\$\d+/);
