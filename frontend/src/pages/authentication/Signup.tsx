@@ -77,10 +77,7 @@ const Signup: React.FC<SignupProps> = ({ onSignupSuccess }) => {
         setPassword("");
 
         // Redirect to login after 5 seconds
-        setTimeout(
-          () => navigate("/loginsignup", { state: { showLogin: true } }),
-          5000
-        );
+        setTimeout(() => navigate("/"), 5000);
       }
     } catch (error) {
       setError("An error occurred during signup.");

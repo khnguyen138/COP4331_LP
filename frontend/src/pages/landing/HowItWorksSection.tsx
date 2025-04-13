@@ -15,12 +15,6 @@ export const HowItWorksSection: React.FC = () => {
         "Tell us about your travel style, interests, and any must-see places.",
     },
     {
-      icon: <UsersIcon size={40} />,
-      title: "Invite Your Travel Companions",
-      description:
-        "Add friends and family to collaborate on planning your trip together.",
-    },
-    {
       icon: <CalendarIcon size={40} />,
       title: "Get Your AI-Generated Itinerary",
       description:
@@ -42,9 +36,9 @@ export const HowItWorksSection: React.FC = () => {
             Planning your dream trip is just a few steps away
           </p>
         </div>
-        <div className="row">
+        <div className="row justify-content-center text-center">
           {steps.map((step, index) => (
-            <div key={index} className="col-md-6 col-lg-3 mb-4">
+            <div key={index} className="col-md-6 col-lg-3 mb-4 d-flex justify-content-center">
               <div className="d-flex flex-column align-items-center">
                 <div
                   className="rounded-circle d-flex align-items-center justify-content-center"

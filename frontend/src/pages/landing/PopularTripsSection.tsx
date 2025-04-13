@@ -104,7 +104,7 @@ const PopularTripsSection: React.FC = () => {
                         </div>
                         <div className="d-flex align-items-center me-3">
                           <CalendarIcon size={16} className="me-1" />
-                          <span className="text-muted">{selectedTrip.duration} days</span>
+                          <span className="text-muted">{selectedTrip.duration}</span>
                         </div>
                         <div className="d-flex align-items-center me-3">
                           <UsersIcon size={16} className="me-1" />
